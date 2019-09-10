@@ -9,7 +9,8 @@ using web_api.Models;
 
 namespace web_api.Controllers
 {
-    public class UsersController : ApiController
+    [RoutePrefix("api/User")]
+    public class UserController : ApiController
     {
         // GET api/users
         public IHttpActionResult Get()
@@ -27,7 +28,7 @@ namespace web_api.Controllers
 
 
         // GET api/users/1
-        //[Route("{id:int:min(1)}", Name = "GetUserById")]
+        [Route("{id:int:min(1)}", Name = "GetUserById")]
         public IHttpActionResult Get(int id)
         {
             try
@@ -45,18 +46,39 @@ namespace web_api.Controllers
         }
 
         // POST api/users
+        [HttpPost]
+        [Route("Register")]
         public IHttpActionResult PostRegister([FromBody]User user)
         {
             try
             {
                 User u = _BAL.Register(user.Email, user.Password);
 
-                return Created(new Uri(Request.RequestUri.AbsoluteUri + u.ID), u);
+                return Created(new Uri(Url.Link("GetUserById", new { id = u.ID })), u);
+                //return Created(new Uri(Request.RequestUri.AbsoluteUri + u.ID), u);
             }
             catch (Exception ex)
             {
                 // maybe to write into a file log
                 return BadRequest("user already exist -> " + ex.Message);
+            }
+        }
+
+        // POST api/users
+        [HttpPost]
+        [Route("Login")]
+        public IHttpActionResult PostLogin([FromBody]User user)
+        {
+            try
+            {
+                User u = _BAL.Login(user.Email, user.Password);
+
+                return Ok(u.ID);
+            }
+            catch (Exception ex)
+            {
+                // maybe to write into a file log
+                return BadRequest("Incorrect username or password -> " + ex.Message);
             }
         }
 

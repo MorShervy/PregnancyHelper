@@ -1,9 +1,17 @@
 
 
 
+------------------------------------------- טבלאות -------------------------------------------
 
-
-
+CREATE TABLE [dbo].[TBUsers](
+	[UserID] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	[FirstName] [nvarchar](30) NULL,
+	[LastName] [nvarchar](30) NULL,
+	[Email] [nvarchar](50) NOT NULL,
+	[Password] [nvarchar](50) NOT NULL,
+	[RegistrationDate] [nvarchar](50) NOT NULL,
+	)
+GO
 
 
 
@@ -17,6 +25,8 @@
 CREATE PROC GetUsers
 AS
 SELECT * FROM TBUsers
+
+EXEC GetUsers
 
 ALTER PROC Register (
 	@Email nvarchar(50),
