@@ -1,25 +1,60 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Button } from 'react-native';
+import React, { Component } from 'react';
+import { View, I18nManager } from 'react-native';
+import { createAppContainer } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation-stack';
+import { Asset } from 'expo-asset';
+import { AppLoading } from 'expo';
+import { useKeepAwake } from 'expo-keep-awake';
+import AuthNavigation from './AuthNavigation';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Final Project - React Native with Expo</Text>
-      <Button title="hello"></Button>
-      <TouchableOpacity
-        style={{ height: 35, width: "auto", backgroundColor: "#faa" }}
-      >
-        <Text>I`m Touchableopacity stam</Text>
-      </TouchableOpacity>
-    </View>
-  );
+I18nManager.forceRTL(false);
+
+
+export default class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isReady: false,
+    };
+  }
+
+
+
+  async _cacheResourcesAsync() {
+    const images = [require('./assets/images/bgpic.png')];
+
+    const cacheImages = images.map(image => {
+      return Asset.fromModule(image).downloadAsync();
+    });
+    return Promise.all(cacheImages);
+  }
+
+  render() {
+
+
+    return (
+      !this.state.isReady ?
+        <AppLoading
+          startAsync={this._cacheResourcesAsync}
+          onFinish={() => this.setState({ isReady: true })}
+          onError={console.warn}
+        />
+        :
+        <AppContainer />
+    );
+  }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+const RootStack = createStackNavigator(
+  {
+    AuthNavigation,
   },
-});
+  {
+    initialRouteName: 'AuthNavigation',
+    defaultNavigationOptions: {
+      header: null,
+    }
+  }
+)
+
+const AppContainer = createAppContainer(RootStack)
