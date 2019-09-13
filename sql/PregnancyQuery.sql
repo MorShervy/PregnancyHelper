@@ -28,7 +28,7 @@ SELECT * FROM TBUsers
 
 EXEC GetUsers
 
-ALTER PROC Register (
+CREATE PROC Register (
 	@Email nvarchar(50),
 	@Password nvarchar(50),
 	@RegistrationDate nvarchar(50)
