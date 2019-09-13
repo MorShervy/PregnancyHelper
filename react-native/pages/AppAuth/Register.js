@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { StyleSheet, View, Text, TextInput, Dimensions, DatePickerAndroid, TouchableOpacity, BackHandler } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import { HeaderBackButton } from 'react-navigation-stack';
+import DueDate from '../../handlers/DueDate';
+import SQL from '../../handlers/SQL';
 
 const { height, width } = Dimensions.get("window");
 
@@ -22,10 +24,10 @@ export default class Register extends Component {
         this.state = {
             email: '',
             pass: '',
-            dueDateToShow: 'Due Date/Child`s Birth...',
-            dueDate: '',
-            selectDateToShow: 'Select a date',
-            selectedDate: '',
+            childBirthToShow: 'Due Date/Child`s Birth...',
+            childBirthDate: '',
+            lastMenstrualPeriodToShow: 'Select a date',
+            lastMenstrualPeriodDate: '',
             isFocusedEmail: false,
             isFocusedPass: false,
             errorEmail: false,
@@ -35,8 +37,17 @@ export default class Register extends Component {
         }
     }
 
-    static navigationOptions = ({ navigation }) => {
+    componentDidMount = () => {
+        // adding the event listener for back button android
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
+    }
 
+    componentWillUnmount = () => {
+        // removing the event listener for back button android
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
+    }
+
+    static navigationOptions = ({ navigation }) => {
         return {
             // ovverride back button header functionality
             headerLeft: (<HeaderBackButton
@@ -51,22 +62,14 @@ export default class Register extends Component {
         }
     }
 
-    componentDidMount = () => {
-        // adding the event listener for back button android
-        BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
-    }
-
-    componentWillUnmount = () => {
-        // removing the event listener for back button android
-        BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
-    }
-
     // handle back button android
     handleBackButton = async () => {
         const { navigation } = this.props
         if (navigation.state.params !== undefined && navigation.state.params.showCalc) {
             await navigation.setParams({ showCalc: false })
-            this.setState({ showCalc: false })
+            this.setState({
+                showCalc: false,
+            })
         }
         else {
             navigation.goBack()
@@ -102,46 +105,78 @@ export default class Register extends Component {
     }
 
     render() {
-        const { email, pass, dueDate } = this.state;
+        const { email, pass, childBirthDate } = this.state;
         const { errorEmail, errorPass, errorDate } = this.state;
         const { isFocusedEmail, isFocusedPass, isVisiblePass } = this.state;
-        const { dueDateToShow, selectDateToShow } = this.state;
+        const { childBirthToShow, lastMenstrualPeriodToShow, lastMenstrualPeriodDate } = this.state;
         const { navigation } = this.props;
-
-        toggleVisiblePass = () => {
-            this.setState({ isVisiblePass: !isVisiblePass })
-        }
-
-        handleOnPressDatePicker = async () => {
-            console.log('check=', this.props.navigation.state.params)
-            try {
-                const { action, year, month, day } = await DatePickerAndroid.open({
-                    //maxDate: new Date(),
-                    mode: 'default' // spiner or calender
-                });
-                if (action === DatePickerAndroid.dateSetAction) {
-                    this.setState({
-                        dueDate: `${month + 1}/${day}/${year}`,
-                        dueDateToShow: new Date(`${month + 1}/${day}/${year}`).toDateString(),
-                        selectDateToShow: new Date(`${month + 1}/${day}/${year}`).toDateString()
-                    });
-                }
-
-            } catch ({ code, message }) {
-                console.log('Cannot open date picker', message);
-            }
-        }
 
         handleOnPressRegister = async () => {
             const isPassed = handleInputTesting()
             if (!isPassed)
                 return;
 
+            // clear error states
+            this.setState({ errorEmail: false, errorPass: false, errorDate: false, })
 
+            const sqlResult = await SQL.Register(email, pass);
+            console.log('res=', sqlResult)
         }
 
-        handleOnPressCalculate = () => {
+        toggleVisiblePass = () => {
+            this.setState({ isVisiblePass: !isVisiblePass })
+        }
 
+        handleOnPressDatePickerChildBirth = async () => {
+            const date = new Date()
+            let maxDueDateByCurDate = new Date(DueDate.CalculateChildBirthByLastMenstrual(date));
+            try {
+                const { action, year, month, day } = await DatePickerAndroid.open({
+                    maxDate: maxDueDateByCurDate, // 
+                    mode: 'default' // spiner or calender
+                });
+                if (action === DatePickerAndroid.dateSetAction) {
+                    this.setState({
+                        childBirthDate: `${month + 1}/${day}/${year}`,
+                        childBirthToShow: new Date(`${month + 1}/${day}/${year}`).toDateString().substring(4),
+                    });
+                }
+            } catch ({ code, message }) {
+                console.log('Cannot open date picker', message);
+            }
+        }
+
+        handleOnPressDatePickerLastMenstrual = async () => {
+            try {
+                const { action, year, month, day } = await DatePickerAndroid.open({
+                    maxDate: new Date(),
+                    mode: 'default' // spiner or calender
+                });
+                if (action === DatePickerAndroid.dateSetAction) {
+                    this.setState({
+                        lastMenstrualPeriodToShow: new Date(`${month + 1}/${day}/${year}`).toDateString().substring(4),
+                        lastMenstrualPeriodDate: `${month + 1}/${day}/${year}`,
+                    });
+                }
+            } catch ({ code, message }) {
+                console.log('Cannot open date picker', message);
+            }
+        }
+
+
+        handleOnPressCalculate = async () => {
+            const { lastMenstrualPeriodDate } = this.state;
+            const date = new Date(lastMenstrualPeriodDate)
+            date.getDay();
+            //console.log('lastMenstrualPeriodDate=', date.getFullYear(), date.getMonth() + 1, date.getDate())
+            const estimateDueDate = DueDate.CalculateChildBirthByLastMenstrual(date);
+            //console.log('childBirth=', estimateDueDate);
+            this.setState({
+                childBirthDate: estimateDueDate,
+                childBirthToShow: new Date(estimateDueDate).toDateString().substring(4),
+            })
+
+            await navigation.setParams({ showCalc: false })
         }
 
         handleInputTesting = () => {
@@ -164,7 +199,7 @@ export default class Register extends Component {
                 return false;
             }
             // datepicker test
-            if (dueDate === '') {
+            if (childBirthDate === '') {
                 this.setState({
                     errorEmail: false,
                     errorPass: false,
@@ -176,31 +211,61 @@ export default class Register extends Component {
         }
 
         renderCalcDueDate = async () => {
+            this.setState({
+                lastMenstrualPeriodToShow: 'Select a date',
+                lastMenstrualPeriodDate: '',
+            })
             await this.props.navigation.setParams({ showCalc: true })
         }
 
         return (
             navigation.state.params !== undefined && navigation.state.params.showCalc
                 ?
+                // last menstrual period view
                 <View style={styles.page}>
                     <View style={[styles.body, { top: 20 }]}>
                         <Text style={styles.txtHeaderStyle}>What was the first day{`\n`}of your last menstrual{`\n`}period?</Text>
                         {/* select last menstrual for calculate due date */}
+                        {
+                            (lastMenstrualPeriodDate !== '' &&
+                                <Text
+                                    style={{
+                                        color: GREY_COLOR,
+                                        fontSize: 10,
+                                        marginBottom: -20,
+                                        left: 27,
+                                        fontSize: 12
+                                    }}
+                                >
+                                    Select a date
+                                    </Text>
+                            )
+                        }
                         <View style={{ flexDirection: 'row' }}>
-                            <Ionicons name="md-calendar" size={35} color={APP_COLOR} style={{ top: 10, right: 10 }} />
+                            <Ionicons name="md-calendar" size={35} color={APP_COLOR} style={{ top: 20, right: 10 }} />
                             <TouchableOpacity
                                 style={styles.btnSelectDate}
-                                onPress={handleOnPressDatePicker}
+                                onPress={handleOnPressDatePickerLastMenstrual}
+
                             >
-                                <Text style={styles.txtDueDateStyle}>{selectDateToShow}</Text>
+                                <Text
+                                    style={[
+                                        styles.txtDueDateStyle,
+                                        { color: lastMenstrualPeriodDate === '' ? GREY_COLOR : '#000' }
+                                    ]}
+                                >
+                                    {lastMenstrualPeriodToShow}
+                                </Text>
 
                             </TouchableOpacity>
                         </View>
                         {/* button track my baby */}
                         <View style={{ marginTop: 30 }}>
                             <TouchableOpacity
-                                disabled={false}
-                                style={[styles.btnStyle, { backgroundColor: APP_COLOR }]}
+                                disabled={lastMenstrualPeriodDate === '' ? true : false}
+                                style={[
+                                    styles.btnStyle,
+                                    { backgroundColor: lastMenstrualPeriodDate === '' ? GREY_COLOR : APP_COLOR }]}
                                 onPress={handleOnPressCalculate}
                             >
                                 <Text style={styles.txtBtnStyle}>Calculate</Text>
@@ -209,6 +274,7 @@ export default class Register extends Component {
                     </View>
                 </View>
                 :
+                // register view
                 <View style={styles.page}>
                     <View style={styles.body}>
                         {/* header title */}
@@ -218,83 +284,128 @@ export default class Register extends Component {
                         <View style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
 
                             {/* email */}
-                            {isFocusedEmail && <Text style={{ color: GREEN_COLOR, fontSize: 10, marginBottom: -20 }}>Email</Text>}
-                            <TextInput
-                                onFocus={this.onFocusEmail}
-                                onBlur={this.onBlurEmail}
-                                placeholderTextColor={isFocusedEmail ? GREEN_COLOR : null}
-                                style={
-                                    [styles.txtInputStyle,
-                                    errorEmail && { borderBottomColor: '#F00' },
-                                    isFocusedEmail && styles.txtInputFocusStyle,
-                                    ]}
-                                placeholder={!isFocusedEmail ? 'Email' : null}
-                                keyboardType="email-address"
-                                value={this.state.email}
-                                onChangeText={email => this.setState({ email })}
-                            />
-
-                            {/* error email */}
-                            {!errorEmail ? null
-                                :
-                                <Text style={styles.errorTxtStyle}>The email address you entered is invalid</Text>
-                            }
-
-                            {/* password */}
-                            {isFocusedPass && <Text style={{ color: GREEN_COLOR, fontSize: 10, marginBottom: -20 }}>Password</Text>}
-                            <View style={{ flexDirection: 'row' }}>
+                            <View style={{ marginBottom: 10 }}>
+                                {
+                                    (isFocusedEmail || email !== '') &&
+                                    <Text
+                                        style={{
+                                            color: isFocusedEmail ? GREEN_COLOR : GREY_COLOR,
+                                            fontSize: 12,
+                                            marginBottom: -20
+                                        }}
+                                    >Email
+                                    </Text>
+                                }
                                 <TextInput
-                                    onFocus={this.onFocusPass}
-                                    onBlur={this.onBlurPass}
-                                    placeholderTextColor={isFocusedPass ? GREEN_COLOR : null}
+                                    onFocus={this.onFocusEmail}
+                                    onBlur={this.onBlurEmail}
+                                    placeholderTextColor={isFocusedEmail ? GREEN_COLOR : null}
                                     style={
                                         [styles.txtInputStyle,
-                                        errorPass && { borderBottomColor: '#F00' },
-                                        isFocusedPass && styles.txtInputFocusStyle
+                                        errorEmail && { borderBottomColor: '#F00' },
+                                        isFocusedEmail && styles.txtInputFocusStyle,
                                         ]}
-                                    placeholder={!isFocusedPass ? 'Password' : null}
-                                    secureTextEntry={!isVisiblePass}
-                                    value={this.state.pass}
-                                    onChangeText={pass => this.setState({ pass })}
+                                    placeholder={!isFocusedEmail ? 'Email' : null}
+                                    keyboardType="email-address"
+                                    value={this.state.email}
+                                    onChangeText={email => this.setState({ email })}
                                 />
-                                <TouchableOpacity
-                                    style={{ right: 25, top: 15 }}
-                                    onPress={toggleVisiblePass}
-                                >
-                                    <Ionicons
 
-                                        name={isVisiblePass ? "md-eye-off" : "md-eye"}
-                                        size={25}
-                                        color={GREY_COLOR} />
-                                </TouchableOpacity>
+                                {/* error email */}
+                                {!errorEmail ? null
+                                    :
+                                    <Text style={styles.errorTxtStyle}>The email address you entered is invalid</Text>
+                                }
                             </View>
-                            {/* error password */}
-                            {!errorPass ? null
-                                :
-                                <Text style={styles.errorTxtStyle}>
-                                    Password must include at least 8
+
+                            {/* password */}
+                            <View style={{ marginBottom: 10 }}>
+                                {
+                                    (isFocusedPass || pass !== '') &&
+                                    <Text
+                                        style={{
+                                            color: isFocusedPass ? GREEN_COLOR : GREY_COLOR,
+                                            fontSize: 12,
+                                            marginBottom: -20
+                                        }}
+                                    >Password
+                             </Text>
+                                }
+                                <View style={{ flexDirection: 'row' }}>
+                                    <TextInput
+                                        onFocus={this.onFocusPass}
+                                        onBlur={this.onBlurPass}
+                                        placeholderTextColor={isFocusedPass ? GREEN_COLOR : null}
+                                        style={
+                                            [styles.txtInputStyle,
+                                            errorPass && { borderBottomColor: '#F00' },
+                                            isFocusedPass && styles.txtInputFocusStyle
+                                            ]}
+                                        placeholder={!isFocusedPass ? 'Password' : null}
+                                        secureTextEntry={!isVisiblePass}
+                                        value={this.state.pass}
+                                        onChangeText={pass => this.setState({ pass })}
+                                    />
+                                    <TouchableOpacity
+                                        style={{ right: 25, top: 15 }}
+                                        onPress={toggleVisiblePass}
+                                    >
+                                        <Ionicons
+
+                                            name={isVisiblePass ? "md-eye-off" : "md-eye"}
+                                            size={25}
+                                            color={GREY_COLOR} />
+                                    </TouchableOpacity>
+                                </View>
+                                {/* error password */}
+                                {!errorPass ? null
+                                    :
+                                    <Text style={styles.errorTxtStyle}>
+                                        Password must include at least 8
                                     characters;letters,numbers,and/or{'\n'}
-                                    symbols
+                                        symbols
                                 </Text>
-                            }
+                                }
+                            </View>
 
                             {/* due date */}
-                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-                                <TouchableOpacity
-                                    style={styles.btnDueDateStyle}
-                                    onPress={handleOnPressDatePicker}
-                                >
-                                    <Text style={styles.txtDueDateStyle}>{dueDateToShow}</Text>
+                            <View style={{ marginBottom: 10 }}>
+                                {
+                                    (childBirthDate !== '' &&
+                                        <Text
+                                            style={{
+                                                color: GREY_COLOR,
+                                                fontSize: 12,
+                                                marginBottom: -20
+                                            }}
+                                        >
+                                            Due Date/Child`s Birth...
+                                    </Text>
+                                    )
+                                }
+                                <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+                                    <TouchableOpacity
+                                        style={styles.btnDueDateStyle}
+                                        onPress={handleOnPressDatePickerChildBirth}
+                                    >
+                                        <Text
+                                            style={[
+                                                styles.txtDueDateStyle,
+                                                { color: childBirthDate === '' ? GREY_COLOR : '#000' }
+                                            ]}
+                                        >{childBirthToShow}
+                                        </Text>
 
-                                </TouchableOpacity>
-                                <Ionicons name="md-calendar" size={35} color={APP_COLOR} style={{ left: 10, top: 12 }} />
+                                    </TouchableOpacity>
+                                    <Ionicons name="md-calendar" size={35} color={APP_COLOR} style={{ left: 10, top: 12 }} />
+                                </View>
+
+                                {/* error due date */}
+                                {!errorDate ? null
+                                    :
+                                    <Text style={styles.errorTxtStyle}>Please enter a date</Text>
+                                }
                             </View>
-
-                            {/* error due date */}
-                            {!errorDate ? null
-                                :
-                                <Text style={styles.errorTxtStyle}>Please enter a date</Text>
-                            }
 
                             {/* calculate due date */}
                             <View style={styles.dueDateCalcStyle}>
@@ -336,7 +447,7 @@ const styles = StyleSheet.create({
     txtInputStyle: { width: width - 50, height: 50, fontSize: 17, paddingTop: 10, borderBottomColor: GREY_COLOR, borderBottomWidth: 1, },
     txtInputFocusStyle: { borderBottomColor: GREEN_COLOR, borderBottomWidth: 1.5 },
     btnDueDateStyle: { alignSelf: 'flex-start', width: width / 1.70, height: 50, borderBottomColor: GREY_COLOR, borderBottomWidth: 1, flexDirection: 'row', justifyContent: 'flex-start' },
-    txtDueDateStyle: { color: GREY_COLOR, marginTop: 20, fontSize: 15, },
+    txtDueDateStyle: { marginTop: 20, fontSize: 15, },
     errorTxtStyle: { fontSize: 12, fontWeight: '200', color: RED_COLOR, marginTop: 5, },
     dueDateCalcStyle: {
         height: 50,
