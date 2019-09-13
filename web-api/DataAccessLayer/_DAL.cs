@@ -13,7 +13,7 @@ namespace DataAccessLayer
     public static class _DAL
     {
         private static string conStr = null;
-        private static bool local = true;
+        private static bool local = false;
         private static SqlConnection Con = null;
         private static SqlDataAdapter _adtr = null;
         private static SqlCommand _command = null;
