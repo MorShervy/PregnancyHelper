@@ -65,10 +65,10 @@ namespace BusinessLogicLayer
         public static User Login(string email, string password)
         {
             List<User> users = GetUsers().ToList();
-            
+
             foreach (var item in users)
             {
-                if(item.Email.Equals(email) && item.Password.Equals(password))
+                if (item.Email.Equals(email) && item.Password.Equals(password))
                 {
                     return item;
                 }
