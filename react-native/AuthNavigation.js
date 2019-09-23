@@ -6,6 +6,7 @@ import Register from './pages/AppAuth/Register';
 
 const AuthNavigation = createStackNavigator(
     {
+
         MainAppAuth,
         Login,
         Register,

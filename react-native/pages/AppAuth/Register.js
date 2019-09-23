@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, TextInput, Dimensions, DatePickerAndroid, TouchableOpacity, BackHandler } from 'react-native';
+import { StyleSheet, View, Text, TextInput, Dimensions, DatePickerAndroid, TouchableOpacity, BackHandler, ActivityIndicator, AsyncStorage } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import { HeaderBackButton } from 'react-navigation-stack';
+import { LinearGradient } from 'expo-linear-gradient';
 import DueDate from '../../handlers/DueDate';
 import SQL from '../../handlers/SQL';
 
@@ -31,9 +32,11 @@ export default class Register extends Component {
             isFocusedEmail: false,
             isFocusedPass: false,
             errorEmail: false,
+            errorEmailExist: false,
             errorPass: false,
             errorDate: false,
             isVisiblePass: false,
+            isLoading: false,
         }
     }
 
@@ -106,8 +109,8 @@ export default class Register extends Component {
 
     render() {
         const { email, pass, childBirthDate } = this.state;
-        const { errorEmail, errorPass, errorDate } = this.state;
-        const { isFocusedEmail, isFocusedPass, isVisiblePass } = this.state;
+        const { errorEmail, errorPass, errorDate, errorEmailExist } = this.state;
+        const { isFocusedEmail, isFocusedPass, isVisiblePass, isLoading } = this.state;
         const { childBirthToShow, lastMenstrualPeriodToShow, lastMenstrualPeriodDate } = this.state;
         const { navigation } = this.props;
 
@@ -116,11 +119,34 @@ export default class Register extends Component {
             if (!isPassed)
                 return;
 
-            // clear error states
-            this.setState({ errorEmail: false, errorPass: false, errorDate: false, })
+            // clear error states and show loading style
+            this.setState({ errorEmail: false, errorPass: false, errorDate: false, errorEmailExist: false, isLoading: true, })
 
             const sqlResult = await SQL.Register(email, pass);
             console.log('res=', sqlResult)
+            if (sqlResult.Message !== undefined) {
+                let start = Date.now();
+                let myTimer = await setTimeout(() => {
+                    //let delta = Date.now() - start;
+                    this.setState({ isLoading: false, errorEmailExist: true })
+                    //console.log('delta/1000=', Math.floor(delta / 1000))
+                }, 1000)
+                return;
+            }
+            //alert('created')
+            navigation.navigate('HomeNavigation')
+            // AsyncStorage.setItem(
+            //     "user",
+            //     JSON.stringify({
+            //         ID: sqlResult.ID,
+            //         Email: sqlResult.Email,
+            //         FirstName: sqlResult.FirstName,
+            //         LastName: sqlResult.LastName,
+            //         RegistrationDate: sqlResult.RegistrationDate
+            //     })
+            // )
+            //debugger;
+
         }
 
         toggleVisiblePass = () => {
@@ -138,7 +164,7 @@ export default class Register extends Component {
                 if (action === DatePickerAndroid.dateSetAction) {
                     this.setState({
                         childBirthDate: `${month + 1}/${day}/${year}`,
-                        childBirthToShow: new Date(`${month + 1}/${day}/${year}`).toDateString().substring(4),
+                        childBirthToShow: new Date(`${month + 1}/${day}/${year}`).toDateString().split(' ').slice(1).join(' '),
                     });
                 }
             } catch ({ code, message }) {
@@ -154,7 +180,7 @@ export default class Register extends Component {
                 });
                 if (action === DatePickerAndroid.dateSetAction) {
                     this.setState({
-                        lastMenstrualPeriodToShow: new Date(`${month + 1}/${day}/${year}`).toDateString().substring(4),
+                        lastMenstrualPeriodToShow: new Date(`${month + 1}/${day}/${year}`).toDateString().split(' ').slice(1).join(' '),
                         lastMenstrualPeriodDate: `${month + 1}/${day}/${year}`,
                     });
                 }
@@ -166,14 +192,12 @@ export default class Register extends Component {
 
         handleOnPressCalculate = async () => {
             const { lastMenstrualPeriodDate } = this.state;
-            const date = new Date(lastMenstrualPeriodDate)
-            date.getDay();
             //console.log('lastMenstrualPeriodDate=', date.getFullYear(), date.getMonth() + 1, date.getDate())
-            const estimateDueDate = DueDate.CalculateChildBirthByLastMenstrual(date);
+            const estimateDueDate = DueDate.CalculateChildBirthByLastMenstrual(lastMenstrualPeriodDate);
             //console.log('childBirth=', estimateDueDate);
             this.setState({
                 childBirthDate: estimateDueDate,
-                childBirthToShow: new Date(estimateDueDate).toDateString().substring(4),
+                childBirthToShow: new Date(estimateDueDate).toDateString().split(' ').slice(1).join(' '),
             })
 
             await navigation.setParams({ showCalc: false })
@@ -186,6 +210,7 @@ export default class Register extends Component {
                     errorEmail: true,
                     errorPass: false,
                     errorDate: false,
+                    errorEmailExist: false,
                 })
                 return false;
             }
@@ -223,44 +248,49 @@ export default class Register extends Component {
                 ?
                 // last menstrual period view
                 <View style={styles.page}>
-                    <View style={[styles.body, { top: 20 }]}>
+                    <View style={styles.body}>
+                        {/* header text */}
                         <Text style={styles.txtHeaderStyle}>What was the first day{`\n`}of your last menstrual{`\n`}period?</Text>
-                        {/* select last menstrual for calculate due date */}
-                        {
-                            (lastMenstrualPeriodDate !== '' &&
-                                <Text
-                                    style={{
-                                        color: GREY_COLOR,
-                                        fontSize: 10,
-                                        marginBottom: -20,
-                                        left: 27,
-                                        fontSize: 12
-                                    }}
-                                >
-                                    Select a date
+
+                        {/* flex row style for date picker */}
+                        <View style={styles.flexRow}>
+                            {/* view icon */}
+                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <Ionicons name="md-calendar" size={35} color={APP_COLOR} style={{ top: 7.5 }} />
+                            </View>
+                            {/* button select a date */}
+                            <View style={styles.btnSelectDateView}>
+                                {/* select last menstrual for calculate due date */}
+                                {
+                                    (lastMenstrualPeriodDate !== '' &&
+                                        <Text
+                                            style={{
+                                                color: GREY_COLOR,
+                                                marginBottom: -20,
+                                                fontSize: 12
+                                            }}
+                                        >
+                                            Select a date
                                     </Text>
-                            )
-                        }
-                        <View style={{ flexDirection: 'row' }}>
-                            <Ionicons name="md-calendar" size={35} color={APP_COLOR} style={{ top: 20, right: 10 }} />
-                            <TouchableOpacity
-                                style={styles.btnSelectDate}
-                                onPress={handleOnPressDatePickerLastMenstrual}
-
-                            >
-                                <Text
-                                    style={[
-                                        styles.txtDueDateStyle,
-                                        { color: lastMenstrualPeriodDate === '' ? GREY_COLOR : '#000' }
-                                    ]}
+                                    )
+                                }
+                                <TouchableOpacity
+                                    style={styles.btnSelectDate}
+                                    onPress={handleOnPressDatePickerLastMenstrual}
                                 >
-                                    {lastMenstrualPeriodToShow}
-                                </Text>
-
-                            </TouchableOpacity>
+                                    <Text
+                                        style={[
+                                            styles.txtDueDateStyle,
+                                            { color: lastMenstrualPeriodDate === '' ? GREY_COLOR : '#000' }
+                                        ]}
+                                    >
+                                        {lastMenstrualPeriodToShow}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                         {/* button track my baby */}
-                        <View style={{ marginTop: 30 }}>
+                        <View style={styles.marginTopBtn}>
                             <TouchableOpacity
                                 disabled={lastMenstrualPeriodDate === '' ? true : false}
                                 style={[
@@ -276,164 +306,181 @@ export default class Register extends Component {
                 :
                 // register view
                 <View style={styles.page}>
-                    <View style={styles.body}>
-                        {/* header title */}
-                        <Text style={styles.txtHeaderStyle}>This won't take long</Text>
+                    <LinearGradient
+                        colors={isLoading ? ['#00000070', 'transparent'] : ['transparent', 'transparent']}
+                        style={styles.LinearGradientStyle}
+                    >
+                        {/* <View style={{ flex: 1, backgroundColor: isLoading ? '#00000070' : 'transparent' }}> */}
+                        {
+                            isLoading &&
+                            <ActivityIndicator style={styles.activityIndicator} color={APP_COLOR} size={40} />
+                        }
+                        <View style={styles.body}>
+                            {/* header title */}
+                            <Text style={styles.txtHeaderStyle}>This won't take long</Text>
 
-                        {/* register form */}
-                        <View style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
+                            {/* register form */}
+                            <View style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
 
-                            {/* email */}
-                            <View style={{ marginBottom: 10 }}>
-                                {
-                                    (isFocusedEmail || email !== '') &&
-                                    <Text
-                                        style={{
-                                            color: isFocusedEmail ? GREEN_COLOR : GREY_COLOR,
-                                            fontSize: 12,
-                                            marginBottom: -20
-                                        }}
-                                    >Email
-                                    </Text>
-                                }
-                                <TextInput
-                                    onFocus={this.onFocusEmail}
-                                    onBlur={this.onBlurEmail}
-                                    placeholderTextColor={isFocusedEmail ? GREEN_COLOR : null}
-                                    style={
-                                        [styles.txtInputStyle,
-                                        errorEmail && { borderBottomColor: '#F00' },
-                                        isFocusedEmail && styles.txtInputFocusStyle,
-                                        ]}
-                                    placeholder={!isFocusedEmail ? 'Email' : null}
-                                    keyboardType="email-address"
-                                    value={this.state.email}
-                                    onChangeText={email => this.setState({ email })}
-                                />
-
-                                {/* error email */}
-                                {!errorEmail ? null
-                                    :
-                                    <Text style={styles.errorTxtStyle}>The email address you entered is invalid</Text>
-                                }
-                            </View>
-
-                            {/* password */}
-                            <View style={{ marginBottom: 10 }}>
-                                {
-                                    (isFocusedPass || pass !== '') &&
-                                    <Text
-                                        style={{
-                                            color: isFocusedPass ? GREEN_COLOR : GREY_COLOR,
-                                            fontSize: 12,
-                                            marginBottom: -20
-                                        }}
-                                    >Password
-                             </Text>
-                                }
-                                <View style={{ flexDirection: 'row' }}>
-                                    <TextInput
-                                        onFocus={this.onFocusPass}
-                                        onBlur={this.onBlurPass}
-                                        placeholderTextColor={isFocusedPass ? GREEN_COLOR : null}
-                                        style={
-                                            [styles.txtInputStyle,
-                                            errorPass && { borderBottomColor: '#F00' },
-                                            isFocusedPass && styles.txtInputFocusStyle
-                                            ]}
-                                        placeholder={!isFocusedPass ? 'Password' : null}
-                                        secureTextEntry={!isVisiblePass}
-                                        value={this.state.pass}
-                                        onChangeText={pass => this.setState({ pass })}
-                                    />
-                                    <TouchableOpacity
-                                        style={{ right: 25, top: 15 }}
-                                        onPress={toggleVisiblePass}
-                                    >
-                                        <Ionicons
-
-                                            name={isVisiblePass ? "md-eye-off" : "md-eye"}
-                                            size={25}
-                                            color={GREY_COLOR} />
-                                    </TouchableOpacity>
-                                </View>
-                                {/* error password */}
-                                {!errorPass ? null
-                                    :
-                                    <Text style={styles.errorTxtStyle}>
-                                        Password must include at least 8
-                                    characters;letters,numbers,and/or{'\n'}
-                                        symbols
-                                </Text>
-                                }
-                            </View>
-
-                            {/* due date */}
-                            <View style={{ marginBottom: 10 }}>
-                                {
-                                    (childBirthDate !== '' &&
+                                {/* email */}
+                                <View style={!errorEmail ? styles.marginBottomStyle : null}>
+                                    {
+                                        (isFocusedEmail || email !== '') &&
                                         <Text
                                             style={{
-                                                color: GREY_COLOR,
+                                                color: isFocusedEmail ? GREEN_COLOR : GREY_COLOR,
                                                 fontSize: 12,
                                                 marginBottom: -20
                                             }}
-                                        >
-                                            Due Date/Child`s Birth...
+                                        >Email
                                     </Text>
-                                    )
-                                }
-                                <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-                                    <TouchableOpacity
-                                        style={styles.btnDueDateStyle}
-                                        onPress={handleOnPressDatePickerChildBirth}
-                                    >
-                                        <Text
-                                            style={[
-                                                styles.txtDueDateStyle,
-                                                { color: childBirthDate === '' ? GREY_COLOR : '#000' }
+                                    }
+                                    <TextInput
+                                        onFocus={this.onFocusEmail}
+                                        onBlur={this.onBlurEmail}
+                                        placeholderTextColor={isFocusedEmail ? GREEN_COLOR : null}
+                                        style={
+                                            [styles.txtInputStyle,
+                                            errorEmail && { borderBottomColor: '#F00' },
+                                            isFocusedEmail && styles.txtInputFocusStyle,
                                             ]}
-                                        >{childBirthToShow}
-                                        </Text>
+                                        placeholder={!isFocusedEmail ? 'Email' : null}
+                                        keyboardType="email-address"
+                                        value={this.state.email}
+                                        onChangeText={email => this.setState({ email })}
+                                    />
 
-                                    </TouchableOpacity>
-                                    <Ionicons name="md-calendar" size={35} color={APP_COLOR} style={{ left: 10, top: 12 }} />
+                                    {/* error email */}
+                                    {!errorEmail ? null
+                                        :
+                                        <Text style={styles.errorTxtStyle}>The email address you entered is invalid</Text>
+                                    }
+                                    {
+                                        !errorEmailExist ? null
+                                            :
+                                            <Text style={styles.errorTxtStyle}>The email address you entered is already exist
+                                            {'\n'}Please log in or enter another email address
+                                        </Text>
+                                    }
                                 </View>
 
-                                {/* error due date */}
-                                {!errorDate ? null
-                                    :
-                                    <Text style={styles.errorTxtStyle}>Please enter a date</Text>
-                                }
-                            </View>
+                                {/* password */}
+                                <View style={!errorPass ? styles.marginBottomStyle : null}>
+                                    {
+                                        (isFocusedPass || pass !== '') &&
+                                        <Text
+                                            style={{
+                                                color: isFocusedPass ? GREEN_COLOR : GREY_COLOR,
+                                                fontSize: 12,
+                                                marginBottom: -20
+                                            }}
+                                        >Password
+                             </Text>
+                                    }
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <TextInput
+                                            onFocus={this.onFocusPass}
+                                            onBlur={this.onBlurPass}
+                                            placeholderTextColor={isFocusedPass ? GREEN_COLOR : null}
+                                            style={
+                                                [styles.txtInputStyle,
+                                                errorPass && { borderBottomColor: '#F00' },
+                                                isFocusedPass && styles.txtInputFocusStyle
+                                                ]}
+                                            placeholder={!isFocusedPass ? 'Password' : null}
+                                            secureTextEntry={!isVisiblePass}
+                                            value={this.state.pass}
+                                            onChangeText={pass => this.setState({ pass })}
+                                        />
+                                        <TouchableOpacity
+                                            style={{ right: 25, top: 15 }}
+                                            onPress={toggleVisiblePass}
+                                        >
+                                            <Ionicons
 
-                            {/* calculate due date */}
-                            <View style={styles.dueDateCalcStyle}>
-                                <TouchableOpacity
-                                    style={styles.btnDueDateCalcStyle}
-                                    onPress={renderCalcDueDate}
-                                >
-                                    <Text style={styles.txtBtnCalcStyle}>Calculate my due date</Text>
-                                </TouchableOpacity>
-                            </View>
+                                                name={isVisiblePass ? "md-eye-off" : "md-eye"}
+                                                size={25}
+                                                color={GREY_COLOR} />
+                                        </TouchableOpacity>
+                                    </View>
+                                    {/* error password */}
+                                    {!errorPass ? null
+                                        :
+                                        <Text style={styles.errorTxtStyle}>
+                                            Password must include at least 8
+                                    characters;letters,numbers,and/or{'\n'}
+                                            symbols
+                                </Text>
+                                    }
+                                </View>
 
-                            {/* button track my baby */}
-                            <View style={{ marginTop: 30 }}>
-                                <TouchableOpacity
-                                    style={[styles.btnStyle, { backgroundColor: APP_COLOR }]}
-                                    onPress={handleOnPressRegister}
-                                >
-                                    <Text style={styles.txtBtnStyle}>Track my baby</Text>
-                                </TouchableOpacity>
+                                {/* due date */}
+                                <View style={!errorDate ? styles.marginBottomStyle : null}>
+                                    {
+                                        (childBirthDate !== '' &&
+                                            <Text
+                                                style={{
+                                                    color: GREY_COLOR,
+                                                    fontSize: 12,
+                                                    marginBottom: -20
+                                                }}
+                                            >
+                                                Due Date/Child`s Birth...
+                                    </Text>
+                                        )
+                                    }
+                                    <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+                                        <TouchableOpacity
+                                            style={styles.btnDueDateStyle}
+                                            onPress={handleOnPressDatePickerChildBirth}
+                                        >
+                                            <Text
+                                                style={[
+                                                    styles.txtDueDateStyle,
+                                                    { color: childBirthDate === '' ? GREY_COLOR : '#000' }
+                                                ]}
+                                            >{childBirthToShow}
+                                            </Text>
+
+                                        </TouchableOpacity>
+                                        <Ionicons name="md-calendar" size={35} color={APP_COLOR} style={{ left: 10, top: 12 }} />
+                                    </View>
+
+                                    {/* error due date */}
+                                    {!errorDate ? null
+                                        :
+                                        <Text style={styles.errorTxtStyle}>Please enter a date</Text>
+                                    }
+                                </View>
+
+                                {/* calculate due date */}
+                                <View style={styles.dueDateCalcStyle}>
+                                    <TouchableOpacity
+                                        style={styles.btnDueDateCalcStyle}
+                                        onPress={renderCalcDueDate}
+                                    >
+                                        <Text style={styles.txtBtnCalcStyle}>Calculate my due date</Text>
+                                    </TouchableOpacity>
+                                </View>
+
+                                {/* button track my baby */}
+                                <View style={styles.marginTopBtn}>
+                                    <TouchableOpacity
+                                        style={[styles.btnStyle, { backgroundColor: APP_COLOR }]}
+                                        onPress={handleOnPressRegister}
+                                    >
+                                        <Text style={styles.txtBtnStyle}>Track my baby</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         </View>
-                    </View>
-                    <View style={styles.footer}>
-                        <Text style={styles.txtFooter}>
-                            As a member, you'll receive regular emails{`\n`}
-                            from us. It's easy to opt-out later.
+                        <View style={styles.footer}>
+                            <Text style={styles.txtFooter}>
+                                As a member, you'll receive regular emails{`\n`}
+                                from us. It's easy to opt-out later.
                         </Text>
-                    </View>
+                        </View>
+                    </LinearGradient>
                 </View>
         );
     }
@@ -443,15 +490,18 @@ const styles = StyleSheet.create({
     page: { flex: 1 },
     body: { flex: 0.7, width: width - 50, alignSelf: 'center' },
     footer: { flex: 0.3, backgroundColor: LIGHTGREY_COLOR },
-    txtHeaderStyle: { fontSize: 25, color: DARKGREY_COLOR, marginTop: 10, marginBottom: 10 },
-    txtInputStyle: { width: width - 50, height: 50, fontSize: 17, paddingTop: 10, borderBottomColor: GREY_COLOR, borderBottomWidth: 1, },
+    flexRow: { width: width - 50, flexDirection: 'row', justifyContent: 'flex-start', marginTop: '5%' },
+    btnSelectDateView: { justifyContent: 'center', alignItems: 'flex-start', marginLeft: '3%' },
+    activityIndicator: { position: 'absolute', alignSelf: 'center', marginTop: '45%' },
+    txtHeaderStyle: { fontSize: 25, color: APP_COLOR, marginTop: '3%' },
+    txtInputStyle: { width: width - 50, height: 50, fontSize: 17, paddingTop: '2.5%', borderBottomColor: GREY_COLOR, borderBottomWidth: 1, },
     txtInputFocusStyle: { borderBottomColor: GREEN_COLOR, borderBottomWidth: 1.5 },
-    btnDueDateStyle: { alignSelf: 'flex-start', width: width / 1.70, height: 50, borderBottomColor: GREY_COLOR, borderBottomWidth: 1, flexDirection: 'row', justifyContent: 'flex-start' },
+    btnDueDateStyle: { width: width / 1.70, height: 50, borderBottomColor: GREY_COLOR, borderBottomWidth: 1, flexDirection: 'row', justifyContent: 'flex-start' },
     txtDueDateStyle: { marginTop: 20, fontSize: 15, },
-    errorTxtStyle: { fontSize: 12, fontWeight: '200', color: RED_COLOR, marginTop: 5, },
+    errorTxtStyle: { fontSize: 12, fontWeight: '200', color: RED_COLOR, marginTop: '2.5%', },
     dueDateCalcStyle: {
         height: 50,
-        marginTop: 35,
+        marginTop: '5%',
         borderTopWidth: 1,
         borderTopColor: GREY_COLOR,
         borderBottomWidth: 1,
@@ -462,5 +512,8 @@ const styles = StyleSheet.create({
     btnStyle: { width: width - 50, height: 50, borderRadius: 7, },
     txtBtnStyle: { color: '#fff', textAlign: 'center', fontWeight: 'bold', fontSize: 17, marginTop: 7.5, },
     txtFooter: { width: width - 75, fontSize: 13.5, color: DARKGRAY_COLOR, alignSelf: 'center', marginTop: 15 },
-    btnSelectDate: { alignSelf: 'flex-start', width: width / 1.75, height: 50, borderBottomColor: GREY_COLOR, borderBottomWidth: 1, flexDirection: 'row', justifyContent: 'flex-start' }
+    btnSelectDate: { alignSelf: 'flex-start', width: width - 100, height: 50, borderBottomColor: GREY_COLOR, borderBottomWidth: 1, flexDirection: 'row', justifyContent: 'flex-start' },
+    LinearGradientStyle: { position: 'absolute', left: 0, right: 0, top: 0, height: '100%' },
+    marginTopBtn: { marginTop: '5%' },
+    marginBottomStyle: { marginBottom: '3%' }
 })

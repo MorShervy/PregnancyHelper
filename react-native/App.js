@@ -6,6 +6,7 @@ import { Asset } from 'expo-asset';
 import { AppLoading } from 'expo';
 import { useKeepAwake } from 'expo-keep-awake';
 import AuthNavigation from './AuthNavigation';
+import HomeNavigation from './HomeNavigation';
 
 I18nManager.forceRTL(false);
 
@@ -47,10 +48,12 @@ export default class App extends Component {
 
 const RootStack = createStackNavigator(
   {
+
     AuthNavigation,
+    HomeNavigation,
   },
   {
-    initialRouteName: 'AuthNavigation',
+    initialRouteName: 'HomeNavigation',
     defaultNavigationOptions: {
       header: null,
     }

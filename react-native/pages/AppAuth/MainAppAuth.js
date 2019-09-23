@@ -21,29 +21,25 @@ export default class MainAppAuth extends Component {
                     style={styles.LinearGradientStyle}
                 >
                     {/* logo with app name and some text */}
-                    <View style={{ marginTop: 150 }}>
+                    <View style={styles.marginTopHeader}>
 
                         {/* icon */}
-                        <Ionicons style={{ alignSelf: 'center', marginBottom: 10 }} name="md-transgender" color="#FFF" size={70} />
+                        <Ionicons style={styles.logoStyle} name="md-transgender" color="#FFF" size={70} />
 
                         {/* header text */}
-                        <View style={{ marginBottom: 10 }}>
-                            <Text style={[styles.textStyle, { fontSize: 18, }]}>Pregnancy Helper</Text>
-                        </View>
+                        <Text style={[styles.textStyle, { fontSize: 18, }]}>Pregnancy Helper</Text>
 
                         {/* paragraph text */}
-                        <View style={{ marginBottom: 10 }}>
-                            <Text style={[styles.textStyle, { fontSize: 14, }]}>
-                                Welcome to your trusted weekly{'\n'}
-                                guide to pregnancy
+                        <Text style={[styles.textStyle, { fontSize: 14, }]}>
+                            Welcome to your trusted weekly{'\n'}
+                            guide to pregnancy
                         </Text>
-                        </View>
                     </View>
 
                     <View style={styles.buttonsStyle}>
 
                         {/* sign up button */}
-                        <View style={{ marginBottom: 10 }}>
+                        <View style={styles.btnSignupMarginBottom}>
                             <TouchableOpacity
                                 style={[styles.btnStyle, { backgroundColor: "#FFB400" }]}
                                 onPress={() => { this.props.navigation.navigate('Register') }}
@@ -53,7 +49,7 @@ export default class MainAppAuth extends Component {
                         </View>
 
                         {/* Login button */}
-                        <View style={{ marginBottom: 10 }}>
+                        <View style={styles.btnLoginMarginTop}>
                             <TouchableOpacity
                                 style={[styles.btnStyle, { backgroundColor: "#FFFFFF40" }]}
                                 onPress={() => { this.props.navigation.navigate('Login') }}
@@ -88,6 +84,13 @@ const styles = StyleSheet.create({
         top: 0,
         height: height
     },
+    marginTopHeader: {
+        marginTop: '20%'
+    },
+    logoStyle: {
+        alignSelf: 'center',
+        marginTop: '1%'
+    },
     textStyle: {
         color: '#fff',
         textAlign: 'center',
@@ -96,11 +99,11 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: height / 3,
+        marginTop: '80%',
     },
     btnStyle: {
         width: width - 50,
-        height: 50,
+        height: 40,
         borderRadius: 7,
     },
     txtBtnStyle: {
@@ -108,6 +111,12 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontWeight: 'bold',
         fontSize: 17,
-        marginTop: 7.5,
+        marginTop: '1%',
+    },
+    btnSignupMarginBottom: {
+        marginTop: '0%'
+    },
+    btnLoginMarginTop: {
+        marginTop: '15%'
     }
 });
