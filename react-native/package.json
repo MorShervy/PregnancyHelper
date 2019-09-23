@@ -20,7 +20,10 @@
     "react-native-webview": "^5.12.1",
     "react-navigation": "^4.0.0",
     "react-navigation-stack": "^1.5.3",
-    "react-navigation-tabs": "^2.5.5"
+    "react-navigation-tabs": "^2.5.5",
+    "react-native-maps": "^0.25.0",
+    "react-native-phone-call": "^1.0.9",
+    "geolib": "^3.0.4"
   },
   "devDependencies": {
     "babel-preset-expo": "^6.0.0"

@@ -53,7 +53,7 @@ const RootStack = createStackNavigator(
     HomeNavigation,
   },
   {
-    initialRouteName: 'AuthNavigation',
+    initialRouteName: 'HomeNavigation',
     defaultNavigationOptions: {
       header: null,
     }

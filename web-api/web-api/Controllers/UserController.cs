@@ -35,7 +35,7 @@ namespace web_api.Controllers
             {
                 User u = _BAL.GetUsers().SingleOrDefault(x => x.ID == id);
                 if (u == null)
-                    return Content(HttpStatusCode.NotFound,"user with id {" + id + "} was not found");
+                    return Content(HttpStatusCode.NotFound, "user with id {" + id + "} was not found");
 
                 return Ok(u);
             }
