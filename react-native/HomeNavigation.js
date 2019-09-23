@@ -6,10 +6,11 @@ import Tools from './pages/AppHome/Tools';
 
 
 
+
 const TabNavigation = createMaterialTopTabNavigator(
     {
         Calendar,
-        Tools
+        Tools,
     },
     {
         swipeEnabled: false,
