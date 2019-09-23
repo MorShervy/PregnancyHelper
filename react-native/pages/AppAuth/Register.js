@@ -40,6 +40,14 @@ export default class Register extends Component {
         }
     }
 
+    componentWillMount = () => {
+        debugger;
+        AsyncStorage.getItem("user").then(
+            res => res !== null && console.log('res=', res)
+        );
+
+    }
+
     componentDidMount = () => {
         // adding the event listener for back button android
         BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
@@ -126,7 +134,7 @@ export default class Register extends Component {
             console.log('res=', sqlResult)
             if (sqlResult.Message !== undefined) {
                 let start = Date.now();
-                let myTimer = await setTimeout(() => {
+                let myTimer = setTimeout(() => {
                     //let delta = Date.now() - start;
                     this.setState({ isLoading: false, errorEmailExist: true })
                     //console.log('delta/1000=', Math.floor(delta / 1000))
@@ -134,19 +142,19 @@ export default class Register extends Component {
                 return;
             }
             //alert('created')
-            navigation.navigate('HomeNavigation')
-            // AsyncStorage.setItem(
-            //     "user",
-            //     JSON.stringify({
-            //         ID: sqlResult.ID,
-            //         Email: sqlResult.Email,
-            //         FirstName: sqlResult.FirstName,
-            //         LastName: sqlResult.LastName,
-            //         RegistrationDate: sqlResult.RegistrationDate
-            //     })
-            // )
+            AsyncStorage.setItem(
+                "user",
+                JSON.stringify({
+                    ID: sqlResult.ID,
+                    Email: sqlResult.Email,
+                    FirstName: sqlResult.FirstName,
+                    LastName: sqlResult.LastName,
+                    RegistrationDate: sqlResult.RegistrationDate
+                })
+            )
             //debugger;
 
+            navigation.navigate('HomeNavigation')
         }
 
         toggleVisiblePass = () => {
@@ -307,7 +315,7 @@ export default class Register extends Component {
                 // register view
                 <View style={styles.page}>
                     <LinearGradient
-                        colors={isLoading ? ['#00000070', 'transparent'] : ['transparent', 'transparent']}
+                        colors={isLoading ? ['#00000070', '#00000070'] : ['transparent', 'transparent']}
                         style={styles.LinearGradientStyle}
                     >
                         {/* <View style={{ flex: 1, backgroundColor: isLoading ? '#00000070' : 'transparent' }}> */}

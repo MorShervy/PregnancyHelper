@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, Dimensions, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, Dimensions, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from 'expo-linear-gradient';
+import SQL from '../../handlers/SQL';
 
 const { height, width } = Dimensions.get("window");
 
@@ -24,6 +26,7 @@ export default class Login extends Component {
             isFocusedPass: false,
             errorEmail: false,
             errorPass: false,
+            errorEmailExist: false,
             isVisiblePass: false,
             isLoading: false,
         }
@@ -63,12 +66,28 @@ export default class Login extends Component {
 
     render() {
         const { email, pass } = this.state;
-        const { errorEmail, errorPass } = this.state;
+        const { errorEmail, errorPass, errorEmailExist } = this.state;
         const { isFocusedEmail, isFocusedPass, isVisiblePass, isLoading } = this.state;
         const { navigation } = this.props;
 
-        handleOnPressLogin = () => {
+        handleOnPressLogin = async () => {
             const isPassed = handleInputTesting()
+            if (!isPassed)
+                return;
+
+            this.setState({ errorEmail: false, errorPass: false, errorEmailExist: false, isLoading: true })
+            const sqlResult = await SQL.Login(email, pass);
+            console.log('res=', sqlResult)
+
+            if (sqlResult.Message !== undefined) {
+                setTimeout(() => {
+                    //let delta = Date.now() - start;
+                    this.setState({ isLoading: false, errorEmailExist: true })
+                    //console.log('delta/1000=', Math.floor(delta / 1000))
+                }, 1000)
+                return;
+            }
+            navigation.navigate('HomeNavigation')
         }
 
         toggleVisiblePass = () => {
@@ -97,153 +116,167 @@ export default class Login extends Component {
 
         return (
             <View style={styles.page}>
-                <View style={styles.body}>
-                    {/* header title */}
-                    <Text style={styles.txtHeaderStyle}>Use your
+                <LinearGradient
+                    colors={isLoading ? ['#00000070', '#00000070'] : ['transparent', 'transparent']}
+                    style={styles.LinearGradientStyle}
+                >
+                    {
+                        isLoading &&
+                        <ActivityIndicator style={styles.activityIndicator} color={APP_COLOR} size={40} />
+                    }
+                    <View style={styles.body}>
+                        {/* header title */}
+                        <Text style={styles.txtHeaderStyle}>Use your
                     {'\n'}PregnancyHelper login
                     </Text>
 
 
-                    {/* view login inputs */}
-                    <View style={{ width: width - 75, flexDirection: 'column', justifyContent: 'space-between', marginLeft: 5 }}>
+                        {/* view login inputs */}
+                        <View style={{ width: width - 75, flexDirection: 'column', justifyContent: 'space-between', marginLeft: 5 }}>
 
-                        {/* view email input */}
-                        <View style={{ width: width - 75, flexDirection: 'row', justifyContent: 'flex-start' }}>
-                            {/* view icon */}
-                            <View style={{ height: 50, justifyContent: 'center', alignItems: 'center' }}>
-                                <Ionicons name="md-mail" size={23} color={GREY_COLOR} style={{ top: 7.5 }} />
+                            {/* view email input */}
+                            <View style={{ width: width - 75, flexDirection: 'row', justifyContent: 'flex-start' }}>
+                                {/* view icon */}
+                                <View style={{ height: 50, justifyContent: 'center', alignItems: 'center' }}>
+                                    <Ionicons name="md-mail" size={23} color={GREY_COLOR} style={{ top: 7.5 }} />
+                                </View>
+
+                                <View style={{ marginBottom: 10 }}>
+                                    {/*view text input email */}
+                                    <View style={{ justifyContent: 'center', alignItems: 'flex-start', marginLeft: 10 }}>
+
+                                        {
+                                            (isFocusedEmail || email !== '') &&
+                                            <Text
+                                                style={{
+                                                    color: isFocusedEmail ? GREEN_COLOR : GREY_COLOR,
+                                                    fontSize: 12,
+                                                    marginBottom: -20,
+
+                                                }}
+                                            >Email
+                                    </Text>
+                                        }
+                                        <View style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
+                                            <TextInput
+                                                onFocus={this.onFocusEmail}
+                                                onBlur={this.onBlurEmail}
+                                                placeholderTextColor={isFocusedEmail ? GREEN_COLOR : null}
+                                                style={
+                                                    [styles.txtInputStyle,
+                                                    errorEmail && { borderBottomColor: '#F00' },
+                                                    isFocusedEmail && styles.txtInputFocusStyle,
+                                                    ]}
+                                                placeholder={!isFocusedEmail ? 'Email' : null}
+                                                keyboardType="email-address"
+                                                value={this.state.email}
+                                                onChangeText={email => this.setState({ email })}
+                                            />
+                                            {/* error email */}
+                                            {!errorEmail ? null
+                                                :
+                                                <Text style={styles.errorTxtStyle}>The email address you entered is invalid</Text>
+                                            }
+                                        </View>
+                                    </View>
+                                </View>
+
                             </View>
 
+
                             <View style={{ marginBottom: 10 }}>
-                                {/*view text input email */}
-                                <View style={{ justifyContent: 'center', alignItems: 'flex-start', marginLeft: 10 }}>
+                                {/* view password input */}
+                                <View style={{ width: width - 75, flexDirection: 'row', justifyContent: 'flex-start' }}>
+                                    {/* view icon */}
+                                    <View style={{ height: 50, justifyContent: 'center', alignItems: 'center' }}>
+                                        <Ionicons name="md-lock" size={32} color={GREY_COLOR} style={{ top: 5 }} />
+                                    </View>
 
-                                    {
-                                        (isFocusedEmail || email !== '') &&
-                                        <Text
-                                            style={{
-                                                color: isFocusedEmail ? GREEN_COLOR : GREY_COLOR,
-                                                fontSize: 12,
-                                                marginBottom: -20,
 
-                                            }}
-                                        >Email
+                                    {/* view text input password*/}
+                                    <View style={{ justifyContent: 'center', alignItems: 'flex-start', marginLeft: 11 }}>
+                                        {
+                                            (isFocusedPass || pass !== '') &&
+                                            <Text
+                                                style={{
+                                                    color: isFocusedPass ? GREEN_COLOR : GREY_COLOR,
+                                                    fontSize: 12,
+                                                    marginBottom: -20
+                                                }}
+                                            >Password
                                     </Text>
-                                    }
-                                    <View style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
-                                        <TextInput
-                                            onFocus={this.onFocusEmail}
-                                            onBlur={this.onBlurEmail}
-                                            placeholderTextColor={isFocusedEmail ? GREEN_COLOR : null}
-                                            style={
-                                                [styles.txtInputStyle,
-                                                errorEmail && { borderBottomColor: '#F00' },
-                                                isFocusedEmail && styles.txtInputFocusStyle,
-                                                ]}
-                                            placeholder={!isFocusedEmail ? 'Email' : null}
-                                            keyboardType="email-address"
-                                            value={this.state.email}
-                                            onChangeText={email => this.setState({ email })}
-                                        />
-                                        {/* error email */}
-                                        {!errorEmail ? null
+                                        }
+                                        <View style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
+                                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                <TextInput
+                                                    onFocus={this.onFocusPass}
+                                                    onBlur={this.onBlurPass}
+                                                    placeholderTextColor={isFocusedPass ? GREEN_COLOR : null}
+                                                    style={
+                                                        [styles.txtInputStyle,
+                                                        errorPass && { borderBottomColor: '#F00' },
+                                                        isFocusedPass && styles.txtInputFocusStyle
+                                                        ]}
+                                                    placeholder={!isFocusedPass ? 'Password' : null}
+                                                    secureTextEntry={!isVisiblePass}
+                                                    value={this.state.pass}
+                                                    onChangeText={pass => this.setState({ pass })}
+                                                />
+                                                <TouchableOpacity
+                                                    style={{ right: 25, top: 10 }}
+                                                    onPress={toggleVisiblePass}
+                                                >
+                                                    <Ionicons
+                                                        name={isVisiblePass ? "md-eye-off" : "md-eye"}
+                                                        size={25}
+                                                        color={GREY_COLOR} />
+                                                </TouchableOpacity>
+                                            </View>
+
+                                        </View>
+                                        {/* error password */}
+                                        {!errorPass ? null
                                             :
-                                            <Text style={styles.errorTxtStyle}>The email address you entered is invalid</Text>
+                                            <Text style={styles.errorTxtStyle}>
+                                                Password must include at least 8
+                                    characters;letters,numbers,and/or{'\n'}
+                                                symbols
+                                            </Text>
+                                        }
+                                        {
+                                            !errorEmailExist ? null
+                                                :
+                                                <Text style={styles.errorTxtStyle}>Incorrect username or password</Text>
                                         }
                                     </View>
                                 </View>
                             </View>
-
                         </View>
 
-
-                        <View style={{ marginBottom: 10 }}>
-                            {/* view password input */}
-                            <View style={{ width: width - 75, flexDirection: 'row', justifyContent: 'flex-start' }}>
-                                {/* view icon */}
-                                <View style={{ height: 50, justifyContent: 'center', alignItems: 'center' }}>
-                                    <Ionicons name="md-lock" size={32} color={GREY_COLOR} style={{ top: 5 }} />
-                                </View>
-
-
-                                {/* view text input password*/}
-                                <View style={{ justifyContent: 'center', alignItems: 'flex-start', marginLeft: 11 }}>
-                                    {
-                                        (isFocusedPass || pass !== '') &&
-                                        <Text
-                                            style={{
-                                                color: isFocusedPass ? GREEN_COLOR : GREY_COLOR,
-                                                fontSize: 12,
-                                                marginBottom: -20
-                                            }}
-                                        >Password
-                                    </Text>
-                                    }
-                                    <View style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
-                                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                            <TextInput
-                                                onFocus={this.onFocusPass}
-                                                onBlur={this.onBlurPass}
-                                                placeholderTextColor={isFocusedPass ? GREEN_COLOR : null}
-                                                style={
-                                                    [styles.txtInputStyle,
-                                                    errorPass && { borderBottomColor: '#F00' },
-                                                    isFocusedPass && styles.txtInputFocusStyle
-                                                    ]}
-                                                placeholder={!isFocusedPass ? 'Password' : null}
-                                                secureTextEntry={!isVisiblePass}
-                                                value={this.state.pass}
-                                                onChangeText={pass => this.setState({ pass })}
-                                            />
-                                            <TouchableOpacity
-                                                style={{ right: 25, top: 10 }}
-                                                onPress={toggleVisiblePass}
-                                            >
-                                                <Ionicons
-                                                    name={isVisiblePass ? "md-eye-off" : "md-eye"}
-                                                    size={25}
-                                                    color={GREY_COLOR} />
-                                            </TouchableOpacity>
-                                        </View>
-
-                                    </View>
-                                    {/* error password */}
-                                    {!errorPass ? null
-                                        :
-                                        <Text style={styles.errorTxtStyle}>
-                                            Password must include at least 8
-                                    characters;letters,numbers,and/or{'\n'}
-                                            symbols
-                                </Text>
-                                    }
-                                </View>
-                            </View>
+                        <View style={{ marginTop: 20 }}>
+                            <TouchableOpacity
+                                style={[styles.btnStyle, { backgroundColor: APP_COLOR }]}
+                                onPress={handleOnPressLogin}
+                            >
+                                <Text
+                                    style={styles.txtBtnStyle}
+                                >Log In
+                            </Text>
+                            </TouchableOpacity>
                         </View>
-                    </View>
-
-                    <View style={{ marginTop: 20 }}>
-                        <TouchableOpacity
-                            style={[styles.btnStyle, { backgroundColor: APP_COLOR }]}
-                            onPress={handleOnPressLogin}
-                        >
-                            <Text
-                                style={styles.txtBtnStyle}
-                            >Log In
+                        <View style={{ marginTop: 20 }}>
+                            <TouchableOpacity
+                                style={{ alignSelf: 'center' }}
+                            >
+                                <Text
+                                    style={{ color: '#32CD32' }}
+                                >Forgot password?
                             </Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={{ marginTop: 20 }}>
-                        <TouchableOpacity
-                            style={{ alignSelf: 'center' }}
-                        >
-                            <Text
-                                style={{ color: '#32CD32' }}
-                            >Forgot password?
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
+                            </TouchableOpacity>
+                        </View>
 
-                </View>
+                    </View>
+                </LinearGradient>
             </View >
         );
     }
@@ -259,5 +292,6 @@ const styles = StyleSheet.create({
     errorTxtStyle: { fontSize: 12, fontWeight: '200', color: RED_COLOR, marginTop: 5 },
     btnStyle: { width: width - 50, height: 50, borderRadius: 7, },
     txtBtnStyle: { color: '#fff', textAlign: 'center', fontWeight: 'bold', fontSize: 17, marginTop: 7.5, },
-
+    LinearGradientStyle: { position: 'absolute', left: 0, right: 0, top: 0, height: '100%' },
+    activityIndicator: { position: 'absolute', alignSelf: 'center', marginTop: '35%' },
 })
