@@ -1,11 +1,11 @@
 import React from 'react';
 
 import './App.css';
-import SendVerEmail from './Components/SendVerEmail';
+import SendVerEmail from './pages/resetEmailPass/SendVerEmail';
 
 function App() {
   return (
-   < SendVerEmail/>
+    < SendVerEmail />
   );
 }
 

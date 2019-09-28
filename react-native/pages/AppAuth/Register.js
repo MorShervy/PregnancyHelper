@@ -41,10 +41,9 @@ export default class Register extends Component {
     }
 
     componentWillMount = () => {
-        debugger;
-        AsyncStorage.getItem("user").then(
-            res => res !== null && console.log('res=', res)
-        );
+        // AsyncStorage.getItem("user").then(
+        //     res => res !== null && console.log('res=', res)
+        // );
 
     }
 
@@ -142,16 +141,16 @@ export default class Register extends Component {
                 return;
             }
             //alert('created')
-            AsyncStorage.setItem(
-                "user",
-                JSON.stringify({
-                    ID: sqlResult.ID,
-                    Email: sqlResult.Email,
-                    FirstName: sqlResult.FirstName,
-                    LastName: sqlResult.LastName,
-                    RegistrationDate: sqlResult.RegistrationDate
-                })
-            )
+            // AsyncStorage.setItem(
+            //     "user",
+            //     JSON.stringify({
+            //         ID: sqlResult.ID,
+            //         Email: sqlResult.Email,
+            //         FirstName: sqlResult.FirstName,
+            //         LastName: sqlResult.LastName,
+            //         RegistrationDate: sqlResult.RegistrationDate
+            //     })
+            // )
             //debugger;
 
             navigation.navigate('HomeNavigation')

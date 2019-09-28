@@ -9,7 +9,6 @@ export default class Calendar extends Component {
 
     }
 
-
     render() {
         return (
             <View style={{ flex: 1 }}>
