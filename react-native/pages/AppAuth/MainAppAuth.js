@@ -24,7 +24,7 @@ export default class MainAppAuth extends Component {
                     <View style={styles.marginTopHeader}>
 
                         {/* icon */}
-                        <Ionicons style={styles.logoStyle} name="md-transgender" color="#FFF" size={70} />
+                        <Ionicons style={styles.logoStyle} name="md-apps" color="#FFF" size={70} />
 
                         {/* header text */}
                         <Text style={[styles.textStyle, { fontSize: 18, }]}>Pregnancy Helper</Text>

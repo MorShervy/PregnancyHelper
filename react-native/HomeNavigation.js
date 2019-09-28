@@ -46,7 +46,7 @@ const HomeNavigation = (props) = createStackNavigator(
                 style={{ marginLeft: 20 }}
                 onPress={() => { }}
             >
-                <Ionicons name="md-transgender" color="#FFF" size={25} />
+                <Ionicons name="md-apps" color="#FFF" size={25} />
             </TouchableOpacity>
             ),
             headerTitle: 'My Pregnancy',
