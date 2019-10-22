@@ -72,7 +72,7 @@ export default class Login extends Component {
                 return;
 
             this.setState({ errorEmail: false, errorPass: false, errorEmailExist: false, isLoading: true })
-            const sqlResult = await SQL.Login(email, pass);
+            const sqlResult = await SQL.Login(email.toUpperCase(), pass);
             console.log('res=', sqlResult)
 
             if (sqlResult.Message !== undefined) {

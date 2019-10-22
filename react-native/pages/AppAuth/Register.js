@@ -129,7 +129,7 @@ export default class Register extends Component {
             // clear error states and show loading style
             this.setState({ errorEmail: false, errorPass: false, errorDate: false, errorEmailExist: false, isLoading: true, })
 
-            const sqlResult = await SQL.Register(email, pass);
+            const sqlResult = await SQL.Register(email.toUpperCase(), pass);
             console.log('res=', sqlResult)
             if (sqlResult.Message !== undefined) {
                 let start = Date.now();
@@ -415,8 +415,7 @@ export default class Register extends Component {
                                         :
                                         <Text style={styles.errorTxtStyle}>
                                             Password must include at least 8
-                                    characters;letters,numbers,and/or{'\n'}
-                                            symbols
+                                    characters
                                 </Text>
                                     }
                                 </View>
