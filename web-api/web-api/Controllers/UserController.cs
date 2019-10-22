@@ -1,10 +1,14 @@
 ﻿using BusinessLogicLayer;
+using BusinessLogicLayer.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Mail;
+using System.Text;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using web_api.Models;
 
 namespace web_api.Controllers
@@ -79,6 +83,48 @@ namespace web_api.Controllers
             {
                 // maybe to write into a file log
                 return BadRequest("Incorrect username or password -> " + ex.Message);
+            }
+        }
+
+
+        [HttpPost]
+        [EnableCors("*","*","*")]
+        [Route("SendResetPasswordEmail")]
+        public IHttpActionResult PostSendResetPasswordEmail([FromBody]User user)
+        {
+            try
+            {
+                ResetPasswordRequest result = _BAL.SendResetPasswordEmail(user.Email);
+                if (result == null)
+                    return BadRequest("Email does not exists");
+                
+
+                MailMessage mailMessage = new MailMessage("pregnancy.helper.proj@gmail.com",user.Email);
+
+                StringBuilder sbEmailBody = new StringBuilder();
+
+                sbEmailBody.Append("Dear " + user.Email.Substring(0, user.Email.IndexOf("@")) + ",<br/><br/>");
+                sbEmailBody.Append("Please click on the following link to reset your password");
+                sbEmailBody.Append("<br/>");
+                sbEmailBody.Append("http://ruppinmobile.tempdomain.co.il/site08/build/#/resetpassword/" + result.UniqueID);
+                sbEmailBody.Append("<br/><br/>");
+                sbEmailBody.Append("Pregnancy Helper");
+
+                mailMessage.IsBodyHtml = true;
+                mailMessage.Body = sbEmailBody.ToString();
+                mailMessage.Subject = "Reset Your Password";
+
+                SmtpClient client = new SmtpClient("smtp.gmail.com", 587)
+                {
+                    Credentials = new NetworkCredential("pregnancy.helper.proj@gmail.com", "PREGNANCYhelper90"),
+                    EnableSsl = true
+                };
+                client.Send(mailMessage);
+                return Ok("We've sent you email to reset your password");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("somthing went worng" + ex.Message);
             }
         }
 

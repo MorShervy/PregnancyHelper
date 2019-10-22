@@ -32,10 +32,6 @@ export default class Login extends Component {
         }
     }
 
-    static navigationOptions = {
-        headerTintColor: '#fff'
-    }
-
     onFocusEmail = (event) => {
         this.setState({ isFocusedEmail: true })
         if (this.props.onFocus) {
@@ -267,6 +263,7 @@ export default class Login extends Component {
                         <View style={{ marginTop: 20 }}>
                             <TouchableOpacity
                                 style={{ alignSelf: 'center' }}
+                                onPress={() => { navigation.navigate('ForgotPassword') }}
                             >
                                 <Text
                                     style={{ color: '#32CD32' }}

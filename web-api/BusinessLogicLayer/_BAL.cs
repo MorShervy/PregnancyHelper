@@ -1,4 +1,5 @@
-﻿using DataAccessLayer;
+﻿using BusinessLogicLayer.Models;
+using DataAccessLayer;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -73,6 +74,27 @@ namespace BusinessLogicLayer
                     return item;
                 }
             }
+            return null;
+        }
+
+        public static ResetPasswordRequest SendResetPasswordEmail(string email)
+        {
+            DataTable res = _DAL.SendResetPasswordEmail(email);
+            
+
+            if (res == null)
+                return null;
+
+            if (Convert.ToBoolean((int)res.Rows[0]["ReturnCode"]))
+            {
+                ResetPasswordRequest result = new ResetPasswordRequest()
+                {
+                    UniqueID = res.Rows[0]["UniqueID"].ToString(),
+                    Email = email,
+                };
+                return result;
+            }
+
             return null;
         }
     }

@@ -48,12 +48,11 @@ export default class App extends Component {
 
 const RootStack = createStackNavigator(
   {
-
     AuthNavigation,
     HomeNavigation,
   },
   {
-    initialRouteName: 'HomeNavigation',
+    initialRouteName: 'AuthNavigation',
     defaultNavigationOptions: {
       header: null,
     }

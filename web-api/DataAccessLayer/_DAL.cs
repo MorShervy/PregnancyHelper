@@ -13,7 +13,7 @@ namespace DataAccessLayer
     public static class _DAL
     {
         private static string conStr = null;
-        private static bool local = true;
+        private static bool local = false;
         private static SqlConnection Con = null;
         private static SqlDataAdapter _adtr = null;
         private static SqlCommand _command = null;
@@ -104,6 +104,35 @@ namespace DataAccessLayer
                 _adtr.Fill(ds, "User");
                 if (ds.Tables["User"].Rows.Count != 0)
                     return ds.Tables["User"];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+        }
+
+        public static DataTable SendResetPasswordEmail(string email)
+        {
+            try
+            {
+                Con.Open();
+                _command = new SqlCommand("ResetPassword", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _command.Parameters.Add(new SqlParameter("Email", email));
+
+                DataSet ds = new DataSet();
+                _adtr = new SqlDataAdapter(_command);
+
+                _adtr.Fill(ds, "ResetPassword");
+                if (ds.Tables["ResetPassword"].Rows.Count != 0)
+                    return ds.Tables["ResetPassword"];
             }
             catch (Exception ex)
             {

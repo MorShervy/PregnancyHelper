@@ -31,8 +31,8 @@ const TabNavigation = createMaterialTopTabNavigator(
 
 const HomeNavigation = (props) = createStackNavigator(
     {
-        BellyBump,
         TabNavigation,
+        BellyBump,
         Hospital,
 
     },
