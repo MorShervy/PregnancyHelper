@@ -53,8 +53,8 @@ GO
 
 EXEC Register 'test3@gmail.com','123456','09-04-2019'
 
-------------SP ResetPassword------------
-CREATE PROC ResetPassword (
+------------SP ResetPasswordRequest------------
+CREATE PROC ResetPasswordRequest (
 	@Email nvarchar(50)
 	)
 AS
@@ -84,4 +84,36 @@ AS
 
 GO
 
-exec ResetPassword 'morshervi@gmail.com'
+exec ResetPasswordRequest 'morshervi@gmail.com'
+
+ALTER PROC ResetPassword (
+	@uid uniqueidentifier,
+	@NewPassword nvarchar(50)
+	)
+AS
+	BEGIN 
+		DECLARE @UserID int
+		
+		SELECT @UserID = UserID
+		FROM TBResetPasswordRequests
+		WHERE @uid = ID
+
+		IF(@UserID IS NOT NULL)
+			BEGIN
+				--if uid is exists
+				UPDATE TBUsers
+				SET Password = @NewPassword
+				WHERE UserID = @UserID
+
+				DELETE FROM TBResetPasswordRequests
+				WHERE ID = @uid
+
+				SELECT 1 AS ReturnCode
+			END
+		ELSE
+			--if uid is not exists
+			SELECT 0 AS ReturnCode
+	END
+GO
+
+exec ResetPassword '8efc0390-e25f-492c-af92-4b3206bb4f34','1q2w3e4r'

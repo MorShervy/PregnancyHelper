@@ -122,10 +122,40 @@ namespace DataAccessLayer
             try
             {
                 Con.Open();
-                _command = new SqlCommand("ResetPassword", Con);
+                _command = new SqlCommand("ResetPasswordRequest", Con);
                 _command.CommandType = CommandType.StoredProcedure;
 
                 _command.Parameters.Add(new SqlParameter("Email", email));
+
+                DataSet ds = new DataSet();
+                _adtr = new SqlDataAdapter(_command);
+
+                _adtr.Fill(ds, "ResetPasswordRequest");
+                if (ds.Tables["ResetPasswordRequest"].Rows.Count != 0)
+                    return ds.Tables["ResetPasswordRequest"];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+        }
+
+        public static DataTable ResetPassword(string uid, string newPassword)
+        {
+            try
+            {
+                Con.Open();
+                _command = new SqlCommand("ResetPassword", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _command.Parameters.Add(new SqlParameter("uid", uid));
+                _command.Parameters.Add(new SqlParameter("NewPassword", newPassword));
 
                 DataSet ds = new DataSet();
                 _adtr = new SqlDataAdapter(_command);

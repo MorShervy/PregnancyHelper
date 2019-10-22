@@ -128,6 +128,19 @@ namespace web_api.Controllers
             }
         }
 
+        [HttpPost]
+        [EnableCors("*", "*", "*")]
+        [Route("ResetPassword")]
+        public IHttpActionResult PostResetPassword([FromBody]ResetPasswordRequest request)
+        {
+            bool res = _BAL.ResetPassword(request.UniqueID, request.NewPassword);
+
+            if (res)
+                return Ok(res + " - Password updated successfully");
+            else
+                return BadRequest(res + " - Password updated faild");
+        }
+
         // PUT api/users/1
         //public IHttpActionResult Put(int id, [FromBody]User user)
         //{

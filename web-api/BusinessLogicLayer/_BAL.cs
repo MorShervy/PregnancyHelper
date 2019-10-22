@@ -97,5 +97,18 @@ namespace BusinessLogicLayer
 
             return null;
         }
+
+        public static bool ResetPassword(string uid,string newPassword)
+        {
+            DataTable res = _DAL.ResetPassword(uid, newPassword);
+
+            if (res == null)
+                return false;
+
+            bool result = Convert.ToBoolean((int)res.Rows[0]["ReturnCode"]);
+
+            return result;
+
+        }
     }
 }
