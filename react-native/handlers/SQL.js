@@ -2,8 +2,10 @@ const URL = "http://ruppinmobile.tempdomain.co.il/site08/api";
 
 export default class SQL {
 
-    static Register(email, password) {
+    static Register(email, password, dueDate, lastMenstrualPeriod) {
         console.log('email=', email, 'pass=', password)
+        console.log('dueDate=', dueDate, 'lastMenstrualPeriod=', lastMenstrualPeriod)
+
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -14,7 +16,9 @@ export default class SQL {
                     },
                     body: JSON.stringify({
                         email,
-                        password
+                        password,
+                        dueDate,
+                        lastMenstrualPeriod
                     })
                 });
                 //console.log(`${URL}/user/register`, res);

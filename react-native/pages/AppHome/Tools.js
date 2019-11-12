@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { StackActions, NavigationActions, SwitchActions } from 'react-navigation';
 import ItemToolList from '../../components/ItemToolList';
 
 const { height, width } = Dimensions.get("window");
@@ -17,14 +18,16 @@ class Tools extends Component {
 
         handlePrees = (item) => {
             //console.log('item=', item)
-            if (item.key === 2)
+            if (item.key === 1)
+                navigation.navigate('KickTracker')
+            else if (item.key === 2)
                 navigation.navigate('BellyBump')
-            if (item.key === 6)
+            else if (item.key === 6)
                 navigation.navigate('Hospital')
 
         }
         return (
-            <View style={styles.page}>
+            <View style={styles.page} >
                 <View style={styles.body}>
                     <Text style={[styles.pregnancyTool, { color: GREY_COLOR }]}>PREGNANCY TOOLS</Text>
                     <ItemToolList handlePrees={(item) => handlePrees(item)} />

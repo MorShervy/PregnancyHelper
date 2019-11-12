@@ -72,10 +72,10 @@ export default class Login extends Component {
                 return;
 
             this.setState({ errorEmail: false, errorPass: false, errorEmailExist: false, isLoading: true })
-            const sqlResult = await SQL.Login(email.toUpperCase(), pass);
+            const sqlResult = await SQL.Login(email.toLowerCase(), pass);
             console.log('res=', sqlResult)
 
-            if (sqlResult.Message !== undefined) {
+            if (sqlResult.ReturnCode === 0) {
                 setTimeout(() => {
                     //let delta = Date.now() - start;
                     this.setState({ isLoading: false, errorEmailExist: true })
@@ -83,7 +83,7 @@ export default class Login extends Component {
                 }, 1000)
                 return;
             }
-            navigation.navigate('HomeNavigation')
+            navigation.navigate('HomeStack')
         }
 
         toggleVisiblePass = () => {

@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TextInput, Dimensions, DatePickerAndroid, Touch
 import { Ionicons } from "@expo/vector-icons";
 import { HeaderBackButton } from 'react-navigation-stack';
 import { LinearGradient } from 'expo-linear-gradient';
-import DueDate from '../../handlers/DueDate';
+import { DueDate } from '../../handlers/Dates';
 import SQL from '../../handlers/SQL';
 
 const { height, width } = Dimensions.get("window");
@@ -12,7 +12,6 @@ const regexEmail = /^(([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}))$/;
 const regexPassword = /^(.{8,49})$/;
 const GREEN_COLOR = '#3CB371';
 const GREY_COLOR = '#8e8e8e';
-const DARKGREY_COLOR = '#2F4F4F';
 const DARKGRAY_COLOR = '#A9A9A9';
 const LIGHTGREY_COLOR = '#EFF0F4';
 const APP_COLOR = '#304251';
@@ -123,15 +122,25 @@ export default class Register extends Component {
 
         handleOnPressRegister = async () => {
             const isPassed = handleInputTesting()
+
             if (!isPassed)
                 return;
 
-            // clear error states and show loading style
-            this.setState({ errorEmail: false, errorPass: false, errorDate: false, errorEmailExist: false, isLoading: true, })
+            let lastMenstrualPeriod;
+            //console.log('childBirthDate=', childBirthDate)
+            if (childBirthDate !== '')
+                lastMenstrualPeriod = DueDate.CalculateLastMenstrualByDueDate(childBirthDate)
 
-            const sqlResult = await SQL.Register(email.toUpperCase(), pass);
+            // clear error states and show loading style
+            this.setState({
+                errorEmail: false, errorPass: false, errorDate: false, errorEmailExist: false, isLoading: true,
+
+            })
+            console.log('lastMenstrualPeriod=', lastMenstrualPeriod)
+
+            const sqlResult = await SQL.Register(email.toLowerCase(), pass, childBirthDate, lastMenstrualPeriod);
             console.log('res=', sqlResult)
-            if (sqlResult.Message !== undefined) {
+            if (sqlResult.ReturnCode === 0) {
                 let start = Date.now();
                 let myTimer = setTimeout(() => {
                     //let delta = Date.now() - start;
@@ -153,7 +162,7 @@ export default class Register extends Component {
             // )
             //debugger;
 
-            navigation.navigate('HomeNavigation')
+            navigation.navigate('HomeStack')
         }
 
         toggleVisiblePass = () => {

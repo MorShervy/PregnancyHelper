@@ -28,6 +28,6 @@ const styles = StyleSheet.create({
         fontSize: 70,
         fontWeight: 'bold',
         color: 'grey',
-        alignSelf: 'center',
+        textAlign: 'center'
     }
 })

@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import { View, I18nManager } from 'react-native';
-import { createAppContainer } from 'react-navigation';
-import { createStackNavigator } from 'react-navigation-stack';
+import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { Asset } from 'expo-asset';
 import { AppLoading } from 'expo';
 import { useKeepAwake } from 'expo-keep-awake';
-import AuthNavigation from './AuthNavigation';
-import HomeNavigation from './HomeNavigation';
+import AuthStack from './AuthStack';
+import HomeStack from './HomeStack';
 
 I18nManager.forceRTL(false);
 
@@ -22,7 +21,7 @@ export default class App extends Component {
 
 
   async _cacheResourcesAsync() {
-    const images = [require('./assets/images/bgpic.png')];
+    const images = [require('./assets/images/bgpic.png'), require('./assets/images/user.png')];
 
     const cacheImages = images.map(image => {
       return Asset.fromModule(image).downloadAsync();
@@ -46,17 +45,18 @@ export default class App extends Component {
   }
 }
 
-const RootStack = createStackNavigator(
-  {
-    AuthNavigation,
-    HomeNavigation,
-  },
-  {
-    initialRouteName: 'AuthNavigation',
-    defaultNavigationOptions: {
-      header: null,
+const AppContainer = createAppContainer(
+  createSwitchNavigator(
+    {
+      AuthStack,
+      HomeStack,
+    },
+    {
+      initialRouteName: 'HomeStack',
+      defaultNavigationOptions: {
+        header: null,
+      }
     }
-  }
+  )
 )
 
-const AppContainer = createAppContainer(RootStack)

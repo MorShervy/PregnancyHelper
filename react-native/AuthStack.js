@@ -5,7 +5,7 @@ import Login from './pages/AppAuth/Login';
 import Register from './pages/AppAuth/Register';
 import ForgotPassword from './pages/AppAuth/ForgotPassword';
 
-const AuthNavigation = createStackNavigator(
+const AuthStack = createStackNavigator(
     {
         MainAppAuth,
         Login,
@@ -22,4 +22,4 @@ const AuthNavigation = createStackNavigator(
     }
 );
 
-export default AuthNavigation;
+export default AuthStack;

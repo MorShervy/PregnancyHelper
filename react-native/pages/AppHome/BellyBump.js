@@ -14,10 +14,10 @@ export default class BellyBump extends Component {
 
     static navigationOptions = ({ navigation }) => {
         return {
-            headerTitle: null,
+            headerTitle: "Belly bump",
             headerLeft: (
                 <HeaderBackButton
-                    onPress={() => navigation.goBack()}
+                    onPress={() => handleHeaderBackButton(navigation)}
                     tintColor={'#FFF'}
                 />
             ),
@@ -27,6 +27,14 @@ export default class BellyBump extends Component {
 
 
     render() {
+
+        handleHeaderBackButton = navigation => {
+            console.log('navigation=', navigation)
+            navigation.navigate({
+                routeName: 'Home',
+            })
+        }
+
         return (
             <View style={{ flex: 1 }}>
                 {/* header buttons row  */}
