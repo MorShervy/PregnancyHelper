@@ -21,7 +21,11 @@ export default class App extends Component {
 
 
   async _cacheResourcesAsync() {
-    const images = [require('./assets/images/bgpic.png'), require('./assets/images/user.png')];
+    const images = [
+      require('./assets/images/bgpic.png'),
+      require('./assets/images/user.png'),
+      require('./assets/images/logo.png')
+    ];
 
     const cacheImages = images.map(image => {
       return Asset.fromModule(image).downloadAsync();
@@ -52,7 +56,7 @@ const AppContainer = createAppContainer(
       HomeStack,
     },
     {
-      initialRouteName: 'HomeStack',
+      initialRouteName: 'AuthStack',
       defaultNavigationOptions: {
         header: null,
       }

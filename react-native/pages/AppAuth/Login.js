@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, Dimensions, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, Dimensions, TextInput, TouchableOpacity, ActivityIndicator, AsyncStorage } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from 'expo-linear-gradient';
 import SQL from '../../handlers/SQL';
+import { observer } from 'mobx-react'
+import userStore from '../../mobx/UserStore';
 
 const { height, width } = Dimensions.get("window");
 
@@ -16,6 +18,7 @@ const LIGHTGREY_COLOR = '#EFF0F4';
 const APP_COLOR = '#304251';
 const RED_COLOR = '#FF0000';
 
+@observer
 export default class Login extends Component {
     constructor(props) {
         super(props);
@@ -75,7 +78,7 @@ export default class Login extends Component {
             const sqlResult = await SQL.Login(email.toLowerCase(), pass);
             console.log('res=', sqlResult)
 
-            if (sqlResult.ReturnCode === 0) {
+            if (sqlResult.ID < 1) {
                 setTimeout(() => {
                     //let delta = Date.now() - start;
                     this.setState({ isLoading: false, errorEmailExist: true })
@@ -83,6 +86,13 @@ export default class Login extends Component {
                 }, 1000)
                 return;
             }
+            AsyncStorage.setItem(
+                "user",
+                JSON.stringify({
+                    ID: sqlResult.ID
+                })
+            )
+            userStore.getUserAsync(sqlResult.ID)
             navigation.navigate('HomeStack')
         }
 

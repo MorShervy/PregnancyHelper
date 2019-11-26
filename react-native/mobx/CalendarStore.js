@@ -3,7 +3,7 @@ import { observable, action, computed } from 'mobx'
 
 
 class CalendarStore {
-    @observable filterWeek = {};
+    @observable filterWeek;
 
     @observable weeksData = [
         {
@@ -103,7 +103,7 @@ class CalendarStore {
         },
         {
             key: 20,
-            title: '',
+            title: 'What should I be feeling at 20 weeks pregnant?',
             body: `Your baby is the size of a orange, and this week you might start to experience Swelling. Don't worry unless the swelling is sudden or severe, this will start subsiding after delivery. In the meantime, you can put up your legs to relief the feeling.`,
         },
         {
@@ -219,8 +219,8 @@ class CalendarStore {
     ]
 
     @action filter(currentWeek) {
-        const weekData = this.weeksData.filter(week => week.key === currentWeek);
-        return weekData;
+        this.filterWeek = this.weeksData.filter(week => week.key === currentWeek);
+        return this.filterWeek;
     }
 
 }

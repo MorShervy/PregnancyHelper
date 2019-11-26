@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TouchableOpacity, Text, AsyncStorage, View, Dimensions } from 'react-native';
+import { TouchableOpacity, Text, AsyncStorage, View, Dimensions, Image } from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createMaterialTopTabNavigator } from 'react-navigation-tabs';
 import { createDrawerNavigator } from 'react-navigation-drawer';
@@ -9,6 +9,7 @@ import Tools from './pages/AppHome/Tools';
 import Hospital from './pages/AppHome/Hospital';
 import BellyBump from './pages/AppHome/BellyBump';
 import KickTracker from './pages/AppHome/KickTracker';
+import ContractionTimer from './pages/AppHome/ContractionTimer';
 import MyProfile from './pages/AppHome/MyProfile';
 import Settings from './pages/AppHome/Settings';
 import About from './pages/AppHome/About';
@@ -50,7 +51,19 @@ const TabNavigationStack = createStackNavigator(
                 style={{ marginLeft: 20 }}
                 onPress={() => { navigation.toggleDrawer(); }}
             >
-                <Ionicons name="md-apps" color="#FFF" size={25} />
+                <Image
+                    source={require('./assets/images/logo.png')}
+                    style={
+                        {
+                            height: 35,
+                            width: 35,
+                            opacity: 0.8,
+                            borderRadius: 60,
+                            borderWidth: 1,
+                            borderColor: '#FFF',
+
+                        }
+                    } />
             </TouchableOpacity>
             ),
             headerTitle: 'My Pregnancy',
@@ -182,9 +195,13 @@ const ToolsStack = createStackNavigator(
         },
         KickTracker: {
             screen: KickTracker
+        },
+        ContractionTimer: {
+            screen: ContractionTimer
         }
     },
     {
+        //initialRouteName: 'KickTracker',
         defaultNavigationOptions: ({ navigation }) => ({
             headerStyle: {
                 backgroundColor: "#304251",
@@ -196,8 +213,9 @@ const ToolsStack = createStackNavigator(
 
 const HomeStack = createStackNavigator(
     {
+
         DrawerStack,
-        ToolsStack,
+        ToolsStack
 
     },
     {

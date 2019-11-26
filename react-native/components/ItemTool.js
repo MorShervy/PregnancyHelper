@@ -20,7 +20,8 @@ const ItemTool = ({ item }, props) => (
     >
         <View>
             <View style={[styles.circleFrame, {
-                backgroundColor: (item.key === 1 && BG_FEET ||
+                backgroundColor: (
+                    item.key === 1 && BG_FEET ||
                     item.key === 2 && BG_CAMERA ||
                     item.key === 3 && BG_CONTRACTION ||
                     item.key === 4 && BG_BABYNAMES ||
@@ -30,12 +31,14 @@ const ItemTool = ({ item }, props) => (
 
                 <Image
                     style={{ height: 55, width: 55 }}
-                    source={(item.key === 1 && require('../assets/icons/feet.png') ||
+                    source={(
+                        item.key === 1 && require('../assets/icons/feet.png') ||
                         item.key === 2 && require('../assets/icons/camera.png') ||
                         item.key === 3 && require('../assets/icons/contraction.png') ||
                         item.key === 4 && require('../assets/icons/babyNames.png') ||
                         item.key === 5 && require('../assets/icons/schedule.png') ||
-                        item.key === 6 && require('../assets/icons/hospital.png'))}
+                        item.key === 6 && require('../assets/icons/hospital.png')
+                    )}
                 />
             </View>
             <Text style={styles.title}>{item.title}</Text>
@@ -52,8 +55,8 @@ const styles = StyleSheet.create({
         //alignSelf: 'center'
     },
     circleFrame: {
-        height: 90,
-        width: 90,
+        height: 85,
+        width: 85,
         borderRadius: 60,
         justifyContent: 'center',
         alignItems: 'center',

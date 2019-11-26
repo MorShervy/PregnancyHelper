@@ -22,6 +22,8 @@ class Tools extends Component {
                 navigation.navigate('KickTracker')
             else if (item.key === 2)
                 navigation.navigate('BellyBump')
+            else if (item.key === 3)
+                navigation.navigate('ContractionTimer')
             else if (item.key === 6)
                 navigation.navigate('Hospital')
 

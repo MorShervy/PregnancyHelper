@@ -1,16 +1,30 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, ImageBackground, Dimensions, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, ImageBackground, Dimensions, TouchableOpacity, AsyncStorage, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
 
 const { height, width } = Dimensions.get("window");
 
 export default class MainAppAuth extends Component {
+
     static navigationOptions = {
         header: null,
     };
 
+    componentWillMount() {
+        console.log('mainapp will mount')
+        AsyncStorage.getItem("user").then(
+            res => res !== null && this.props.navigation.navigate("HomeStack")
+        );
+    }
+
+    componentDidMount() {
+
+    }
+
     render() {
+        console.log('mainapp render')
+
         return (
             <View style={styles.container}>
 
@@ -21,10 +35,9 @@ export default class MainAppAuth extends Component {
                     style={styles.LinearGradientStyle}
                 >
                     {/* logo with app name and some text */}
-                    <View style={styles.marginTopHeader}>
+                    <View style={[{ flex: 0.6 }, styles.marginTopHeader]}>
 
-                        {/* icon */}
-                        <Ionicons style={styles.logoStyle} name="md-apps" color="#FFF" size={70} />
+
 
                         {/* header text */}
                         <Text style={[styles.textStyle, { fontSize: 18, }]}>Pregnancy Helper</Text>
@@ -34,6 +47,21 @@ export default class MainAppAuth extends Component {
                             Welcome to your trusted weekly{'\n'}
                             guide to pregnancy
                         </Text>
+                        {/* logo */}
+                        <View style={{ marginTop: '20%' }}>
+                            <Image
+                                source={require('../../assets/images/logo.png')}
+                                style={{
+                                    height: 90,
+                                    width: 90,
+                                    alignSelf: 'center',
+                                    opacity: 0.65,
+                                    borderRadius: 60,
+                                    borderWidth: 2,
+                                    borderColor: '#FFF',
+                                }}
+                            />
+                        </View>
                     </View>
 
                     <View style={styles.buttonsStyle}>
@@ -96,6 +124,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     buttonsStyle: {
+        flex: 0.4,
         flexDirection: "column",
         alignItems: 'center',
         justifyContent: 'center',

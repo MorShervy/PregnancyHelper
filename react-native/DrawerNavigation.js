@@ -1,6 +1,6 @@
 
 import React, { Component } from 'react';
-import { StyleSheet, View, ScrollView, SafeAreaView, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { StyleSheet, View, ScrollView, SafeAreaView, Text, TouchableOpacity, Image, Dimensions, AsyncStorage } from 'react-native';
 import { DrawerItems } from 'react-navigation-drawer';
 
 const { height, width } = Dimensions.get("window");
@@ -28,7 +28,7 @@ class DrawerNavigation extends Component {
 
         }
 
-        console.log('nav=', this.props.navigation.route);
+        //console.log('nav=', this.props.navigation.route);
         return (
             <ScrollView
                 contentContainerStyle={{
@@ -52,8 +52,12 @@ class DrawerNavigation extends Component {
                         onItemPress={r => { handleOnItemPress(r) }}
                     />
                     <View style={{ height: '0.1%', width: width - 100, alignSelf: 'center', backgroundColor: '#8e8e8e' }}></View>
-                    <TouchableOpacity >
-                        <Text>test</Text>
+                    <TouchableOpacity
+                        onPress={() => AsyncStorage.removeItem("user").then(
+                            this.props.navigation.navigate("AuthStack")
+                        )}
+                    >
+                        <Text>sign out</Text>
                     </TouchableOpacity>
                 </SafeAreaView>
             </ScrollView>

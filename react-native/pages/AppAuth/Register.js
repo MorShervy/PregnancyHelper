@@ -5,6 +5,8 @@ import { HeaderBackButton } from 'react-navigation-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { DueDate } from '../../handlers/Dates';
 import SQL from '../../handlers/SQL';
+import { observer } from 'mobx-react'
+import userStore from '../../mobx/UserStore';
 
 const { height, width } = Dimensions.get("window");
 
@@ -17,6 +19,7 @@ const LIGHTGREY_COLOR = '#EFF0F4';
 const APP_COLOR = '#304251';
 const RED_COLOR = '#FF0000';
 
+@observer
 export default class Register extends Component {
 
     constructor(props) {
@@ -136,11 +139,11 @@ export default class Register extends Component {
                 errorEmail: false, errorPass: false, errorDate: false, errorEmailExist: false, isLoading: true,
 
             })
-            console.log('lastMenstrualPeriod=', lastMenstrualPeriod)
+            //console.log('lastMenstrualPeriod=', lastMenstrualPeriod)
 
             const sqlResult = await SQL.Register(email.toLowerCase(), pass, childBirthDate, lastMenstrualPeriod);
             console.log('res=', sqlResult)
-            if (sqlResult.ReturnCode === 0) {
+            if (sqlResult.ID < 1) {
                 let start = Date.now();
                 let myTimer = setTimeout(() => {
                     //let delta = Date.now() - start;
@@ -149,19 +152,15 @@ export default class Register extends Component {
                 }, 1000)
                 return;
             }
-            //alert('created')
-            // AsyncStorage.setItem(
-            //     "user",
-            //     JSON.stringify({
-            //         ID: sqlResult.ID,
-            //         Email: sqlResult.Email,
-            //         FirstName: sqlResult.FirstName,
-            //         LastName: sqlResult.LastName,
-            //         RegistrationDate: sqlResult.RegistrationDate
-            //     })
-            // )
-            //debugger;
 
+            AsyncStorage.setItem(
+                "user",
+                JSON.stringify({
+                    ID: sqlResult.ID
+                })
+            )
+
+            userStore.getUserAsync(sqlResult.ID)
             navigation.navigate('HomeStack')
         }
 
