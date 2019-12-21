@@ -8,13 +8,14 @@ class UserStore {
     @observable user = {}
 
     @action getUserAsync = id => {
-        //console.log('id=', id)
+        // console.log('id=', id)
         fetch(`${URL}/User/${id}`)
             .then(response => response.json())
             .then(data => {
                 runInAction(() => {
-                    console.log('data=', data)
+                    // console.log('data=', data)
                     this.user = data;
+                    return true;
                 })
             })
     }

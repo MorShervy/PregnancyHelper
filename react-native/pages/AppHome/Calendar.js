@@ -7,6 +7,7 @@ import { Video } from 'expo-av';
 import calendarStore from '../../mobx/CalendarStore';
 import { observer } from 'mobx-react'
 import userStore from '../../mobx/UserStore';
+import pregnancyStore from '../../mobx/PregnancyStore';
 
 
 const APP_COLOR = '#304251';
@@ -18,17 +19,20 @@ class Calendar extends Component {
 
     constructor(props) {
         super(props);
-
+        AsyncStorage.getItem("user").then(
+            res => JSON.parse(res)).then(
+                res => res !== null &&
+                    userStore.getUserAsync(res.ID)
+            );
     }
 
     componentWillMount() {
-        AsyncStorage.getItem("user")
-            .then(res => JSON.parse(res))
-            .then(user => {
-                user !== null && userStore.getUserAsync(user.ID)
-            });
+
     }
 
+    componentDidMount() {
+
+    }
     // _handleVideoRef = component => {
     //     const playbackObject = component;
     //     playbackObject.loadAsync({uri:'http://ruppinmobile.tempdomain.co.il/site08/PregnantVideo/Weeks20.mp4',header}, initialStatus = {}, downloadFirst = true)
@@ -37,10 +41,11 @@ class Calendar extends Component {
     render() {
         const weekData = calendarStore.filter(20)[0]
         //console.log('weekData=', calendarStore.filter(10))
-        console.log('week=', weekData)
+        // console.log('week=', weekData)
         const dateNow = new Date();
 
-        console.log('date=', dateNow.toLocaleDateString())
+        if (userStore.user.ID !== undefined)
+            pregnancyStore.getPregnancyByUserId(userStore.user.ID)
 
         return (
             <View style={{ flex: 1 }}>
@@ -74,7 +79,7 @@ class Calendar extends Component {
                         </View>
                         <View style={[styles.flexRow, { opacity: 0.3 }]}>
                             <Text style={{ color: APP_COLOR, fontSize: 12, left: -10 }}>Previous week</Text>
-                            <Text style={{ color: APP_COLOR, fontSize: 12 }}>Future week</Text>
+                            <Text style={{ color: APP_COLOR, fontSize: 12 }}>Next week</Text>
                         </View>
 
                     </View>
@@ -96,7 +101,7 @@ class Calendar extends Component {
                                 <Text style={{ color: APP_COLOR, fontWeight: '300', fontSize: 15 }}>WEEK 20 - DAY 3</Text>
                                 <Text style={{ color: APP_COLOR, fontWeight: '100', fontSize: 9 }}>(Nov 23 - Nov 30)</Text>
                             </View>
-                            <Text style={{ color: APP_COLOR, fontWeight: '100', fontSize: 10, alignSelf: 'center', color: '#F4AC32' }}>Today: Nov 23, 2019</Text>
+                            <Text style={{ color: APP_COLOR, fontWeight: '100', fontSize: 10, alignSelf: 'center', color: '#F4AC32' }}>Today: Nov 26, 2019</Text>
 
                         </View>
                     </View>

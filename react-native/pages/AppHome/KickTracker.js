@@ -129,41 +129,58 @@ export default class KickTracker extends Component {
                         <View style={{ width: '25%' }}>
                             <Text style={{ color: '#000', fontWeight: '500' }}>Time</Text>
                         </View>
-                        <View style={{ width: '20%' }}>
+                        <View style={{ width: '25%' }}>
                             <Text style={{ color: '#000', fontWeight: '500' }}>Length</Text>
                         </View>
-                        <View style={{ width: '20%' }}>
+                        <View style={{ width: '15%' }}>
                             <Text style={{ color: '#000', fontWeight: '500' }}>Kicks</Text>
                         </View>
                     </View>
 
-                    <View style={styles.kickTrackerList}>
-                        <View style={{ width: '35%' }}>
-                            <Text style={{}}>Nov 24, 2019</Text>
+                    <View style={{ flexDirection: 'column-reverse' }}>
+                        <View style={styles.kickTrackerList}>
+                            <View style={{ width: '35%' }}>
+                                <Text style={{}}>Nov 24, 2019</Text>
+                            </View>
+                            <View style={{ width: '25%' }}>
+                                <Text style={{}}>3:34pm</Text>
+                            </View>
+                            <View style={{ width: '25%' }}>
+                                <Text style={{}}>1h 28m</Text>
+                            </View>
+                            <View style={{ width: '15%' }}>
+                                <Text style={{ marginLeft: '15%' }}>10</Text>
+                            </View>
                         </View>
-                        <View style={{ width: '25%' }}>
-                            <Text style={{}}>3:34 pm</Text>
-                        </View>
-                        <View style={{ width: '20%' }}>
-                            <Text style={{}}>2h 58s</Text>
-                        </View>
-                        <View style={{ width: '20%' }}>
-                            <Text style={{ marginLeft: '15%' }}>5</Text>
-                        </View>
-                    </View>
 
-                    <View style={styles.kickTrackerList}>
-                        <View style={{ width: '35%' }}>
-                            <Text style={{}}>Nov 24, 2019</Text>
+                        <View style={styles.kickTrackerList}>
+                            <View style={{ width: '35%' }}>
+                                <Text style={{}}>Nov 25, 2019</Text>
+                            </View>
+                            <View style={{ width: '25%' }}>
+                                <Text style={{}}>12:10pm</Text>
+                            </View>
+                            <View style={{ width: '25%' }}>
+                                <Text style={{}}>1h 50m</Text>
+                            </View>
+                            <View style={{ width: '15%' }}>
+                                <Text style={{ marginLeft: '15%' }}>10</Text>
+                            </View>
                         </View>
-                        <View style={{ width: '25%' }}>
-                            <Text style={{}}>3:34 pm</Text>
-                        </View>
-                        <View style={{ width: '20%' }}>
-                            <Text style={{}}>2h 58s</Text>
-                        </View>
-                        <View style={{ width: '20%' }}>
-                            <Text style={{ marginLeft: '15%' }}>5</Text>
+
+                        <View style={styles.kickTrackerList}>
+                            <View style={{ width: '35%' }}>
+                                <Text style={{}}>Nov 25, 2019</Text>
+                            </View>
+                            <View style={{ width: '25%' }}>
+                                <Text style={{}}>20:50pm</Text>
+                            </View>
+                            <View style={{ width: '25%' }}>
+                                <Text style={{}}>1h 30m</Text>
+                            </View>
+                            <View style={{ width: '15%' }}>
+                                <Text style={{ marginLeft: '15%' }}>10</Text>
+                            </View>
                         </View>
                     </View>
                 </View>
@@ -204,7 +221,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         borderBottomWidth: 1,
         borderColor: '#948D8C',
-        paddingVertical: 10,
+        paddingVertical: '3%',
     },
 
 })

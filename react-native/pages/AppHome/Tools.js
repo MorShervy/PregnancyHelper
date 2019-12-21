@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { StackActions, NavigationActions, SwitchActions } from 'react-navigation';
 import ItemToolList from '../../components/ItemToolList';
 
-const { height, width } = Dimensions.get("window");
+const { height, width, fontScale } = Dimensions.get("window");
 
 const GREY_COLOR = '#8e8e8e';
 
@@ -31,7 +31,8 @@ class Tools extends Component {
         return (
             <View style={styles.page} >
                 <View style={styles.body}>
-                    <Text style={[styles.pregnancyTool, { color: GREY_COLOR }]}>PREGNANCY TOOLS</Text>
+                    <Text style={styles.txtHeader}>Helpful Tools
+                    to Make Your Pregnancy Smoother</Text>
                     <ItemToolList handlePrees={(item) => handlePrees(item)} />
                 </View>
             </View>
@@ -49,8 +50,13 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         width: width - 50,
     },
-    pregnancyTool: {
-        borderBottomColor: GREY_COLOR,
-        borderBottomWidth: 1,
+    txtHeader: {
+        // borderBottomColor: GREY_COLOR,
+        // borderBottomWidth: 1,
+        color: GREY_COLOR,
+        textAlign: 'center',
+        fontSize: 14 * fontScale,
+        marginTop: '5%',
+        marginBottom: '5%',
     }
 });

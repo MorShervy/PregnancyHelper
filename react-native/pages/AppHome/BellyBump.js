@@ -4,8 +4,13 @@ import { HeaderBackButton } from 'react-navigation-stack';
 import { Ionicons } from "@expo/vector-icons";
 import ItemPictureList from '../../components/ItemPictureList';
 
+
+import { observer } from 'mobx-react'
+import pregnancyStore from '../../mobx/PregnancyStore';
+
 const { height, width } = Dimensions.get("window");
 
+@observer
 export default class BellyBump extends Component {
     constructor(props) {
         super(props);
@@ -25,7 +30,10 @@ export default class BellyBump extends Component {
         };
     }
 
-
+    takePicture = week => {
+        pregnancyStore.setWeek(week);
+        this.props.navigation.navigate('CameraPage')
+    }
 
     render() {
 
@@ -36,6 +44,8 @@ export default class BellyBump extends Component {
             })
         }
 
+
+
         return (
             <View style={{ flex: 1 }}>
                 {/* header buttons row  */}
@@ -45,7 +55,7 @@ export default class BellyBump extends Component {
                         style={styles.buttonStyle}
                         underlayColor={'#F4AC32'}
                         activeOpacity={1}
-                        onPress={() => console.log('testclick')}
+                        onPress={(key) => this.takePicture(key)}
                     >
                         <View style={styles.rowDirection}>
                             <View style={styles.iconViewStyle}>
@@ -59,7 +69,7 @@ export default class BellyBump extends Component {
                         style={styles.buttonStyle}
                         underlayColor={'#F4AC32'}
                         activeOpacity={1}
-                        onPress={() => console.log('testclick')}
+                        onPress={() => this.createBellyBump}
                     >
                         <View style={styles.rowDirection}>
                             <View style={styles.iconViewStyle}>
@@ -72,7 +82,8 @@ export default class BellyBump extends Component {
 
                 <View style={{ flex: 0.9 }} >
                     <View style={{ width: width - 3, alignSelf: 'center', marginTop: '3%' }}>
-                        <ItemPictureList />
+                        {/* שימוש בקומפוננטה להצגת כל התמונות ברשימה עם אפשרות לגלילה */}
+                        <ItemPictureList handlePress={(key) => this.takePicture(key)} />
                     </View>
                 </View>
             </View>

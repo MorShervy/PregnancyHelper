@@ -3,9 +3,17 @@ import { StyleSheet, View, Text, ImageBackground, Dimensions, TouchableOpacity, 
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
 
+import { observer } from 'mobx-react'
+import userStore from '../../mobx/UserStore';
+
 const { height, width } = Dimensions.get("window");
 
+@observer
 export default class MainAppAuth extends Component {
+    constructor(props) {
+        super(props);
+
+    }
 
     static navigationOptions = {
         header: null,
@@ -14,8 +22,12 @@ export default class MainAppAuth extends Component {
     componentWillMount() {
         console.log('mainapp will mount')
         AsyncStorage.getItem("user").then(
-            res => res !== null && this.props.navigation.navigate("HomeStack")
-        );
+            res => JSON.parse(res)).then(
+                res => {
+                    res !== null &&
+                        this.props.navigation.navigate("HomeStack")
+                }
+            );
     }
 
     componentDidMount() {
@@ -38,15 +50,18 @@ export default class MainAppAuth extends Component {
                     <View style={[{ flex: 0.6 }, styles.marginTopHeader]}>
 
 
+                        <View style={{ width: width - 100, alignSelf: 'center', opacity: 0.9 }}>
+                            {/* header text */}
+                            <Text style={[styles.textStyle, { fontSize: 20, fontWeight: '700' }]}>Pregnancy Helper</Text>
 
-                        {/* header text */}
-                        <Text style={[styles.textStyle, { fontSize: 18, }]}>Pregnancy Helper</Text>
+                            {/* paragraph text */}
 
-                        {/* paragraph text */}
-                        <Text style={[styles.textStyle, { fontSize: 14, }]}>
-                            Welcome to your trusted weekly{'\n'}
-                            guide to pregnancy
-                        </Text>
+                            <Text style={[styles.textStyle, { fontSize: 16, marginTop: '5%' }]}>
+                                Welcome to your trusted weekly{'\n'}
+                                guide to pregnancy.{'\n'}
+                                Getting pregnant is the start of an incredible journey.
+                            </Text>
+                        </View>
                         {/* logo */}
                         <View style={{ marginTop: '20%' }}>
                             <Image

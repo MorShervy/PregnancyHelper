@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Dimensions, Image, TouchableHighlight } from "react-native";
 
-const { height, width } = Dimensions.get("window");
+const { height, width, fontScale } = Dimensions.get("window");
 const GREY_COLOR = '#8e8e8e';
-const BG_FEET = '#A52A2A';
-const BG_CAMERA = '#F5DEB3';
+const BG_KICKTRACKER = '#A52A2A';
+const BG_BELLYBUMP = '#F5DEB3';
 const BG_CONTRACTION = '#2F4F4F';
 const BG_BABYNAMES = '#94b8b8';
 const BG_DUEDATE = '#e0ebeb';
@@ -21,8 +21,8 @@ const ItemTool = ({ item }, props) => (
         <View>
             <View style={[styles.circleFrame, {
                 backgroundColor: (
-                    item.key === 1 && BG_FEET ||
-                    item.key === 2 && BG_CAMERA ||
+                    item.key === 1 && BG_KICKTRACKER ||
+                    item.key === 2 && BG_BELLYBUMP ||
                     item.key === 3 && BG_CONTRACTION ||
                     item.key === 4 && BG_BABYNAMES ||
                     item.key === 5 && BG_DUEDATE ||
@@ -65,6 +65,6 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         paddingTop: '3%',
         color: GREY_COLOR,
-        fontSize: 12
+        fontSize: 10 * fontScale
     },
 });

@@ -14,6 +14,7 @@ import MyProfile from './pages/AppHome/MyProfile';
 import Settings from './pages/AppHome/Settings';
 import About from './pages/AppHome/About';
 import DrawerNavigation from './DrawerNavigation';
+import CameraPage from './pages/AppHome/CameraPage';
 
 const { height, width } = Dimensions.get("window");
 
@@ -198,6 +199,9 @@ const ToolsStack = createStackNavigator(
         },
         ContractionTimer: {
             screen: ContractionTimer
+        },
+        CameraPage: {
+            screen: CameraPage
         }
     },
     {

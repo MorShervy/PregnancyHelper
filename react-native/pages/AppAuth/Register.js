@@ -27,7 +27,7 @@ export default class Register extends Component {
         this.state = {
             email: '',
             pass: '',
-            childBirthToShow: 'Due Date/Child`s Birth...',
+            childBirthToShow: 'Estimated birth date...',
             childBirthDate: '',
             lastMenstrualPeriodToShow: 'Select a date',
             lastMenstrualPeriodDate: '',
@@ -123,44 +123,36 @@ export default class Register extends Component {
         const { childBirthToShow, lastMenstrualPeriodToShow, lastMenstrualPeriodDate } = this.state;
         const { navigation } = this.props;
 
+        // פונקציה הרשמה צד לקוח
         handleOnPressRegister = async () => {
-            const isPassed = handleInputTesting()
+            const isPassed = handleInputTesting() // קריאה לפונקציה לבדיקת קלט 
 
-            if (!isPassed)
+            if (!isPassed) // במידה והבדיקה לא עברה מסיים את הפונקציה
                 return;
 
             let lastMenstrualPeriod;
-            //console.log('childBirthDate=', childBirthDate)
-            if (childBirthDate !== '')
+            if (childBirthDate !== '') // במידה והמשתמשת הכניסה תאריך לידה משוער
+                // קריאה לפונקציה שמחשבת את היום הראשון של המחזור האחרון שלה 
                 lastMenstrualPeriod = DueDate.CalculateLastMenstrualByDueDate(childBirthDate)
 
-            // clear error states and show loading style
+            // מאפס את כל הודעות השגיאה ומציג דף נטען
             this.setState({
                 errorEmail: false, errorPass: false, errorDate: false, errorEmailExist: false, isLoading: true,
-
             })
-            //console.log('lastMenstrualPeriod=', lastMenstrualPeriod)
-
+            //  קריאה לפונקציה הרשמה על מנת להעביר את הנתונים מצד לקוח ושמירתם
             const sqlResult = await SQL.Register(email.toLowerCase(), pass, childBirthDate, lastMenstrualPeriod);
-            console.log('res=', sqlResult)
+            // במידה והתוצאה קטנה מ1 המשתמש קיים ומציגים הודעת מתאימה
             if (sqlResult.ID < 1) {
-                let start = Date.now();
-                let myTimer = setTimeout(() => {
-                    //let delta = Date.now() - start;
+                setTimeout(() => {
                     this.setState({ isLoading: false, errorEmailExist: true })
-                    //console.log('delta/1000=', Math.floor(delta / 1000))
                 }, 1000)
                 return;
             }
-
-            AsyncStorage.setItem(
-                "user",
-                JSON.stringify({
-                    ID: sqlResult.ID
-                })
-            )
-
+            // שמירת משתמש חדש באחסון מקומי על הטלפון כדי לזהות משתמשים מחוברים
+            AsyncStorage.setItem("user", JSON.stringify({ ID: sqlResult.ID }))
+            // Mobx קריאה לפונקציה ששומרת את נתוני המשתמש החדש בניהול מידע באמצעות  
             userStore.getUserAsync(sqlResult.ID)
+            // מעבר לדף הבית
             navigation.navigate('HomeStack')
         }
 
@@ -439,7 +431,7 @@ export default class Register extends Component {
                                                     marginBottom: -20
                                                 }}
                                             >
-                                                Due Date/Child`s Birth...
+                                                Estimated birth date
                                     </Text>
                                         )
                                     }
@@ -473,7 +465,7 @@ export default class Register extends Component {
                                         style={styles.btnDueDateCalcStyle}
                                         onPress={renderCalcDueDate}
                                     >
-                                        <Text style={styles.txtBtnCalcStyle}>Calculate my due date</Text>
+                                        <Text style={styles.txtBtnCalcStyle}>Calculate estimated birth date</Text>
                                     </TouchableOpacity>
                                 </View>
 
@@ -483,7 +475,7 @@ export default class Register extends Component {
                                         style={[styles.btnStyle, { backgroundColor: APP_COLOR }]}
                                         onPress={handleOnPressRegister}
                                     >
-                                        <Text style={styles.txtBtnStyle}>Track my baby</Text>
+                                        <Text style={styles.txtBtnStyle}>Let's get started</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -522,7 +514,7 @@ const styles = StyleSheet.create({
         borderBottomColor: GREY_COLOR,
     },
     btnDueDateCalcStyle: { justifyContent: 'center', alignItems: 'center' },
-    txtBtnCalcStyle: { color: APP_COLOR, fontSize: 20, marginTop: 5, },
+    txtBtnCalcStyle: { color: APP_COLOR, fontSize: 17, marginTop: '2%', },
     btnStyle: { width: width - 50, height: 50, borderRadius: 7, },
     txtBtnStyle: { color: '#fff', textAlign: 'center', fontWeight: 'bold', fontSize: 17, marginTop: 7.5, },
     txtFooter: { width: width - 75, fontSize: 13.5, color: DARKGRAY_COLOR, alignSelf: 'center', marginTop: 15 },

@@ -3,6 +3,8 @@ import { View, Text, FlatList, StyleSheet } from "react-native";
 import ItemPicture from './ItemPicture';
 import { PictureData } from '../data/PictureData';
 
+
+
 const ItemPictureList = props => {
 
     const _renderItem = item => ItemPicture(item, props);
@@ -10,7 +12,7 @@ const ItemPictureList = props => {
     return (
         <FlatList
             numColumns={3}
-            contentContainerStyle={{ alignSelf: 'center' }}
+            contentContainerStyle={{ alignSelf: 'center', flexDirection: 'column-reverse' }}
             data={PictureData}
             renderItem={_renderItem}
             keyExtractor={(item, index) => index.toString()}

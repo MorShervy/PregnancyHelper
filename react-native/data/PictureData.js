@@ -18,5 +18,6 @@ export const PictureData = [
     { key: 17 },
     { key: 18 },
     { key: 19 },
+    { key: 20 }
 
 ]

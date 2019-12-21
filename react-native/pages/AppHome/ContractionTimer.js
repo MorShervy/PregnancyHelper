@@ -10,62 +10,7 @@ const APP_COLOR = '#304251';
 const { height, width } = Dimensions.get("window");
 
 
-function Timer({ interval, style }) {
-    console.log('i=', interval)
-    const pad = (n) => n < 10 ? '0' + n : n;
-    const duration = moment.duration(interval)
-    const textToShow = `${pad(duration.hours())}:${pad(duration.minutes())}:${pad(duration.seconds())}`
-    return (
 
-        <Text style={style}>{textToShow}</Text>
-
-    );
-}
-
-
-function RoundButton({ title, color, background, onPress, disable }) {
-    return (
-        <TouchableOpacity
-            onPress={() => !disable && onPress()}
-            style={[styles.button, { backgroundColor: background }]}
-            activeOpacity={disable ? 0.1 : 0.7}
-        >
-            <Text style={[styles.bordeBouton, { color }]}>{title}</Text>
-        </TouchableOpacity>
-    )
-}
-function Lap({ number, interval }) {
-
-    return (
-
-        <View style={styles.lap}>
-            <Text style={styles.lapText}>30s</Text>
-            <Text style={styles.lapText}>01m 30s</Text>
-            <Text style={styles.lapText}>12:20 - 12:21</Text>
-        </View>
-
-    )
-
-}
-function LapsTable({ laps, timer }) {
-    return (
-        <ScrollView style={{ height: '70%' }}>
-            {laps.map((lap, index) => (
-                <Lap
-                    key={index}
-                    number={index + 1}
-                    interval={index === 0 ? timer + lap : lap}
-
-                />
-
-
-
-            ))}
-        </ScrollView>
-
-    )
-
-}
 
 export default class ContractionTimer extends Component {
     constructor(props) {
@@ -241,7 +186,7 @@ export default class ContractionTimer extends Component {
                         />
                     </View>
 
-                    <View style={{ flexDirection: 'row', top: '2%' }}>
+                    <View style={{ flexDirection: 'row', marginTop: '4%', alignSelf: 'center' }}>
                         <Text style={{ color: '#FFF' }}>Time since last contraction :{'\b'}</Text>
                         <Timer style={{ fontSize: 14, color: '#FFF', textAlign: 'center' }} interval={laps.reduce((curr) => curr, 0) + timer} />
                     </View>
@@ -251,14 +196,12 @@ export default class ContractionTimer extends Component {
                             !toggle ?
                                 <RoundButton
                                     title='Start contraction'
-                                    color='#FFF'
                                     background='#F4AC32'
                                     onPress={this.start}
                                 />
                                 :
                                 <RoundButton
                                     title='Stop contraction'
-                                    color='#ff0000'
                                     background='#6b1c1c'
                                     onPress={this.funcCombin}
                                 />
@@ -271,65 +214,103 @@ export default class ContractionTimer extends Component {
 
 
                 <View style={{ flex: 0.6 }}>
-                    <View style={{ width: width - 40, }}>
+                    <View style={{ width: width - 40, marginTop: '10%' }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: '#FFF' }}>
-                            <Text style={{ color: '#FFF' }}>Length</Text>
-                            <Text style={{ color: '#FFF' }}>Time apart</Text>
-                            <Text style={{ color: '#FFF' }}>Start and stop</Text>
+                            <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 15 }}>Length</Text>
+                            <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 15 }}>Time apart</Text>
+                            <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 15 }}>Start and stop</Text>
                         </View>
                         {/* <LapsTable laps={laps} timer={timer} /> */}
 
 
 
-
-                        <View style={styles.lap}>
-                            <Text style={styles.lapText}>30s</Text>
-                            <Text style={styles.lapText}>01m 30s</Text>
-                            <Text style={styles.lapText}>12:20 - 12:21</Text>
+                        <View style={{ flexDirection: 'column-reverse' }}>
+                            <View style={styles.lap}>
+                                <Text style={styles.lapText}>56s</Text>
+                                <Text style={styles.lapText}>---</Text>
+                                <Text style={styles.lapText}>9:34 - 9:35</Text>
+                            </View>
+                            <View style={styles.lap}>
+                                <Text style={styles.lapText}>45s</Text>
+                                <Text style={styles.lapText}>05m 30s</Text>
+                                <Text style={styles.lapText}>9:39 - 9:40</Text>
+                            </View>
+                            <View style={styles.lap}>
+                                <Text style={styles.lapText}>52s</Text>
+                                <Text style={styles.lapText}>05m 0s</Text>
+                                <Text style={styles.lapText}>9:44 - 9:45</Text>
+                            </View>
+                            <View style={styles.lap}>
+                                <Text style={styles.lapText}>58s</Text>
+                                <Text style={styles.lapText}>05m 51s</Text>
+                                <Text style={styles.lapText}>9:50 - 9:51</Text>
+                            </View>
                         </View>
-                        <View style={styles.lap}>
-                            <Text style={styles.lapText}>30s</Text>
-                            <Text style={styles.lapText}>01m 30s</Text>
-                            <Text style={styles.lapText}>12:20 - 12:21</Text>
-                        </View>
-                        <View style={styles.lap}>
-                            <Text style={styles.lapText}>30s</Text>
-                            <Text style={styles.lapText}>01m 30s</Text>
-                            <Text style={styles.lapText}>12:20 - 12:21</Text>
-                        </View>
-                        <View style={styles.lap}>
-                            <Text style={styles.lapText}>35s</Text>
-                            <Text style={styles.lapText}>01m 30s</Text>
-                            <Text style={styles.lapText}>12:20 - 12:21</Text>
-                        </View>
-                        <View style={styles.lap}>
-                            <Text style={styles.lapText}>35s</Text>
-                            <Text style={styles.lapText}>01m 30s</Text>
-                            <Text style={styles.lapText}>12:20 - 12:21</Text>
-                        </View>
-                        <View style={styles.lap}>
-                            <Text style={styles.lapText}>35s</Text>
-                            <Text style={styles.lapText}>01m 30s</Text>
-                            <Text style={styles.lapText}>12:20 - 12:21</Text>
-                        </View>
-
 
                     </View>
                 </View>
 
-                <View style={{ flex: 0.08, width: '96%', borderTopColor: '#FFF', borderTopWidth: 1, padding: '2%' }}>
-                    <Text style={{ color: '#FFF', textAlign: 'center' }}>Average in last hour</Text>
-                    <Text style={{ color: '#FFF', textAlign: 'center' }}>Length: 15s | Time apart: 1m 30s</Text>
+                <View style={{ flex: 0.08, width: '100%', borderTopColor: '#FFF', borderTopWidth: 1, padding: '2%' }}>
+                    <Text style={{ color: '#FFF', textAlign: 'center', fontWeight: '700', fontSize: 17 }}>Average in last hour</Text>
+                    <Text style={{ color: '#FFF', textAlign: 'center', marginTop: '2%' }}>Length: 53s | Time apart: 5m 27s</Text>
                 </View>
             </View>
         );
     }
 }
 
+function Timer({ interval, style }) {
+    console.log('i=', interval)
+    const pad = (n) => n < 10 ? '0' + n : n;
+    const duration = moment.duration(interval)
+    const textToShow = `${pad(duration.hours())}:${pad(duration.minutes())}:${pad(duration.seconds())}`
+    return (
+        <Text style={style}>{textToShow}</Text>
+    );
+}
+
+function RoundButton({ title, color, background, onPress, disable }) {
+    return (
+        <TouchableOpacity
+            onPress={() => !disable && onPress()}
+            style={[styles.button, { backgroundColor: background }]}
+            activeOpacity={disable ? 0.1 : 0.7}
+        >
+            <Text style={styles.txtButton}>{title}</Text>
+        </TouchableOpacity>
+    )
+}
+
+function Lap({ number, interval }) {
+    return (
+        <View style={styles.lap}>
+            <Text style={styles.lapText}>30s</Text>
+            <Text style={styles.lapText}>01m 30s</Text>
+            <Text style={styles.lapText}>12:20 - 12:21</Text>
+        </View>
+    )
+}
+
+function LapsTable({ laps, timer }) {
+    return (
+        <ScrollView style={{ height: '70%' }}>
+            {laps.map((lap, index) => (
+                <Lap
+                    key={index}
+                    number={index + 1}
+                    interval={index === 0 ? timer + lap : lap}
+                />
+            ))}
+        </ScrollView>
+    )
+}
+
 const styles = StyleSheet.create({
 
     timerContiener: {
-        padding: '2%',
+        width: width - 100,
+        alignSelf: 'center',
+        marginTop: '2%',
         borderColor: '#FFF',
         borderRadius: 50,
         borderWidth: 3,
@@ -340,11 +321,11 @@ const styles = StyleSheet.create({
     },
     RoundBtn: {
         alignSelf: 'center',
-        top: '6%'
+        marginTop: '7.5%'
     },
 
     button: {
-        width: width - 100,
+        width: width - 50,
         height: 50,
         borderRadius: 50,
         justifyContent: 'center',
@@ -356,7 +337,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
     },
 
-    bordeBouton: {
+    txtButton: {
         // width: width - 100,
         // height: 40,
         // borderRadius: 50,
@@ -364,6 +345,9 @@ const styles = StyleSheet.create({
         // justifyContent: 'center',
         // paddingTop: 25,
         textAlign: "center",
+        fontWeight: '700',
+        fontSize: 17,
+        color: '#FFF',
 
 
     },

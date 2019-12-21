@@ -58,4 +58,39 @@ export default class SQL {
             }
         })
     } // END Login 
+
+    static UploadPicture(picUri, picName) {
+
+        let dataI = new FormData();
+        dataI.append('picture', {
+            uri: picUri,
+            name: picName,
+            type: 'image/jpg'
+        });
+
+        const config = {
+            method: 'POST',
+            body: dataI,
+        }
+
+        fetch(`${URL}/Pregnancy/UploadPicture/`, config)
+            .then((responseData) => {
+                // Log the response form the server
+                let res = responseData._bodyText
+                debugger;
+                console.log("res=", res)
+                if (responseData.status == 201) {
+
+                    alert(`uploaded successfully!`);
+                }
+                else {
+
+                    alert('error uploding ...');
+                }
+            })
+            .catch(err => {
+                alert('err upload= ' + err);
+
+            })
+    }
 }
