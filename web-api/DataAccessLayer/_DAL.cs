@@ -84,7 +84,7 @@ namespace DataAccessLayer
         }
 
 
-        public static DataTable Register(string email, string password)
+        public static DataTable Register(string email, string password, string dueDate, string lastMenstrualPeriod)
         {
             string RegistrationDate = DateTime.Now.ToString($"ddd, dd MMM yyy {DateTime.UtcNow.ToString("HH:mm:ss")}") + " GMT+0";
             try
@@ -96,14 +96,47 @@ namespace DataAccessLayer
                 _command.Parameters.Add(new SqlParameter("Email", email));
                 _command.Parameters.Add(new SqlParameter("Password", password));
                 _command.Parameters.Add(new SqlParameter("RegistrationDate", RegistrationDate));
+                _command.Parameters.Add(new SqlParameter("DueDate", dueDate));
+                _command.Parameters.Add(new SqlParameter("LastMenstrualPeriod", lastMenstrualPeriod));
 
 
                 DataSet ds = new DataSet();
                 _adtr = new SqlDataAdapter(_command);
 
-                _adtr.Fill(ds, "User");
-                if (ds.Tables["User"].Rows.Count != 0)
-                    return ds.Tables["User"];
+                _adtr.Fill(ds, "UserRegister");
+                if (ds.Tables["UserRegister"].Rows.Count != 0)
+                    return ds.Tables["UserRegister"];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+        }
+
+        public static DataTable Login(string email,string password)
+        {
+            try
+            {
+                Con.Open();
+                _command = new SqlCommand("Login", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _command.Parameters.Add(new SqlParameter("Email", email));
+                _command.Parameters.Add(new SqlParameter("Password", password));
+
+
+                DataSet ds = new DataSet();
+                _adtr = new SqlDataAdapter(_command);
+
+                _adtr.Fill(ds, "UserLogin");
+                if (ds.Tables["UserLogin"].Rows.Count != 0)
+                    return ds.Tables["UserLogin"];
             }
             catch (Exception ex)
             {
@@ -166,6 +199,34 @@ namespace DataAccessLayer
             }
             catch (Exception ex)
             {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+        }
+
+        public static DataTable GetPregnancies()
+        {
+            try
+            {
+                Con.Open();
+                _command = new SqlCommand("GetPregnancies", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _adtr = new SqlDataAdapter(_command);
+                DataSet ds = new DataSet();
+                _adtr.Fill(ds, "Pregnancy");
+
+                if (ds.Tables["Pregnancy"].Rows.Count != 0)
+                    return ds.Tables["Pregnancy"];
+            }
+            catch (Exception ex)
+            {
+
                 throw new Exception(ex.Message);
             }
             finally

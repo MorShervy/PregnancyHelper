@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Models\ResetPasswordRequest.cs" />
     <Compile Include="Models\User.cs" />
+    <Compile Include="Models\Pregnancy.cs" />
     <Compile Include="_BAL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,11 +1,12 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace web_api.Models
+namespace BusinessLogicLayer.Models
 {
-    public class User
+    public class User 
     {
         public int ID { get; set; }
         public string FirstName { get; set; }
@@ -13,6 +14,9 @@ namespace web_api.Models
         public string Email { get; set; }
         public string Password { get; set; }
         public string RegistrationDate { get; set; }
+
+        
     }
+
 
 }

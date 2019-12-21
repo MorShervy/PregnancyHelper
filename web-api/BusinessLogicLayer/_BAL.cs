@@ -6,7 +6,6 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using web_api.Models;
 
 namespace BusinessLogicLayer
 {
@@ -32,55 +31,48 @@ namespace BusinessLogicLayer
                     FirstName = row["FirstName"].ToString(),
                     LastName = row["LastName"].ToString(),
                     Email = row["Email"].ToString(),
-                    Password = row["Password"].ToString(),
                     RegistrationDate = row["RegistrationDate"].ToString()
                 });
             }
             return users;
         }
 
-        public static User Register(string email, string password)
+        public static User Register(string email, string password, string dueDate, string lastMenstrualPeriod)
         {
             User u = null;
-            DataTable res = _DAL.Register(email, password);
+            DataTable res = _DAL.Register(email, password, dueDate, lastMenstrualPeriod);
 
             if (res == null)
                 return null;
 
-            if (res.Columns.Count > 1)
-            {
                 u = new User()
                 {
-                    ID = int.Parse(res.Rows[0]["UserID"].ToString()),
-                    FirstName = res.Rows[0]["FirstName"].ToString(),
-                    LastName = res.Rows[0]["LastName"].ToString(),
-                    Email = res.Rows[0]["Email"].ToString(),
-                    Password = res.Rows[0]["Password"].ToString(),
-                    RegistrationDate = res.Rows[0]["RegistrationDate"].ToString()
+                    ID = int.Parse(res.Rows[0]["ID"].ToString())
                 };
-                return u;
-            }
-            return null;
+
+            return u;
         }
 
         public static User Login(string email, string password)
         {
-            List<User> users = GetUsers().ToList();
+            User u = null;
+            DataTable res = _DAL.Login(email, password);
 
-            foreach (var item in users)
-            {
-                if (item.Email.Equals(email) && item.Password.Equals(password))
+            if (res == null)
+                return null;
+
+                u = new User()
                 {
-                    return item;
-                }
-            }
-            return null;
+                    ID = int.Parse(res.Rows[0]["ID"].ToString()),
+                };
+
+            return u;
         }
 
         public static ResetPasswordRequest SendResetPasswordEmail(string email)
         {
             DataTable res = _DAL.SendResetPasswordEmail(email);
-            
+
 
             if (res == null)
                 return null;
@@ -98,7 +90,7 @@ namespace BusinessLogicLayer
             return null;
         }
 
-        public static bool ResetPassword(string uid,string newPassword)
+        public static bool ResetPassword(string uid, string newPassword)
         {
             DataTable res = _DAL.ResetPassword(uid, newPassword);
 
@@ -108,6 +100,35 @@ namespace BusinessLogicLayer
             bool result = Convert.ToBoolean((int)res.Rows[0]["ReturnCode"]);
 
             return result;
+
+        }
+
+        public static List<Pregnancy> GetPregnancies()
+        {
+            List<Pregnancy> p = null;
+            DataTable res = _DAL.GetPregnancies();
+
+            if (res == null)
+                return null;
+
+            foreach (DataRow row in res.Rows)
+            {
+                if (p == null)
+                    p = new List<Pregnancy>();
+
+                p.Add(new Pregnancy()
+                {
+                    PregnantID = int.Parse(row["PregnantID"].ToString()),
+                    UserID = int.Parse(row["UserID"].ToString()),
+                    DueDate = DateTime.Parse(row["DueDate"].ToString()).ToShortDateString(),
+                    LastMenstrualPeriod = DateTime.Parse(row["LastMenstrualPeriod"].ToString()).ToShortDateString(),
+                    ChildName = row["ChildName"].ToString(),
+                    BirthDate = row["BirthDate"].ToString(),
+                    Gender = row["Gender"].ToString(),
+                    IsNewBorn = row["IsNewBorn"].ToString()
+                });
+            }
+            return p;
 
         }
     }

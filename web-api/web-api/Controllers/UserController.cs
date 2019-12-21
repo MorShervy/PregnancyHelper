@@ -1,5 +1,6 @@
 ﻿using BusinessLogicLayer;
 using BusinessLogicLayer.Models;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Net.Mail;
 using System.Text;
 using System.Web.Http;
 using System.Web.Http.Cors;
-using web_api.Models;
+
 
 namespace web_api.Controllers
 {
@@ -52,14 +53,13 @@ namespace web_api.Controllers
         // POST api/users
         [HttpPost]
         [Route("Register")]
-        public IHttpActionResult PostRegister([FromBody]User user)
+        public IHttpActionResult PostRegister([FromBody]JObject data)
         {
             try
             {
-                User u = _BAL.Register(user.Email, user.Password);
+                User u = _BAL.Register((string)data["email"], (string)data["password"], (string)data["dueDate"], (string)data["lastMenstrualPeriod"]);
 
                 return Created(new Uri(Url.Link("GetUserById", new { id = u.ID })), u);
-                //return Created(new Uri(Request.RequestUri.AbsoluteUri + u.ID), u);
             }
             catch (Exception ex)
             {
@@ -77,7 +77,7 @@ namespace web_api.Controllers
             {
                 User u = _BAL.Login(user.Email, user.Password);
 
-                return Ok(u.ID);
+                return Ok(u);
             }
             catch (Exception ex)
             {
@@ -86,7 +86,7 @@ namespace web_api.Controllers
             }
         }
 
-
+        // פונקציה לשליחת מייל איפוס סיסמה למשתמש
         [HttpPost]
         [EnableCors("*","*","*")]
         [Route("SendResetPasswordEmail")]
@@ -94,18 +94,17 @@ namespace web_api.Controllers
         {
             try
             {
-                ResetPasswordRequest result = _BAL.SendResetPasswordEmail(user.Email);
-                if (result == null)
+                ResetPasswordRequest result = _BAL.SendResetPasswordEmail(user.Email); // קריאה לפונקציה שתחזיר את פרטי הבקשה
+                if (result == null) // במידה והמשתמש לא קיים
                     return BadRequest("Email does not exists");
                 
-
-                MailMessage mailMessage = new MailMessage("pregnancy.helper.proj@gmail.com",user.Email);
-
-                StringBuilder sbEmailBody = new StringBuilder();
-
+                MailMessage mailMessage = new MailMessage("pregnancy.helper.proj@gmail.com",user.Email); // יצירת אובייקט לשליחת מייל
+                
+                StringBuilder sbEmailBody = new StringBuilder(); // יצירת אובייקט לבניית תוכן הודעת המייל
                 sbEmailBody.Append("Dear " + user.Email.Substring(0, user.Email.IndexOf("@")) + ",<br/><br/>");
                 sbEmailBody.Append("Please click on the following link to reset your password");
                 sbEmailBody.Append("<br/>");
+                // קישור לאתר, על מנת לבצע איפוס סיסמה של המשתמש לפי המזהה המיוחד שנשלח בסוף הקישור ונשמר בטבלת הבקשות לאיפוס ססימה
                 sbEmailBody.Append("http://ruppinmobile.tempdomain.co.il/site08/build/#/resetpassword/" + result.UniqueID);
                 sbEmailBody.Append("<br/><br/>");
                 sbEmailBody.Append("Pregnancy Helper");
@@ -113,14 +112,14 @@ namespace web_api.Controllers
                 mailMessage.IsBodyHtml = true;
                 mailMessage.Body = sbEmailBody.ToString();
                 mailMessage.Subject = "Reset Your Password";
-
-                SmtpClient client = new SmtpClient("smtp.gmail.com", 587)
+				
+                SmtpClient client = new SmtpClient("smtp.gmail.com", 587) // יצירת אובייקט לשליחת המייל
                 {
-                    Credentials = new NetworkCredential("pregnancy.helper.proj@gmail.com", "PREGNANCYhelper90"),
+                    Credentials = new NetworkCredential("pregnancy.helper.proj@gmail.com", "PREGNANCYhelper90"), // יצירת אובייקט עם פרטי כניסה של המייל השולח
                     EnableSsl = true
                 };
-                client.Send(mailMessage);
-                return Ok("We've sent you email to reset your password");
+                client.Send(mailMessage); // שליחת מייל
+                return Ok("We've sent you email to reset your password"); // החזרת סטטוס הכל תקין
             }
             catch (Exception ex)
             {
@@ -141,17 +140,6 @@ namespace web_api.Controllers
                 return BadRequest(res + " - Password updated faild");
         }
 
-        // PUT api/users/1
-        //public IHttpActionResult Put(int id, [FromBody]User user)
-        //{
-        //    try
-        //    {
-        //        User u = _BAL.UpdateUser(user.FirstName, user.LastName, user.Email, user.Password);
-        //    }
-        //    catch (Exception ex)
-        //    {
 
-        //    }
-        //}
     }
 }
