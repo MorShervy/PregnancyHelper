@@ -45,10 +45,10 @@ namespace BusinessLogicLayer
             if (res == null)
                 return null;
 
-                u = new User()
-                {
-                    ID = int.Parse(res.Rows[0]["ID"].ToString())
-                };
+            u = new User()
+            {
+                ID = int.Parse(res.Rows[0]["ID"].ToString())
+            };
 
             return u;
         }
@@ -61,10 +61,10 @@ namespace BusinessLogicLayer
             if (res == null)
                 return null;
 
-                u = new User()
-                {
-                    ID = int.Parse(res.Rows[0]["ID"].ToString()),
-                };
+            u = new User()
+            {
+                ID = int.Parse(res.Rows[0]["ID"].ToString()),
+            };
 
             return u;
         }
@@ -130,6 +130,104 @@ namespace BusinessLogicLayer
             }
             return p;
 
+        }
+
+        public static List<PregnancyAlbum> GetPregnanciesAlbums()
+        {
+            List<PregnancyAlbum> albums = null;
+            DataTable res = _DAL.GetPregnanciesAlbums();
+
+            if (res == null)
+                return null;
+
+            foreach (DataRow row in res.Rows)
+            {
+                if (albums == null)
+                    albums = new List<PregnancyAlbum>();
+
+                albums.Add(new PregnancyAlbum()
+                {
+                    PregnantID = int.Parse(row["PregnantID"].ToString()),
+                    WeekID = int.Parse(row["WeekID"].ToString()),
+                    PictureUri = row["PictureUri"].ToString()
+                });
+            }
+            return albums;
+        }
+
+        public static List<PregnancyAlbum> GetPregnancyAlbumByPregnantId(int id, List<PregnancyAlbum> albums)
+        {
+            List<PregnancyAlbum> pictures = null;
+
+            if (albums == null)
+                return null;
+
+            foreach (PregnancyAlbum pic in albums)
+            {
+                if (pictures == null)
+                    pictures = new List<PregnancyAlbum>();
+
+                if(pic.PregnantID == id)
+                {
+                    pictures.Add(pic);
+                }
+            }
+
+            if (pictures == null || pictures.Count == 0)
+                return null;
+
+            return pictures;
+
+        }
+
+        public static PregnancyAlbum InsertPictureToPregnantAlbum(int pregnantId, int weekId, string pictureUri)
+        {
+            PregnancyAlbum album = null;
+            DataTable res = _DAL.InsertPictureToPregnantAlbum(pregnantId, weekId, pictureUri);
+
+            if (res == null)
+                return null;
+
+            album = new PregnancyAlbum()
+            {
+                PregnantID = pregnantId,
+                WeekID = weekId,
+                PictureUri = pictureUri
+            };
+
+            return album;
+        }
+
+        public static PregnancyAlbum UpdatePictureInPregnancyAlbum(int pregnantId,int weekId,string pictureUri)
+        {
+            PregnancyAlbum picture = null;
+            DataTable res = _DAL.UpdatePictureInPregnancyAlbum(pregnantId, weekId, pictureUri);
+
+            if (res == null)
+                return null;
+
+            picture = new PregnancyAlbum()
+            {
+                PregnantID = pregnantId,
+                WeekID = weekId,
+                PictureUri = pictureUri
+            };
+
+            return picture;
+        }
+
+        public static bool DeletPictureFromPregnancyAlbum (int pregnantId, int weekId)
+        {
+            bool isDeleted = false;
+            DataTable result = _DAL.DeletPictureFromPregnancyAlbum(pregnantId, weekId);
+
+            if (result == null)
+                return isDeleted;
+
+            isDeleted = Convert.ToBoolean((int)result.Rows[0]["Result"]);
+            
+            return isDeleted;
+                
         }
     }
 }

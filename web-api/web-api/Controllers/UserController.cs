@@ -17,7 +17,7 @@ namespace web_api.Controllers
     [RoutePrefix("api/User")]
     public class UserController : ApiController
     {
-        // GET api/users
+        // GET api/user
         public IHttpActionResult Get()
         {
             try
@@ -32,7 +32,7 @@ namespace web_api.Controllers
         }
 
 
-        // GET api/users/1
+        // GET api/user/1
         [Route("{id:int:min(1)}", Name = "GetUserById")]
         public IHttpActionResult Get(int id)
         {
@@ -50,7 +50,7 @@ namespace web_api.Controllers
             }
         }
 
-        // POST api/users
+        // POST api/user
         [HttpPost]
         [Route("Register")]
         public IHttpActionResult PostRegister([FromBody]JObject data)

@@ -119,7 +119,7 @@ namespace DataAccessLayer
             return null;
         }
 
-        public static DataTable Login(string email,string password)
+        public static DataTable Login(string email, string password)
         {
             try
             {
@@ -235,6 +235,157 @@ namespace DataAccessLayer
                     Con.Close();
             }
             return null;
+        }
+
+        public static DataTable GetPregnanciesAlbums()
+        {
+            try
+            {
+                Con.Open();
+                _command = new SqlCommand("GetPregnanciesAlbums", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                DataSet ds = new DataSet();
+                _adtr = new SqlDataAdapter(_command);
+
+                _adtr.Fill(ds, "PregnanciesAlbums");
+                if (ds.Tables["PregnanciesAlbums"].Rows.Count != 0)
+                    return ds.Tables["PregnanciesAlbums"];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+        }
+
+        //public static DataTable GetPregnancyAlbumByPregnantId(int id)
+        //{
+        //    try
+        //    {
+        //        Con.Open();
+        //        _command = new SqlCommand("GetPregnancyAlbum", Con);
+        //        _command.CommandType = CommandType.StoredProcedure;
+
+        //        DataSet ds = new DataSet();
+        //        _adtr = new SqlDataAdapter(_command);
+
+        //        _adtr.Fill(ds, "PregnantAlbum");
+        //        if (ds.Tables["PregnantAlbum"].Rows.Count != 0)
+        //            return ds.Tables["PregnantAlbum"];
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception(ex.Message);
+        //    }
+        //    finally
+        //    {
+        //        if (Con.State == ConnectionState.Open)
+        //            Con.Close();
+        //    }
+        //    return null;
+        //}
+
+        public static DataTable InsertPictureToPregnantAlbum(int pregnantId, int weekId, string pictureUri)
+        {
+            try
+            {
+                Con.Open();
+                _command = new SqlCommand("InsertPictureToPregnantAlbum", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _command.Parameters.Add(new SqlParameter("PregnantID", pregnantId));
+                _command.Parameters.Add(new SqlParameter("WeekID", weekId));
+                _command.Parameters.Add(new SqlParameter("PictureUri", pictureUri));
+
+                DataSet ds = new DataSet();
+                _adtr = new SqlDataAdapter(_command);
+
+                _adtr.Fill(ds, "PregnantAlbum");
+                if (ds.Tables["PregnantAlbum"].Rows.Count != 0)
+                    return ds.Tables["PregnantAlbum"];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+
+        }
+
+        public static DataTable UpdatePictureInPregnancyAlbum(int pregnantId, int weekId, string pictureUri)
+        {
+            try
+            {
+                Con.Open();
+                _command = new SqlCommand("UpdatePictureInPregnancyAlbum", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _command.Parameters.Add(new SqlParameter("PregnantID", pregnantId));
+                _command.Parameters.Add(new SqlParameter("WeekID", weekId));
+                _command.Parameters.Add(new SqlParameter("PictureUri", pictureUri));
+
+                DataSet ds = new DataSet();
+                _adtr = new SqlDataAdapter(_command);
+
+                _adtr.Fill(ds, "PregnantAlbum");
+                if (ds.Tables["PregnantAlbum"].Rows.Count != 0)
+                    return ds.Tables["PregnantAlbum"];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+        
+        }
+
+        public static DataTable DeletPictureFromPregnancyAlbum(int pregnantId, int weekId)
+        {
+            try
+            {
+                Con.Open();
+                _command = new SqlCommand("DeletPictureFromPregnancyAlbum", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _command.Parameters.Add(new SqlParameter("PregnantID", pregnantId));
+                _command.Parameters.Add(new SqlParameter("WeekID", weekId));
+
+
+                DataSet ds = new DataSet();
+                _adtr = new SqlDataAdapter(_command);
+
+                _adtr.Fill(ds, "PregnantAlbum");
+                if (ds.Tables["PregnantAlbum"].Rows.Count != 0)
+                    return ds.Tables["PregnantAlbum"];
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+
         }
     }
 }
