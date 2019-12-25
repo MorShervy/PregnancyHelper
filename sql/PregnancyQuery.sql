@@ -126,6 +126,11 @@ GO
 
 ------------------------------------------- פרוצדרות -------------------------------------------
 
+
+----------------------------------------
+----------- User Controler -------------
+----------------------------------------
+
 ------------SP GetUsers------------
 ALTER PROC GetUsers
 AS
@@ -233,6 +238,8 @@ GO
 
 exec ResetPasswordRequest 'morshervi@gmail.com'
 
+
+------------SP ResetPassword------------
 ALTER PROC ResetPassword (
 	@uid uniqueidentifier,
 	@NewPassword nvarchar(50)
@@ -266,9 +273,92 @@ GO
 
 exec ResetPassword '8efc0390-e25f-492c-af92-4b3206bb4f34','1q2w3e4r'
 
+----------------------------------------
+----------- End User Controler ---------
+----------------------------------------
 
 
-------------SP GetUsers------------
+----------------------------------------
+------- User Pregnancy Controler -------
+----------------------------------------
+
+------------SP GetPregnancies------------
 ALTER PROC GetPregnancies
 AS
 SELECT * FROM TBUserPregnancy
+
+
+----------------------------------------
+----- End User Pregnancy Controler -----
+----------------------------------------
+
+------------SP GetPregnanciesAlbums------------
+CREATE PROC GetPregnanciesAlbums
+AS
+SELECT * FROM TBPregnantAlbum
+
+
+
+----------------------------------------
+------ Pregnancy Album Controler -------
+----------------------------------------
+
+------------SP InsertPictureToPregnantAlbum------------
+ALTER PROC InsertPictureToPregnantAlbum(
+	@PregnantID int,
+	@WeekID int,
+	@PictureUri nvarchar(MAX)
+)
+AS
+	BEGIN
+		INSERT INTO TBPregnantAlbum(PregnantID,WeekID,PictureUri)
+				VALUES(@PregnantID,@WeekID,@PictureUri)
+
+		SELECT * FROM TBPregnantAlbum
+		WHERE @PregnantID = PregnantID AND @WeekID = WeekID
+	END
+GO
+
+------------SP UpdatePictureInPregnancyAlbum------------
+CREATE PROC UpdatePictureInPregnancyAlbum (
+	@PregnantID int,
+	@WeekID int,
+	@PictureUri nvarchar(max)
+ )
+AS
+	BEGIN
+		UPDATE TBPregnantAlbum
+		SET PictureUri = @PictureUri
+		WHERE PregnantID = @PregnantID AND WeekID = @WeekID
+
+		SELECT * FROM TBPregnantAlbum
+		WHERE PregnantID = @PregnantID AND WeekID = @WeekID
+	END
+GO
+
+------------SP DeletPictureFromPregnancyAlbum------------
+ALTER PROC DeletPictureFromPregnancyAlbum(
+   @PregnantID int,
+   @WeekID int
+) 
+AS 
+  BEGIN
+	DECLARE @Row int
+	IF EXISTS (SELECT * FROM TBPregnantAlbum WHERE PregnantID = @PregnantID AND WeekID = @WeekID)
+		BEGIN
+		DELETE	FROM TBPregnantAlbum WHERE   PregnantID = @PregnantID AND WeekID = @WeekID
+		SELECT 1 AS Result
+		END
+	ELSE
+		BEGIN
+		SELECT 0 AS Result
+		END
+	
+	----
+  END
+GO
+
+exec DeletPictureFromPregnancyAlbum 9,9
+----------------------------------------
+---- End Pregnancy Album Controler -----
+----------------------------------------
