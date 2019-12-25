@@ -16,6 +16,7 @@ class PregnancyStore {
                 runInAction(() => {
                     // console.log('data=', data)
                     this.pregnant = data;
+                    return true;
                 })
             })
     }

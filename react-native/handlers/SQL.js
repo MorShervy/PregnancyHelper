@@ -59,6 +59,102 @@ export default class SQL {
         })
     } // END Login 
 
+    static async InsertPictureToPregnantAlbum(pregnantId, weekId, pictureUri) {
+
+        console.log("pregnantId=", pregnantId)
+        console.log("weekId", weekId)
+        console.log("pictureUri", pictureUri)
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                const res = await fetch(`${URL}/PregnancyAlbum/InsertPictureToPregnantAlbum/`, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        pregnantId,
+                        weekId,
+                        pictureUri
+                    })
+                });
+                //console.log(`${URL}/user/Login`, res);
+                const data = await res.json();
+                //console.log('data=', data)
+                resolve(data);
+            }
+            catch (error) {
+                reject(error);
+            }
+        })
+
+    }
+
+    static async UpdatePictureToPregnantAlbum(pregnantId, weekId, pictureUri) {
+
+        console.log("pregnantId=", pregnantId)
+        console.log("weekId", weekId)
+        console.log("pictureUri", pictureUri)
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                const res = await fetch(`${URL}/PregnancyAlbum/UpdatePictureInPregnancyAlbum/`, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        pregnantId,
+                        weekId,
+                        pictureUri
+                    })
+                });
+                //console.log(`${URL}/user/Login`, res);
+                const data = await res.json();
+                //console.log('data=', data)
+                resolve(data);
+            }
+            catch (error) {
+                reject(error);
+            }
+        })
+
+    }
+
+    static async DeletPictureFromPregnancyAlbum(pregnantId, weekId) {
+
+        console.log("pregnantId=", pregnantId)
+        console.log("weekId", weekId)
+
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                const res = await fetch(`${URL}/PregnancyAlbum/DeletPictureFromPregnancyAlbum/`, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        pregnantId,
+                        weekId
+                    })
+                });
+                //console.log(`${URL}/PregnancyAlbum/DeletPictureFromPregnancyAlbum/`, res);
+                const data = await res.json();
+                //console.log('data=', data)
+                resolve(data);
+            }
+            catch (error) {
+                reject(error);
+            }
+        })
+
+    }
+
+
     static UploadPicture(picUri, picName) {
 
         let dataI = new FormData();
@@ -73,7 +169,7 @@ export default class SQL {
             body: dataI,
         }
 
-        fetch(`${URL}/Pregnancy/UploadPicture/`, config)
+        fetch(`${URL}/PregnancyAlbum/UploadPicture/`, config)
             .then((responseData) => {
                 // Log the response form the server
                 let res = responseData._bodyText

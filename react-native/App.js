@@ -1,24 +1,30 @@
 import React, { Component } from 'react';
-import { View, I18nManager } from 'react-native';
+import { View, I18nManager, AsyncStorage } from 'react-native';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { Asset } from 'expo-asset';
 import { AppLoading } from 'expo';
 import { useKeepAwake } from 'expo-keep-awake';
 import AuthStack from './AuthStack';
 import HomeStack from './HomeStack';
-
+import { observer } from 'mobx-react'
+import userStore from './mobx/UserStore';
 I18nManager.forceRTL(false);
 
-
+@observer
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       isReady: false,
+      userId: 0
     };
   }
 
-
+  componentWillMount = () => {
+    AsyncStorage.getItem('user').
+      then(res => JSON.parse(res)).
+      then(res => console.log("app - res= ", res))
+  }
 
   async _cacheResourcesAsync() {
     const images = [

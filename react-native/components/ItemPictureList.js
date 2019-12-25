@@ -3,9 +3,9 @@ import { View, Text, FlatList, StyleSheet } from "react-native";
 import ItemPicture from './ItemPicture';
 import { PictureData } from '../data/PictureData';
 
-
-
 const ItemPictureList = props => {
+
+    // console.log('props.album=', props)
 
     const _renderItem = item => ItemPicture(item, props);
 

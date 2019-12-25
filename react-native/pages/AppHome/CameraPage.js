@@ -1,16 +1,18 @@
 import React, { Component } from "react";
 import { Camera } from 'expo-camera';
 import * as Permissions from "expo-permissions";
+import * as MediaLibrary from 'expo-media-library';
 import Constants from "expo-constants";
 
 import { StyleSheet, Text, View, TouchableOpacity, Slider, Platform, Modal, Image, Dimensions, AsyncStorage } from "react-native";
 import { Ionicons, MaterialIcons, Foundation, MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
 import SQL from "../../handlers/SQL";
-import { StackActions, NavigationActions } from "react-navigation";
+
 
 import { observer } from 'mobx-react'
 import pregnancyStore from '../../mobx/PregnancyStore';
 import userStore from '../../mobx/UserStore';
+import albumStore from '../../mobx/AlbumStore';
 
 
 const { height, width } = Dimensions.get("window");
@@ -77,6 +79,7 @@ export default class CameraPage extends Component {
         const { status } = await Permissions.askAsync(Permissions.CAMERA);
         this.setState({ permissionsGranted: status === "granted" });
 
+
         //remove because using mobx
         // AsyncStorage.getItem("user").then(user => {
         //     this.setState({ user: JSON.parse(user) });
@@ -84,41 +87,65 @@ export default class CameraPage extends Component {
         // console.log('p id=', pregnancyStore.pregnant.PregnantID)
     }
 
+    componentDidMount() {
+
+    }
+
     btnUploadPictureFromCamera = async () => {
-        // console.log('pregnantid=', pregnancyStore.pregnant.PregnantID)
+
+        console.log('pregnantid=', pregnancyStore.pregnant.PregnantID)
         // console.log('week id=', pregnancyStore.week)
-        // console.log('user id=', userStore.user.ID)
+        console.log('user id=', userStore.user.ID)
         // console.log('picUri=', this.state.picUri)
+
+
 
         let picName = `${userStore.user.ID}${pregnancyStore.pregnant.PregnantID}${pregnancyStore.week}`;
         let { picUri } = this.state
 
         console.log('imgName=', picName)
         console.log('picUri', picUri)
-        SQL.UploadPicture(picUri, picName)
+        // save picture in filesystem on the phone at DCIM
+        // const asset = await MediaLibrary.createAssetAsync(picUri);
+        // console.log("asset=", asset)
 
-        // SQL.UpdateUserPicture(email, photoUrl).then(res => {
-        //     //console.log(res);
-        // });
-        // await SQL.ImgUpload(photoUrl, imgName);
-        // AsyncStorage.setItem(
-        //     "user",
-        //     JSON.stringify({ email: email, url: photoUrl })
-        // );
-        // this.setState({ openModalPic: false }, () => {
-        //     const replaceAction = StackActions.replace({
-        //         routeName: "HomeNav",
-        //         action: NavigationActions.navigate("HomeNav")
-        //     });
-        //     this.props.navigation.dispatch(replaceAction);
-        // });
+        // using mobx
+        // const album = albumStore.setPicture(pregnancyStore.week, picUri)
+        // console.log('album=', album)
+
+        console.log('albumstore=', albumStore.picture, 'new picture=', picUri)
+
+        // in case that user is changing the picture
+        if (albumStore.picture !== undefined && albumStore.picture.PictureUri !== picUri) {
+            console.log('true:::::::::::::')
+            let data = await SQL.UpdatePictureToPregnantAlbum(
+                albumStore.picture.PregnantID,
+                albumStore.picture.WeekID,
+                picUri
+            )
+            console.log('data=', data)
+        }
+        else {
+            let data = await SQL.InsertPictureToPregnantAlbum(pregnancyStore.pregnant.PregnantID, pregnancyStore.week, picUri)
+            // console.log('data2=', data)
+
+        }
+        this.props.navigation.navigate('BellyBump');
+
+
+        // SQL.UploadPicture(picUri, picName)
+
     };
 
     takePicture = async () => {
+        //not here for sure
+        const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+        this.setState({ permissionsGrantedCamerRoll: status === "granted" });
+
         if (this.camera) {
             let photo = await this.camera.takePictureAsync({ quality: 0.7 });
             //.then(console.log("pic=", this.onPictureSaved)); //this.props.navigation.goBack()
-            // console.log("photo=", photo);
+            console.log("photo=", photo);
             this.setState({ picUri: photo.uri, openModalPic: true });
         }
     };
