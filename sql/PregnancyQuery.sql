@@ -78,12 +78,12 @@ GO
 
 CREATE TABLE [dbo].[TBUserContractionTimer](
 	[UserID] [int] FOREIGN KEY REFERENCES TBUsers([UserID]) NOT NULL PRIMARY KEY,
-	[ContractionID] [int]  NOT NULL, --primary key
+	[ContractionID] [int] IDENTITY(1,1)  NOT NULL, --primary key
 	[StartTime] time(0) NULL,
 	[EndTime] time(0) NULL,
 	[ContractionLength]	time(0) NULL, -- seconds
 	[TimeApart] time(0) NULL, -- seconds
-	[Date] date NOT NULL
+	[Date] date NULL
 	)
 GO
 
@@ -288,6 +288,46 @@ AS
 SELECT * FROM TBUserPregnancy
 
 
+------------SP GetContractionsById------------
+CREATE PROC GetContractions
+AS
+	SELECT * FROM TBUserContractionTimer
+GO
+
+EXEC GetContractions
+
+------------SP InsertContraction------------
+ALTER PROC InsertContraction(
+ @UserID int,
+ @StartTime time(0),
+ @EndTime time(0),
+ @Length time(0),
+ @TimeApart time(0)
+ )
+ AS
+	BEGIN
+		
+		INSERT INTO TBUserContractionTimer(UserID,StartTime,EndTime,ContractionLength,TimeApart,Date)
+		VALUES(@UserID,@StartTime,@EndTime,@Length,@TimeApart,GETDATE())
+
+		SELECT @UserID AS UserId
+	END
+GO
+
+EXEC InsertContraction 12,'12:06','12:06','00:00:15','00:01:54'
+
+------------SP DeleteContractionsById------------
+CREATE PROC DeleteContractionsById(
+	@UserID int
+	)
+	AS
+		BEGIN
+			DELETE FROM TBUserContractionTimer
+			WHERE UserID = @UserID
+		END
+GO
+
+EXEC DeleteContractionsById 11
 ----------------------------------------
 ----- End User Pregnancy Controler -----
 ----------------------------------------
