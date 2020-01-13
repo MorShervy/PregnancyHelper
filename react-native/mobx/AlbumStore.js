@@ -11,8 +11,8 @@ class AlbumStore {
         return this.album;
     }
 
-    @action getPregnancyAlbumByPregnantId = async pregnantId => {
-        // console.log('id=', id)
+    @action getPregnancyAlbumByPregnantId = pregnantId => {
+        console.log('pregnantId=', pregnantId)
         fetch(`${URL}/PregnancyAlbum/${pregnantId}`)
             .then(response => response.json())
             .then(data => {

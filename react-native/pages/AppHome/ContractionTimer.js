@@ -3,7 +3,8 @@ import { StyleSheet, BackHandler, ScrollView, View, Text, ImageBackground, Dimen
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
 import { HeaderBackButton } from 'react-navigation-stack';
-
+import { observer } from 'mobx-react'
+import contractionStore from '../../mobx/ContractionStore';
 import moment from 'moment';
 
 const APP_COLOR = '#304251';
@@ -11,19 +12,19 @@ const { height, width } = Dimensions.get("window");
 
 
 
-
+@observer
 export default class ContractionTimer extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            past: 0,
-            start: 0,
-            now: 0,
-            laps: [],
-            lapsTime: [{ endLast: 0, startNew: 0 },
-            { endLast: 0, startNew: 0 },
-            { endLast: 0, startNew: 0 },],
-            toggle: false
+            toggle: false,
+            h: "00",
+            m: "00",
+            s: "00",
+            hh: "00",
+            mm: "00",
+            ss: "00",
+            list: [],
         }
     }
 
@@ -47,40 +48,101 @@ export default class ContractionTimer extends Component {
         })
     }
 
-    componentWillUnmount = () => {
-        clearInterval(this.timer)
-        // removing the event listener for back button android
-        console.log('test=', BackHandler)
-        BackHandler.removeEventListener();
-    }
-
-
-    componentDidMount() {
+    componentDidMount = () => {
         // adding the event listener for back button android
-        BackHandler.addEventListener('hardwareBackPress', () => {
-            this.props.navigation.goBack()
-        });
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
     }
 
-    lap = () => {
-        const lapsT = { endLast: 0, startNew: 0 }
-        const timestamp = new Date().getTime()
-        const { laps, now, start } = this.state
-        const [firstLap, ...other] = laps
+    componentWillUnmount = () => {
+
+        // removing the event listener for back button android
+        // console.log('test=', BackHandler)
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
+        clearInterval(this.timer1)
+        clearInterval(this.timer2)
+    }
+
+
+
+
+    handleBackButton = () => {
+        this.props.navigation.goBack()
+    }
+
+    start = () => {
+        clearInterval(this.timer2)
+        const { hh, mm, ss } = this.state;
+        const d = new Date();
+
+        const startTime = `${d.getHours()}:${this.pad(d.getMinutes())}`
+        const start = d.getTime();
+        const timeApart = (mm !== "00" && ss === "00" && `${mm}m`) ||
+            (mm !== "00" && `${mm}m ${ss}s`) ||
+            (ss === "00" && '--') ||
+            `${ss}s`
+
+
         this.setState({
-            laps: [0, firstLap + now - start, ...other],
-            start: timestamp,
-            now: timestamp,
-            //past:firstLap,
+            toggle: true,
+            start,
+            startTime,
+            timeApart,
+            h: "00", m: "00", s: "00", hh: "00", mm: "00", ss: "00"
         })
-        clearInterval(this.timer);
-
-
-        //console.log("past "+this.state.past)
-
+        this.timer1 = setInterval(
+            () => {
+                let t = new Date().getTime() - start
+                this.setState({
+                    h: this.pad(Math.floor((t % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))),
+                    m: this.pad(Math.floor((t % (1000 * 60 * 60)) / (1000 * 60))),
+                    s: this.pad(Math.floor((t % (1000 * 60)) / 1000)),
+                })
+            },
+            1000
+        )
     }
 
+    stop = () => {
+        clearInterval(this.timer1)
+        const { h, m, s, hh, mm, ss, start, startTime, timeApart } = this.state;
+        const d = new Date();
 
+        const endTime = `${d.getHours()}:${this.pad(d.getMinutes())}`
+        const length = m !== "00" ? `${m}m ${s}s` : `${s}s`;
+
+
+        // console.log('lalala=', h, ':', m, ':', s)
+        console.log('length=', length)
+        console.log('timeApart=', timeApart)
+        console.log(`${startTime} - ${endTime}`)
+        // contractionStore.addContraction(length, timeApart, startTime, endTime)
+        var itemToAdd = this.state.list.concat({ length, timeApart, startTime, endTime })
+        this.setState({
+            toggle: false, hh: h, mm: m, ss: s,
+            list: itemToAdd
+        })
+        this.timer2 = setInterval(
+            () => {
+                let t = new Date().getTime() - start;
+                this.setState({
+                    hh: this.pad(Math.floor((t % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))),
+                    mm: this.pad(Math.floor((t % (1000 * 60 * 60)) / (1000 * 60))),
+                    ss: this.pad(Math.floor((t % (1000 * 60)) / 1000)),
+                })
+            },
+            1000
+        )
+    }
+
+    pad = (val) => {
+        let valStr = val + "";
+        if (valStr.length < 2) {
+            valStr = "0" + valStr
+            return valStr
+        }
+        else
+            return valStr
+    }
 
     RunToHospital = () => {
         const { laps, now, start, past, } = this.state;
@@ -115,80 +177,37 @@ export default class ContractionTimer extends Component {
         }
     }
 
-    reset = () => {
-        clearInterval(this.timer);
-        this.setState({
-            laps: [],
-            now: 0,
-            start: 0,
 
-        })
-    }
 
-    resume = () => {
-        const now = new Date().getTime()
-        this.setState({
-            start: now,
-            now,
-        })
-        this.timer = setInterval(() => {
 
-            this.setState({ now: new Date().getTime() })
-        }, 100)
-
-    }
-
-    stop = () => {
-        //clearInterval(this.timer);
-
-        const { laps, now, start } = this.state
-        const [firstLap, ...other] = laps
-        this.setState({
-            laps: [firstLap + now - start, ...other],
-            start: 0,
-            now: 0,
-
-        })
-    }
-    funcCombin = () => {
-        this.lap();
-        this.stop();
-        this.RunToHospital();
-        this.setState({ toggle: !this.state.toggle })
-    }
-
-    start = () => {
-        //clearInterval(this.timer);
-        const now = new Date().getTime()
-        this.setState({
-            start: now,
-            now,
-            laps: [0],
-            toggle: !this.state.toggle
-        })
-        this.timer = setInterval(() => {
-
-            this.setState({ now: new Date().getTime() })
-        }, 100)
-    }
 
     render() {
-        const { now, start, laps, toggle } = this.state;
-        const timer = now - start
+        // console.log('contractionStore.contraction=', contractionStore.contraction)
+        const { toggle } = this.state;
+        const { h, m, s } = this.state;
+        const { hh, mm, ss } = this.state;
+
+
+        // console.log('this.state.list=', this.state.list)
         return (
             <View style={{ flex: 1, backgroundColor: APP_COLOR, alignItems: 'center', paddingTop: '5%' }}>
 
                 <View style={{ flex: 0.3 }}>
                     <View style={styles.timerContiener}>
-                        <Timer
+                        <Text
                             style={{ fontSize: 45, color: '#FFFFFF', textAlign: 'center' }}
-                            interval={laps.reduce((curr) => curr, 0) + timer}
-                        />
+                        >
+                            {h}:{m}:{s}
+                        </Text>
                     </View>
 
                     <View style={{ flexDirection: 'row', marginTop: '4%', alignSelf: 'center' }}>
                         <Text style={{ color: '#FFF' }}>Time since last contraction :{'\b'}</Text>
-                        <Timer style={{ fontSize: 14, color: '#FFF', textAlign: 'center' }} interval={laps.reduce((curr) => curr, 0) + timer} />
+                        <Text
+                            style={{ fontSize: 14, color: '#FFF', textAlign: 'center' }}
+                        >
+                            {!toggle ? `${hh}:${mm}:${ss}` : `${h}:${m}:${s}`}
+                        </Text>
                     </View>
 
                     <View style={styles.RoundBtn} >
@@ -203,7 +222,7 @@ export default class ContractionTimer extends Component {
                                 <RoundButton
                                     title='Stop contraction'
                                     background='#6b1c1c'
-                                    onPress={this.funcCombin}
+                                    onPress={this.stop}
                                 />
                         }
                     </View>
@@ -220,33 +239,10 @@ export default class ContractionTimer extends Component {
                             <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 15 }}>Time apart</Text>
                             <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 15 }}>Start and stop</Text>
                         </View>
-                        {/* <LapsTable laps={laps} timer={timer} /> */}
 
-
-
-                        <View style={{ flexDirection: 'column-reverse' }}>
-                            <View style={styles.lap}>
-                                <Text style={styles.lapText}>56s</Text>
-                                <Text style={styles.lapText}>---</Text>
-                                <Text style={styles.lapText}>9:34 - 9:35</Text>
-                            </View>
-                            <View style={styles.lap}>
-                                <Text style={styles.lapText}>45s</Text>
-                                <Text style={styles.lapText}>05m 30s</Text>
-                                <Text style={styles.lapText}>9:39 - 9:40</Text>
-                            </View>
-                            <View style={styles.lap}>
-                                <Text style={styles.lapText}>52s</Text>
-                                <Text style={styles.lapText}>05m 0s</Text>
-                                <Text style={styles.lapText}>9:44 - 9:45</Text>
-                            </View>
-                            <View style={styles.lap}>
-                                <Text style={styles.lapText}>58s</Text>
-                                <Text style={styles.lapText}>05m 51s</Text>
-                                <Text style={styles.lapText}>9:50 - 9:51</Text>
-                            </View>
-                        </View>
-
+                        {/* <View style={{ flexDirection: 'column-reverse' }}> */}
+                        <LapsTable laps={this.state.list} />
+                        {/* </View> */}
                     </View>
                 </View>
 
@@ -260,7 +256,7 @@ export default class ContractionTimer extends Component {
 }
 
 function Timer({ interval, style }) {
-    console.log('i=', interval)
+    // console.log('i=', interval)
     const pad = (n) => n < 10 ? '0' + n : n;
     const duration = moment.duration(interval)
     const textToShow = `${pad(duration.hours())}:${pad(duration.minutes())}:${pad(duration.seconds())}`
@@ -281,26 +277,33 @@ function RoundButton({ title, color, background, onPress, disable }) {
     )
 }
 
-function Lap({ number, interval }) {
+function Lap({ length, timeApart, startTime, endTime }) {
     return (
         <View style={styles.lap}>
-            <Text style={styles.lapText}>30s</Text>
-            <Text style={styles.lapText}>01m 30s</Text>
-            <Text style={styles.lapText}>12:20 - 12:21</Text>
+            <Text style={styles.lapText}>{length}</Text>
+            <Text style={styles.lapText}>{timeApart}</Text>
+            <Text style={styles.lapText}>{startTime} - {endTime} </Text>
+
+
         </View>
     )
 }
 
-function LapsTable({ laps, timer }) {
+function LapsTable({ laps }) {
     return (
-        <ScrollView style={{ height: '70%' }}>
-            {laps.map((lap, index) => (
-                <Lap
-                    key={index}
-                    number={index + 1}
-                    interval={index === 0 ? timer + lap : lap}
-                />
-            ))}
+        <ScrollView style={{ height: '90%' }}>
+            <View style={{ flexDirection: 'column-reverse' }}>
+                {laps.map((lap, index) => (
+                    <Lap
+                        key={index}
+                        length={lap.length}
+                        timeApart={lap.timeApart}
+                        startTime={lap.startTime}
+                        endTime={lap.endTime}
+                    // interval={index === 0 ? lap : lap}
+                    />
+                ))}
+            </View>
         </ScrollView>
     )
 }

@@ -4,10 +4,11 @@ import * as Permissions from "expo-permissions";
 import * as MediaLibrary from 'expo-media-library';
 import Constants from "expo-constants";
 
-import { StyleSheet, Text, View, TouchableOpacity, Slider, Platform, Modal, Image, Dimensions, AsyncStorage } from "react-native";
-import { Ionicons, MaterialIcons, Foundation, MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
+import { NavigationActions } from 'react-navigation';
+import { StyleSheet, Text, View, TouchableOpacity, Slider, Platform, Modal, Image, Dimensions, ActivityIndicator } from "react-native";
+import { Ionicons, MaterialIcons, Octicons } from "@expo/vector-icons";
 import SQL from "../../handlers/SQL";
-
+import BellyBumpHeaderButtons from '../../components/BellyBumpHeaderButtons';
 
 import { observer } from 'mobx-react'
 import pregnancyStore from '../../mobx/PregnancyStore';
@@ -17,6 +18,8 @@ import albumStore from '../../mobx/AlbumStore';
 
 const { height, width } = Dimensions.get("window");
 const landmarkSize = 2;
+const ORANGE_COLOR = '#F4AC32';
+const APP_COLOR = '#304251';
 
 const flashModeOrder = {
     off: "on",
@@ -68,7 +71,8 @@ export default class CameraPage extends Component {
         showMoreOptions: false,
         openModalPic: false,
         picUri: "",
-        user: null
+        user: null,
+        isLoading: false,
     };
 
     static navigationOptions = {
@@ -79,32 +83,25 @@ export default class CameraPage extends Component {
         const { status } = await Permissions.askAsync(Permissions.CAMERA);
         this.setState({ permissionsGranted: status === "granted" });
 
-
-        //remove because using mobx
-        // AsyncStorage.getItem("user").then(user => {
-        //     this.setState({ user: JSON.parse(user) });
-        // });
-        // console.log('p id=', pregnancyStore.pregnant.PregnantID)
     }
 
     componentDidMount() {
 
     }
 
-    btnUploadPictureFromCamera = async () => {
-
+    handleSavePicture = async () => {
+        this.setState({ isLoading: true });
         console.log('pregnantid=', pregnancyStore.pregnant.PregnantID)
         // console.log('week id=', pregnancyStore.week)
         console.log('user id=', userStore.user.ID)
         // console.log('picUri=', this.state.picUri)
 
-
-
+        // picture name to save on server
         let picName = `${userStore.user.ID}${pregnancyStore.pregnant.PregnantID}${pregnancyStore.week}`;
         let { picUri } = this.state
+        // console.log('imgName=', picName)
+        // console.log('picUri', picUri)
 
-        console.log('imgName=', picName)
-        console.log('picUri', picUri)
         // save picture in filesystem on the phone at DCIM
         // const asset = await MediaLibrary.createAssetAsync(picUri);
         // console.log("asset=", asset)
@@ -113,24 +110,29 @@ export default class CameraPage extends Component {
         // const album = albumStore.setPicture(pregnancyStore.week, picUri)
         // console.log('album=', album)
 
-        console.log('albumstore=', albumStore.picture, 'new picture=', picUri)
+        // console.log('albumstore=', albumStore.picture, 'new picture=', picUri)
 
         // in case that user is changing the picture
         if (albumStore.picture !== undefined && albumStore.picture.PictureUri !== picUri) {
-            console.log('true:::::::::::::')
+            // console.log('true:::::::::::::')
             let data = await SQL.UpdatePictureToPregnantAlbum(
                 albumStore.picture.PregnantID,
                 albumStore.picture.WeekID,
                 picUri
             )
-            console.log('data=', data)
+            // console.log('data=', data)
         }
         else {
             let data = await SQL.InsertPictureToPregnantAlbum(pregnancyStore.pregnant.PregnantID, pregnancyStore.week, picUri)
             // console.log('data2=', data)
 
         }
+        this.setState({ isLoading: false, openModalPic: false });
+        albumStore.getPregnancyAlbumByPregnantId(pregnancyStore.pregnant.PregnantID)
+
+
         this.props.navigation.navigate('BellyBump');
+
 
 
         // SQL.UploadPicture(picUri, picName)
@@ -138,6 +140,7 @@ export default class CameraPage extends Component {
     };
 
     takePicture = async () => {
+        console.log('take picture async')
         //not here for sure
         const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
         this.setState({ permissionsGrantedCamerRoll: status === "granted" });
@@ -221,6 +224,18 @@ export default class CameraPage extends Component {
 
 
     renderPicUri() {
+        const buttonData = {
+            txtLeft: `CANCEL`,
+            txtRight: `SAVE`,
+            iconLeft: "md-trash",
+            iconRight: "md-save",
+
+        }
+
+        const style = {
+            fontSize: 17,
+            left: -20
+        }
         return (
             <Modal
                 style={{ flex: 1 }}
@@ -233,29 +248,18 @@ export default class CameraPage extends Component {
             >
                 <View
                     style={{
-                        flex: 0.1,
+                        flex: 0.08,
                         flexDirection: "row",
                         justifyContent: "space-between",
                         backgroundColor: "#2C3E50"
                     }}
-                >
-                    <TouchableOpacity
-                        style={{ alignSelf: "center" }}
-                        onPress={() => this.setState({ openModalPic: false })}
-                    >
-                        <Text style={{ color: "#fff", textAlign: "center", fontSize: 18 }}>
-                            Cancel
-            </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={{ alignSelf: "center" }}
-                        onPress={this.btnUploadPictureFromCamera}
-                    >
-                        <Text style={{ color: "#fff", textAlign: "center", fontSize: 18 }}>
-                            Save
-            </Text>
-                    </TouchableOpacity>
-                </View>
+                ></View>
+                <BellyBumpHeaderButtons
+                    buttons={buttonData}
+                    style={style}
+                    handleLeftBtn={() => this.setState({ openModalPic: false })}
+                    handleRightBtn={this.handleSavePicture}
+                />
                 <Image source={{ uri: this.state.picUri }} style={{ flex: 0.9 }} />
             </Modal>
         );
@@ -382,86 +386,18 @@ export default class CameraPage extends Component {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#000"
-    },
-    camera: {
-        flex: 1,
-        justifyContent: "space-between"
-    },
-    topBar: {
-        flex: 0.2,
-        backgroundColor: "transparent",
-        flexDirection: "row",
-        justifyContent: "space-around",
-        paddingTop: Constants.statusBarHeight / 2
-    },
-    bottomBar: {
-        // paddingBottom: isIPhoneX ? 25 : 5,
-        backgroundColor: "transparent",
-        alignSelf: "flex-end",
-        justifyContent: "space-between",
-        flex: 0.12,
-        flexDirection: "row"
-    },
-    bottomButton: {
-        flex: 0.3,
-        height: 58,
-        justifyContent: "center",
-        alignItems: "center"
-    },
-    noPermissions: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 10
-    },
-    toggleButton: {
-        flex: 0.25,
-        height: 40,
-        marginHorizontal: 2,
-        marginBottom: 10,
-        marginTop: 20,
-        padding: 5,
-        alignItems: "center",
-        justifyContent: "center"
-    },
-    autoFocusLabel: {
-        fontSize: 20,
-        fontWeight: "bold"
-    },
-    options: {
-        position: "absolute",
-        bottom: 80,
-        left: 30,
-        width: 200,
-        height: 100,
-        backgroundColor: "#000000BA",
-        borderRadius: 4,
-        padding: 10
-    },
-    pictureQualityLabel: {
-        fontSize: 10,
-        marginVertical: 3,
-        color: "white"
-    },
-    pictureSizeContainer: {
-        flex: 0.5,
-        alignItems: "center",
-        paddingTop: 10
-    },
-    pictureSizeChooser: {
-        alignItems: "center",
-        justifyContent: "space-between",
-        flexDirection: "row"
-    },
-    pictureSizeLabel: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center"
-    },
-    row: {
-        flexDirection: "row"
-    }
+    container: { flex: 1, backgroundColor: "#000" },
+    camera: { flex: 1, justifyContent: "space-between" },
+    topBar: { flex: 0.2, backgroundColor: "transparent", flexDirection: "row", justifyContent: "space-around", paddingTop: Constants.statusBarHeight / 2 },
+    bottomBar: { backgroundColor: "transparent", alignSelf: "flex-end", justifyContent: "space-between", flex: 0.12, flexDirection: "row" },
+    bottomButton: { flex: 0.3, height: 58, justifyContent: "center", alignItems: "center" },
+    noPermissions: { flex: 1, alignItems: "center", justifyContent: "center", padding: 10 },
+    toggleButton: { flex: 0.25, height: 40, marginHorizontal: 2, marginBottom: 10, marginTop: 20, padding: 5, alignItems: "center", justifyContent: "center" },
+    autoFocusLabel: { fontSize: 20, fontWeight: "bold" },
+    options: { position: "absolute", bottom: 80, left: 30, width: 200, height: 100, backgroundColor: "#000000BA", borderRadius: 4, padding: 10 },
+    pictureQualityLabel: { fontSize: 10, marginVertical: 3, color: "white" },
+    pictureSizeContainer: { flex: 0.5, alignItems: "center", paddingTop: 10 },
+    pictureSizeChooser: { alignItems: "center", justifyContent: "space-between", flexDirection: "row" },
+    pictureSizeLabel: { flex: 1, alignItems: "center", justifyContent: "center" },
+    row: { flexDirection: "row" },
 });

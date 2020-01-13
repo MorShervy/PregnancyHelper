@@ -5,6 +5,7 @@ import { observable, action, computed, runInAction } from 'mobx'
 
 class UserStore {
 
+    @observable id = null;
     @observable user = {}
 
     @action getUserAsync = id => {
@@ -18,6 +19,10 @@ class UserStore {
                     return true;
                 })
             })
+    }
+
+    @action setId(id) {
+        this.id = id;
     }
 
 }

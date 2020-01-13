@@ -1,22 +1,23 @@
 const URL = "http://ruppinmobile.tempdomain.co.il/site08/api";
 
-import { observable, action, computed, runInAction } from 'mobx'
 
+import { decorate, observable, action, computed, runInAction, configure } from 'mobx'
+configure({ enforceActions: "observed" });
 class PregnancyStore {
 
-    @observable pregnant = {};
+    @observable pregnant = null;
     @observable week = 0;
     @observable pictures = [];
 
     @action getPregnancyByUserId = id => {
-        console.log('id=', id)
+        console.log('getPregnancyByUserId=', id)
         fetch(`${URL}/Pregnancy/${id}`)
             .then(response => response.json())
             .then(data => {
                 runInAction(() => {
                     // console.log('data=', data)
                     this.pregnant = data;
-                    return true;
+                    return data;
                 })
             })
     }
@@ -27,6 +28,10 @@ class PregnancyStore {
     }
 
 }
+
+// decorate('PregnancyStore', {
+//     getPregnancyByUserId: action
+// })
 
 const pregnancyStore = new PregnancyStore();
 export default pregnancyStore;

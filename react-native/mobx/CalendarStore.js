@@ -3,7 +3,8 @@ import { observable, action, computed } from 'mobx'
 
 
 class CalendarStore {
-    @observable filterWeek;
+    @observable filterWeek = null;
+    @observable currWeek = 0;
 
     @observable weeksData = [
         {
@@ -219,8 +220,17 @@ class CalendarStore {
     ]
 
     @action filter(currentWeek) {
-        this.filterWeek = this.weeksData.filter(week => week.key === currentWeek);
+        this.filterWeek = this.weeksData.filter(week => week.key === currentWeek)[0];
         return this.filterWeek;
+    }
+
+    @action setCurrWeek(week) {
+        this.currWeek = week;
+
+    }
+
+    get currWeek() {
+        return this.currWeek;
     }
 
 }

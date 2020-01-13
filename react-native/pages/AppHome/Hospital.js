@@ -6,7 +6,7 @@ import MapView from 'react-native-maps';
 import { HeaderBackButton } from 'react-navigation-stack';
 import call from 'react-native-phone-call';
 import ItemHospitalList from '../../components/ItemHospitalList';
-import { Hospitals } from '../../data/HospotalData'
+import { Hospitals } from '../../data/HospitalData'
 
 const geolib = require('geolib');
 const { height, width } = Dimensions.get("window");

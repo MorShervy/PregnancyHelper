@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import SQL from '../../handlers/SQL';
 import { observer } from 'mobx-react'
 import userStore from '../../mobx/UserStore';
+import pregnancyStore from '../../mobx/PregnancyStore';
 
 const { height, width } = Dimensions.get("window");
 
@@ -76,7 +77,7 @@ export default class Login extends Component {
 
             this.setState({ errorEmail: false, errorPass: false, errorEmailExist: false, isLoading: true })
             const sqlResult = await SQL.Login(email.toLowerCase(), pass);
-            console.log('res=', sqlResult)
+            // console.log('res=', sqlResult)
 
             if (sqlResult.ID < 1) {
                 setTimeout(() => {
@@ -92,7 +93,9 @@ export default class Login extends Component {
                     ID: sqlResult.ID
                 })
             )
-            userStore.getUserAsync(sqlResult.ID)
+            userStore.setId(sqlResult.ID);
+            pregnancyStore.getPregnancyByUserId(sqlResult.ID)
+            // userStore.getUserAsync(sqlResult.ID)
             navigation.navigate('HomeStack')
         }
 

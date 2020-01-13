@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { observer } from 'mobx-react'
 import userStore from '../../mobx/UserStore';
+import pregnancyStore from '../../mobx/PregnancyStore';
 
 const { height, width } = Dimensions.get("window");
 
@@ -20,12 +21,16 @@ export default class MainAppAuth extends Component {
     };
 
     componentWillMount() {
-        console.log('mainapp will mount')
+        // console.log('mainapp will mount')
         AsyncStorage.getItem("user").then(
             res => JSON.parse(res)).then(
                 res => {
-                    res !== null &&
+                    if (res !== null) {
+                        console.log('MainApp will mount')
+                        userStore.setId(res.ID);
+                        pregnancyStore.getPregnancyByUserId(res.ID)
                         this.props.navigation.navigate("HomeStack")
+                    }
                 }
             );
     }
@@ -35,7 +40,7 @@ export default class MainAppAuth extends Component {
     }
 
     render() {
-        console.log('mainapp render')
+        // console.log('mainapp render')
 
         return (
             <View style={styles.container}>

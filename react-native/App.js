@@ -8,6 +8,8 @@ import AuthStack from './AuthStack';
 import HomeStack from './HomeStack';
 import { observer } from 'mobx-react'
 import userStore from './mobx/UserStore';
+import pregnancyStore from './mobx/PregnancyStore';
+
 I18nManager.forceRTL(false);
 
 @observer
@@ -23,7 +25,10 @@ export default class App extends Component {
   componentWillMount = () => {
     AsyncStorage.getItem('user').
       then(res => JSON.parse(res)).
-      then(res => console.log("app - res= ", res))
+      then(res => {
+        console.log("app will mount - res= ", res)
+      })
+
   }
 
   async _cacheResourcesAsync() {

@@ -59,6 +59,28 @@ export default class SQL {
         })
     } // END Login 
 
+    static async GetPregnancyByUserId(id) {
+        console.log('userId=', id);
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                const res = await fetch(`${URL}/Pregnancy/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                })
+                // console.log(`${URL}/user/Login`, res);
+                const data = await res.json();
+                // console.log('data=', data)
+                resolve(data);
+            }
+            catch (error) {
+                reject(error);
+            }
+        })
+    }
+
     static async InsertPictureToPregnantAlbum(pregnantId, weekId, pictureUri) {
 
         console.log("pregnantId=", pregnantId)

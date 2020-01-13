@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, Dimensions, TouchableHighlight, AsyncStorage, Modal, TouchableOpacity, Image } from 'react-native';
 import { HeaderBackButton } from 'react-navigation-stack';
-import { Ionicons } from "@expo/vector-icons";
 import ItemPictureList from '../../components/ItemPictureList';
-
+import BellyBumpHeaderButtons from '../../components/BellyBumpHeaderButtons';
 
 import { observer } from 'mobx-react'
 import pregnancyStore from '../../mobx/PregnancyStore';
@@ -11,6 +10,8 @@ import albumStore from '../../mobx/AlbumStore';
 import SQL from '../../handlers/SQL';
 
 const { height, width } = Dimensions.get("window");
+const ORANGE_COLOR = '#F4AC32';
+const APP_COLOR = '#304251';
 
 @observer
 export default class BellyBump extends Component {
@@ -20,6 +21,8 @@ export default class BellyBump extends Component {
             openModalPic: false,
             pic: [],
             isChangePic: false,
+            isLoading: false,
+            isUpdatedAlbum: false,
         }
 
     }
@@ -41,6 +44,7 @@ export default class BellyBump extends Component {
         const user = await AsyncStorage.getItem('user')
         const userId = JSON.parse(user)
         console.log('userId', userId)
+        // if()
         albumStore.getPregnancyAlbumByPregnantId(pregnancyStore.pregnant.PregnantID)
 
         // console.log('pregnancyStore.pregnant=', )
@@ -48,7 +52,7 @@ export default class BellyBump extends Component {
     }
 
     componentDidUpdate = async () => {
-        albumStore.getPregnancyAlbumByPregnantId(pregnancyStore.pregnant.PregnantID)
+
     }
 
     takePicture = async (week) => {
@@ -69,6 +73,14 @@ export default class BellyBump extends Component {
 
     }
 
+    handleTakePicture = async () => {
+        console.log('handleTakePicture')
+    }
+
+    handleCreateVideo = async () => {
+        console.log('handleCreateVideo')
+    }
+
     changePictureInAlbum = async (week) => {
         pregnancyStore.setWeek(week);
         this.setState({ openModalPic: false })
@@ -78,13 +90,30 @@ export default class BellyBump extends Component {
     }
 
     deletePictureFromAlbum = async (week) => {
+
         this.setState({ openModalPic: false })
         let data = await SQL.DeletPictureFromPregnancyAlbum(albumStore.picture.PregnantID, week)
         console.log('DeletPictureFromPregnancyAlbum=', data)
+        albumStore.getPregnancyAlbumByPregnantId(pregnancyStore.pregnant.PregnantID)
+
     }
+
+
 
     renderPicUri() {
         // console.log('renderPicUri')
+        const buttonsData = {
+            txtLeft: `DELETE`,
+            txtRight: `CHANGE`,
+            iconLeft: "md-camera",
+            iconRight: "md-videocam"
+        }
+
+        const style = {
+            fontSize: 17,
+            left: -20
+        }
+
         return (
             <Modal
                 style={{ flex: 1 }}
@@ -97,29 +126,18 @@ export default class BellyBump extends Component {
             >
                 <View
                     style={{
-                        flex: 0.1,
+                        flex: 0.08,
                         flexDirection: "row",
                         justifyContent: "space-between",
                         backgroundColor: "#2C3E50"
                     }}
-                >
-                    <TouchableOpacity
-                        style={{ alignSelf: "center" }}
-                        onPress={() => { this.deletePictureFromAlbum(albumStore.picture.WeekID) }}
-                    >
-                        <Text style={{ color: "#fff", textAlign: "center", fontSize: 18 }}>
-                            Delete
-            </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={{ alignSelf: "center" }}
-                        onPress={() => { this.changePictureInAlbum(albumStore.picture.WeekID) }}
-                    >
-                        <Text style={{ color: "#fff", textAlign: "center", fontSize: 18 }}>
-                            Change
-            </Text>
-                    </TouchableOpacity>
-                </View>
+                ></View>
+                <BellyBumpHeaderButtons
+                    buttons={buttonsData}
+                    style={style}
+                    handleLeftBtn={() => { this.deletePictureFromAlbum(albumStore.picture.WeekID) }}
+                    handleRightBtn={() => { this.changePictureInAlbum(albumStore.picture.WeekID) }}
+                />
                 <Image source={{ uri: albumStore.picture.PictureUri }} style={{ flex: 0.9 }} />
             </Modal>
         );
@@ -141,44 +159,29 @@ export default class BellyBump extends Component {
         if (this.state.openModalPic)
             return this.renderPicUri();
 
+        const buttonsData = {
+            txtLeft: `BELLY\nPICTURE`,
+            txtRight: `CREATE\nBELLY BUMP`,
+            iconLeft: "md-camera",
+            iconRight: "md-videocam"
+        }
+
         return (
             <View style={{ flex: 1 }}>
                 {/* header buttons row  */}
-                <View style={styles.headerButtonsStyle}>
-                    {/* belly picture button */}
-                    <TouchableHighlight
-                        style={styles.buttonStyle}
-                        underlayColor={'#F4AC32'}
-                        activeOpacity={1}
-                        onPress={(week) => this.takePicture(week)}
-                    >
-                        <View style={styles.rowDirection}>
-                            <View style={styles.iconViewStyle}>
-                                <Ionicons name="md-camera" size={30} color="#FFF" />
-                            </View>
-                            <Text style={styles.txtButtonStyle}>BELLY{"\n"}PICTURE</Text>
-                        </View>
-                    </TouchableHighlight>
-                    {/* create belly bump button */}
-                    <TouchableHighlight
-                        style={styles.buttonStyle}
-                        underlayColor={'#F4AC32'}
-                        activeOpacity={1}
-                        onPress={() => this.createBellyBump}
-                    >
-                        <View style={styles.rowDirection}>
-                            <View style={styles.iconViewStyle}>
-                                <Ionicons name="md-videocam" size={30} color="#FFF" />
-                            </View>
-                            <Text style={styles.txtButtonStyle}>CREATE{"\n"}BELLY BUMP</Text>
-                        </View>
-                    </TouchableHighlight>
-                </View>
+                <BellyBumpHeaderButtons
+                    buttons={buttonsData}
+                    handleLeftBtn={this.handleTakePicture}
+                    handleRightBtn={this.handleCreateVideo}
+                />
 
-                <View style={{ flex: 0.9 }} >
+                <View style={{ flex: 0.92 }} >
                     <View style={{ width: width - 3, alignSelf: 'center', marginTop: '3%' }}>
                         {/* שימוש בקומפוננטה להצגת כל התמונות ברשימה עם אפשרות לגלילה */}
-                        <ItemPictureList handlePress={(week) => this.takePicture(week)} album={albumStore.album} />
+                        <ItemPictureList
+                            handlePress={(week) => this.takePicture(week)}
+                            album={albumStore.album}
+                        />
                     </View>
                 </View>
             </View>

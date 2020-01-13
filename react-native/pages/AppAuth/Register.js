@@ -3,10 +3,11 @@ import { StyleSheet, View, Text, TextInput, Dimensions, DatePickerAndroid, Touch
 import { Ionicons } from "@expo/vector-icons";
 import { HeaderBackButton } from 'react-navigation-stack';
 import { LinearGradient } from 'expo-linear-gradient';
-import { DueDate } from '../../handlers/Dates';
+import { Dates } from '../../handlers/Dates';
 import SQL from '../../handlers/SQL';
 import { observer } from 'mobx-react'
 import userStore from '../../mobx/UserStore';
+import pregnancyStore from '../../mobx/PregnancyStore';
 
 const { height, width } = Dimensions.get("window");
 
@@ -133,7 +134,7 @@ export default class Register extends Component {
             let lastMenstrualPeriod;
             if (childBirthDate !== '') // במידה והמשתמשת הכניסה תאריך לידה משוער
                 // קריאה לפונקציה שמחשבת את היום הראשון של המחזור האחרון שלה 
-                lastMenstrualPeriod = DueDate.CalculateLastMenstrualByDueDate(childBirthDate)
+                lastMenstrualPeriod = Dates.CalculateLastMenstrualByDueDate(childBirthDate)
 
             // מאפס את כל הודעות השגיאה ומציג דף נטען
             this.setState({
@@ -151,7 +152,9 @@ export default class Register extends Component {
             // שמירת משתמש חדש באחסון מקומי על הטלפון כדי לזהות משתמשים מחוברים
             AsyncStorage.setItem("user", JSON.stringify({ ID: sqlResult.ID }))
             // Mobx קריאה לפונקציה ששומרת את נתוני המשתמש החדש בניהול מידע באמצעות  
-            userStore.getUserAsync(sqlResult.ID)
+            // userStore.getUserAsync(sqlResult.ID)
+            userStore.setId(sqlResult.ID)
+            pregnancyStore.getPregnancyByUserId(sqlResult.ID)
             // מעבר לדף הבית
             navigation.navigate('HomeStack')
         }
@@ -162,7 +165,7 @@ export default class Register extends Component {
 
         handleOnPressDatePickerChildBirth = async () => {
             const date = new Date()
-            let maxDueDateByCurDate = new Date(DueDate.CalculateChildBirthByLastMenstrual(date));
+            let maxDueDateByCurDate = new Date(Dates.CalculateChildBirthByLastMenstrual(date));
             try {
                 const { action, year, month, day } = await DatePickerAndroid.open({
                     maxDate: maxDueDateByCurDate, // 
@@ -199,8 +202,8 @@ export default class Register extends Component {
 
         handleOnPressCalculate = async () => {
             const { lastMenstrualPeriodDate } = this.state;
-            //console.log('lastMenstrualPeriodDate=', date.getFullYear(), date.getMonth() + 1, date.getDate())
-            const estimateDueDate = DueDate.CalculateChildBirthByLastMenstrual(lastMenstrualPeriodDate);
+            // console.log('lastMenstrualPeriodDate=', lastMenstrualPeriodDate)
+            const estimateDueDate = Dates.CalculateChildBirthByLastMenstrual(lastMenstrualPeriodDate);
             //console.log('childBirth=', estimateDueDate);
             this.setState({
                 childBirthDate: estimateDueDate,
