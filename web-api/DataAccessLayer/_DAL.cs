@@ -387,5 +387,68 @@ namespace DataAccessLayer
             return null;
 
         }
+
+        public static DataTable GetContractions()
+        {
+            try
+            {
+                Con.Open();
+
+                _command = new SqlCommand("GetContractions", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _adtr = new SqlDataAdapter(_command);
+                DataSet ds = new DataSet();
+                _adtr.Fill(ds, "Contraction");
+
+                if (ds.Tables["Contraction"].Rows.Count != 0)
+                    return ds.Tables["Contraction"];
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+        }
+
+        public static DataTable InsertContraction(int userId,string startTime,string endTime,string length,string timeApart)
+        {
+            try
+            {
+                Con.Open();
+
+                _command = new SqlCommand("InsertContraction", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _command.Parameters.Add(new SqlParameter("UserID", userId));
+                _command.Parameters.Add(new SqlParameter("StartTime", startTime));
+                _command.Parameters.Add(new SqlParameter("EndTime", endTime));
+                _command.Parameters.Add(new SqlParameter("Length", length));
+                _command.Parameters.Add(new SqlParameter("TimeApart", timeApart));
+
+                _adtr = new SqlDataAdapter(_command);
+                DataSet ds = new DataSet();
+                _adtr.Fill(ds, "Contraction");
+
+                if (ds.Tables["Contraction"].Rows.Count != 0)
+                    return ds.Tables["Contraction"];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+        }
     }
 }

@@ -229,5 +229,74 @@ namespace BusinessLogicLayer
             return isDeleted;
                 
         }
+
+        public static List<Contraction> GetContractions()
+        {
+            List<Contraction> contractions = null;
+            DataTable res = _DAL.GetContractions();
+
+            if (res == null)
+                return null;
+
+            foreach (DataRow row in res.Rows)
+            {
+                if (contractions == null)
+                    contractions = new List<Contraction>();
+
+                contractions.Add(new Contraction()
+                {
+                    UserID = int.Parse(row["UserID"].ToString()),
+                    ContractionID = int.Parse(row["ContractionID"].ToString()),
+                    StartTime = row["StartTime"].ToString(),
+                    EndTime = row["EndTime"].ToString(),
+                    Length = row["ContractionLength"].ToString(),
+                    TimeApart = row["TimeApart"].ToString(),
+                    Date = row["Date"].ToString(),
+                });
+            }
+            return contractions;
+        }
+
+        public static List<Contraction> GetContractionsByUserId(int id, List<Contraction> list)
+        {
+            List<Contraction> contractions = null;
+
+            if (list == null)
+                return null;
+
+            foreach(Contraction contraction in list)
+            {
+                if (contractions == null)
+                    contractions = new List<Contraction>();
+
+                if(contraction.UserID == id)
+                {
+                    contractions.Add(contraction);
+                }
+            }
+
+            if (contractions == null || contractions.Count == 0)
+                return null;
+
+            return contractions;
+        }
+
+        public static Contraction InsertContraction(int userId, string startTime, string endTime, string length, string timeApart)
+        {
+            Contraction contraction = null;
+            DataTable res = _DAL.InsertContraction(userId,startTime,endTime,length,timeApart);
+
+            if (res == null)
+                return null;
+
+            contraction = new Contraction()
+            {
+                UserID = userId
+
+            };
+
+            return contraction;
+
+        }
     }
 }
