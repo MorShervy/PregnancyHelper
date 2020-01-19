@@ -176,6 +176,92 @@ export default class SQL {
 
     }
 
+    static async GetContractionsByUserId(id) {
+        console.log('userId=', id);
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                const res = await fetch(`${URL}/Contraction/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                })
+                // console.log(`${URL}/Contraction/${id}`, res);
+                const data = await res.json();
+                // console.log('data=', data)
+                resolve(data);
+            }
+            catch (error) {
+                reject(error);
+            }
+        })
+    }
+
+    static async InsertContraction(userId, startTime, endTime, length, timeApart, dateTime) {
+
+        console.log("userId=", userId)
+        console.log("startTime", startTime)
+        console.log("endTime", endTime)
+        console.log("length", length)
+        console.log("timeApart", timeApart)
+        console.log("timeApart", dateTime)
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                const res = await fetch(`${URL}/contraction/InsertContraction/`, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        userId,
+                        startTime,
+                        endTime,
+                        length,
+                        timeApart,
+                        dateTime
+                    })
+                });
+                //console.log(`${URL}/contraction/InsertContraction/`, res);
+                const data = await res.json();
+                //console.log('data=', data)
+                resolve(data);
+            }
+            catch (error) {
+                reject(error);
+            }
+        })
+    }
+
+    static async DeleteContractionByUserId(userId) {
+
+        console.log("userId=", userId)
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                const res = await fetch(`${URL}/contraction/DeleteContractionByUserId/`, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        userId
+                    })
+                });
+                //console.log(`${URL}/contraction/DeleteContractionByUserId/`, res);
+                const data = await res.json();
+                //console.log('data=', data)
+                resolve(data);
+            }
+            catch (error) {
+                reject(error);
+            }
+        })
+
+    }
 
     static UploadPicture(picUri, picName) {
 

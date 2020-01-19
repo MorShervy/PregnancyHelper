@@ -61,4 +61,30 @@ export class Dates {
         return difference_in_days;
     }
 
+    static GetDiffByTwoDates(d1, d2) {
+
+        // save the difference in time between the last contraction to the current contraction 
+        var difference_in_time = d2.getTime() - d1.getTime();
+        // get difference in hours (string)
+        var difference_in_hour = this.pad((difference_in_time / (1000 * 3600)) | 0)
+        // get difference in min (string)
+        var difference_in_min = this.pad(((difference_in_time / (1000 * 3600) - parseInt(difference_in_time / (1000 * 3600))) * 60) | 0)
+        // get difference in sec (string)
+        var difference_in_sec = this.pad(((((difference_in_time / (1000 * 3600) - parseInt(difference_in_time / (1000 * 3600))) * 60)
+            -
+            (((difference_in_time / (1000 * 3600) - parseInt(difference_in_time / (1000 * 3600))) * 60) | 0)) * 60) | 0)
+
+        return `${difference_in_hour}:${difference_in_min}:${difference_in_sec}`;
+    }
+
+    static pad(val) {
+        let valStr = val + "";
+        if (valStr.length < 2) {
+            valStr = "0" + valStr
+            return valStr
+        }
+        else
+            return valStr
+    }
+
 } 

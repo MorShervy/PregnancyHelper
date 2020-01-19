@@ -211,6 +211,7 @@ const ToolsStack = createStackNavigator(
                 backgroundColor: "#304251",
             },
             headerTintColor: '#FFF',
+
         }),
     }
 )

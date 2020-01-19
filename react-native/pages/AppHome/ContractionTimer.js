@@ -1,14 +1,18 @@
 import React, { Component } from 'react';
-import { StyleSheet, BackHandler, ScrollView, View, Text, ImageBackground, Dimensions, TouchableOpacity, Alert, TouchableHighlight } from 'react-native';
+import { StyleSheet, BackHandler, ScrollView, View, Text, ImageBackground, Dimensions, TouchableOpacity, Alert, TouchableHighlight, Button } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { NavigationActions } from 'react-navigation';
 import { Ionicons } from "@expo/vector-icons";
 import { HeaderBackButton } from 'react-navigation-stack';
+import SQL from '../../handlers/SQL';
+import { Dates } from '../../handlers/Dates';
 import { observer } from 'mobx-react'
+import userStore from '../../mobx/UserStore';
 import contractionStore from '../../mobx/ContractionStore';
 import moment from 'moment';
 
 const APP_COLOR = '#304251';
-const { height, width } = Dimensions.get("window");
+const { height, width, fontScale } = Dimensions.get("window");
 
 
 
@@ -18,6 +22,8 @@ export default class ContractionTimer extends Component {
         super(props);
         this.state = {
             toggle: false,
+            isTimeApartCalc: true,
+            d: '',
             h: "00",
             m: "00",
             s: "00",
@@ -26,11 +32,54 @@ export default class ContractionTimer extends Component {
             ss: "00",
             list: [],
         }
+        // contractionStore.getContractionList(userStore.id)
+    }
+
+    componentWillMount = () => {
+        if (contractionStore.contraction === null) {
+            console.log('componentWillMount=contraction === null')
+            contractionStore.getContractionList(userStore.id)
+        }
+    }
+
+    componentDidMount = () => {
+        // adding the event listener for back button android
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
+        // console.log('componentDidMount')
+    }
+
+    // componentDidUpdate = () => {
+    //     console.log('componentDidUpdate')
+    // }
+
+    componentWillUnmount = () => {
+
+        // removing the event listener for back button android
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
+        // console.log('this.timer1=', this.timer1);
+        // console.log('this.timer2=', this.timer2);
+        if (this.timer1 !== undefined)
+            clearInterval(this.timer1)
+        if (this.timer2 !== undefined)
+            clearInterval(this.timer2)
     }
 
     static navigationOptions = ({ navigation }) => {
         return {
             headerTitle: "Contraction timer",
+            headerRight: (
+                <TouchableOpacity
+                    onPress={() => {
+                        const setParamsAction = NavigationActions.setParams({
+                            params: { isMoreOptToShow: navigation.state.params !== undefined ? !navigation.state.params.isMoreOptToShow : true },
+                            key: navigation.state.key,
+                        });
+                        navigation.dispatch(setParamsAction);
+                    }}
+                >
+                    <Ionicons name="md-more" size={35} color={'#FFF'} style={{ paddingRight: 20 }} />
+                </TouchableOpacity>
+            ),
             headerLeft: (
                 <HeaderBackButton
                     onPress={() => handleHeaderBackButton(navigation)}
@@ -42,27 +91,10 @@ export default class ContractionTimer extends Component {
     }
 
     handleHeaderBackButton = navigation => {
-        console.log('navigation=', navigation)
         navigation.navigate({
             routeName: 'Home',
         })
     }
-
-    componentDidMount = () => {
-        // adding the event listener for back button android
-        BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
-    }
-
-    componentWillUnmount = () => {
-
-        // removing the event listener for back button android
-        // console.log('test=', BackHandler)
-        BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
-        clearInterval(this.timer1)
-        clearInterval(this.timer2)
-    }
-
-
 
 
     handleBackButton = () => {
@@ -70,24 +102,37 @@ export default class ContractionTimer extends Component {
     }
 
     start = () => {
-        clearInterval(this.timer2)
+        if (this.timer2 !== undefined)
+            clearInterval(this.timer2)
+
+
         const { hh, mm, ss } = this.state;
         const d = new Date();
 
-        const startTime = `${d.getHours()}:${this.pad(d.getMinutes())}`
+        const startTime = `${this.pad(d.getHours())}:${this.pad(d.getMinutes())}:${this.pad(d.getSeconds())}`
         const start = d.getTime();
-        const timeApart = (mm !== "00" && ss === "00" && `${mm}m`) ||
-            (mm !== "00" && `${mm}m ${ss}s`) ||
-            (ss === "00" && '--') ||
-            `${ss}s`
 
+        let timeApart;
+        if (contractionStore.contraction !== null &&
+            contractionStore.contraction.Message === undefined &&
+            this.state.isTimeApartCalc) {
+            console.log('isTimeApartCalc= false')
+            timeApart = Dates.GetDiffByTwoDates(
+                new Date(contractionStore.contraction[contractionStore.contraction.length - 1].DateTime),
+                new Date(d)
+            )
+        }
+        else
+            timeApart = `${hh}:${mm}:${ss}`;
 
         this.setState({
             toggle: true,
+            isTimeApartCalc: false,
             start,
             startTime,
             timeApart,
-            h: "00", m: "00", s: "00", hh: "00", mm: "00", ss: "00"
+            h: "00", m: "00", s: "00", hh: "00", mm: "00", ss: "00",
+            date: d
         })
         this.timer1 = setInterval(
             () => {
@@ -102,25 +147,33 @@ export default class ContractionTimer extends Component {
         )
     }
 
-    stop = () => {
-        clearInterval(this.timer1)
-        const { h, m, s, hh, mm, ss, start, startTime, timeApart } = this.state;
+    stop = async () => {
+        if (this.timer1 !== undefined)
+            clearInterval(this.timer1)
+        const { h, m, s, hh, mm, ss, start, startTime, timeApart, timeApartToShow, date } = this.state;
         const d = new Date();
 
-        const endTime = `${d.getHours()}:${this.pad(d.getMinutes())}`
-        const length = m !== "00" ? `${m}m ${s}s` : `${s}s`;
+        const endTime = `${this.pad(d.getHours())}:${this.pad(d.getMinutes())}:${this.pad(d.getSeconds())}`
+        const length = `${h}:${m}:${s}`
 
 
+
+
+        console.log('sqlRes=', sqlRes);
         // console.log('lalala=', h, ':', m, ':', s)
-        console.log('length=', length)
-        console.log('timeApart=', timeApart)
-        console.log(`${startTime} - ${endTime}`)
-        // contractionStore.addContraction(length, timeApart, startTime, endTime)
-        var itemToAdd = this.state.list.concat({ length, timeApart, startTime, endTime })
+        // console.log('length=', length)
+        // console.log('timeApart=', timeApart)
+        // console.log(`${startTime} - ${endTime}`)
+
         this.setState({
             toggle: false, hh: h, mm: m, ss: s,
-            list: itemToAdd
+
         })
+
+        const sqlRes = await SQL.InsertContraction(userStore.id, startTime, endTime, length, timeApart, date)
+        console.disableYellowBox = true
+        contractionStore.getContractionList(userStore.id)
+
         this.timer2 = setInterval(
             () => {
                 let t = new Date().getTime() - start;
@@ -132,7 +185,9 @@ export default class ContractionTimer extends Component {
             },
             1000
         )
+
     }
+
 
     pad = (val) => {
         let valStr = val + "";
@@ -178,21 +233,64 @@ export default class ContractionTimer extends Component {
     }
 
 
+    handleDeleteAll = async () => {
+        const sqlRes = await SQL.DeleteContractionByUserId(userStore.id)
+        const setParamsAction = NavigationActions.setParams({
+            params: { isMoreOptToShow: false },
+            key: this.props.navigation.state.key,
+        });
+        this.props.navigation.dispatch(setParamsAction);
+        contractionStore.getContractionList(userStore.id);
+        this.setState({ h: '00', m: '00', s: '00', hh: '00', mm: '00', ss: '00', toggle: false })
+        clearInterval(this.timer1)
+        clearInterval(this.timer2)
 
+    }
 
 
     render() {
-        // console.log('contractionStore.contraction=', contractionStore.contraction)
+
         const { toggle } = this.state;
         const { h, m, s } = this.state;
         const { hh, mm, ss } = this.state;
+        const { navigation } = this.props;
 
 
-        // console.log('this.state.list=', this.state.list)
+
+
         return (
-            <View style={{ flex: 1, backgroundColor: APP_COLOR, alignItems: 'center', paddingTop: '5%' }}>
+            <View style={{ flex: 1, backgroundColor: APP_COLOR, alignItems: 'center' }}>
 
-                <View style={{ flex: 0.3 }}>
+                {
+                    navigation.state.params !== undefined &&
+                    navigation.state.params.isMoreOptToShow &&
+                    <View
+                        style={{
+                            position: 'absolute',
+                            // top: -20,
+                            right: 30,
+                            zIndex: 0,
+                            width: '35%',
+                            height: 30,
+                            backgroundColor: '#FFF',
+                            shadowColor: "rgba(0,0,0,1.0)",
+                            shadowOpacity: 0.5,
+                            shadowRadius: 2,
+                            elevation: 10,
+                        }}
+                    >
+                        <TouchableHighlight
+                            style={{ width: '100%', }}
+                            onPress={this.handleDeleteAll}
+                            underlayColor={APP_COLOR}
+
+                        >
+                            <Text style={{ fontSize: 18, color: '#000', textAlign: 'center' }}>Delete All</Text>
+                        </TouchableHighlight>
+                    </View>
+                }
+
+                <View style={{ flex: 0.3, paddingTop: '5%' }}>
                     <View style={styles.timerContiener}>
                         <Text
                             style={{ fontSize: 45, color: '#FFFFFF', textAlign: 'center' }}
@@ -228,10 +326,6 @@ export default class ContractionTimer extends Component {
                     </View>
                 </View>
 
-
-
-
-
                 <View style={{ flex: 0.6 }}>
                     <View style={{ width: width - 40, marginTop: '10%' }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: '#FFF' }}>
@@ -239,16 +333,34 @@ export default class ContractionTimer extends Component {
                             <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 15 }}>Time apart</Text>
                             <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 15 }}>Start and stop</Text>
                         </View>
-
-                        {/* <View style={{ flexDirection: 'column-reverse' }}> */}
-                        <LapsTable laps={this.state.list} />
-                        {/* </View> */}
+                        {
+                            contractionStore.contraction !== null &&
+                            contractionStore.contraction.length !== 0 &&
+                            <ScrollView style={{ height: '90%' }}>
+                                <View style={{ flexDirection: 'column-reverse' }}>
+                                    {contractionStore.contraction.map((lap, index) => (
+                                        <Lap
+                                            key={index}
+                                            length={lap.Length}
+                                            timeApart={lap.TimeApart}
+                                            startTime={lap.StartTime}
+                                            endTime={lap.EndTime}
+                                        // interval={index === 0 ? lap : lap}
+                                        />
+                                    ))}
+                                </View>
+                            </ScrollView>
+                        }
                     </View>
                 </View>
 
                 <View style={{ flex: 0.08, width: '100%', borderTopColor: '#FFF', borderTopWidth: 1, padding: '2%' }}>
                     <Text style={{ color: '#FFF', textAlign: 'center', fontWeight: '700', fontSize: 17 }}>Average in last hour</Text>
-                    <Text style={{ color: '#FFF', textAlign: 'center', marginTop: '2%' }}>Length: 53s | Time apart: 5m 27s</Text>
+                    {contractionStore.contraction !== null && contractionStore.contraction.length > 0 &&
+                        <Text style={{ color: '#FFF', textAlign: 'center', marginTop: '2%' }}>
+                            Length: {contractionStore.AverageInLastHour.avgLength} | Time apart: {contractionStore.AverageInLastHour.avgTimeApart}
+                        </Text>
+                    }
                 </View>
             </View>
         );
@@ -278,11 +390,34 @@ function RoundButton({ title, color, background, onPress, disable }) {
 }
 
 function Lap({ length, timeApart, startTime, endTime }) {
+    const len = length.split(':')
+    const h = len[0]
+    const m = len[1]
+    const s = len[2]
+
+    // console.log('h=', h, 'm=', m, 's=', s)
+    const lengthToShow = m !== "00" ? `${m}m ${s}s` : `${s}s`;
+
+    const temp = timeApart.split(':');
+    const hh = temp[0];
+    const mm = temp[1];
+    const ss = temp[2];
+
+    const timeApartToShow = (mm !== "00" && ss === "00" && `${mm}m`) ||
+        (mm !== "00" && `${mm}m ${ss}s`) ||
+        (ss === "00" && '--') ||
+        `${ss}s`
+
+
     return (
         <View style={styles.lap}>
-            <Text style={styles.lapText}>{length}</Text>
-            <Text style={styles.lapText}>{timeApart}</Text>
-            <Text style={styles.lapText}>{startTime} - {endTime} </Text>
+            <Text style={styles.lapText}>{lengthToShow}</Text>
+            <Text style={styles.lapText}>{timeApartToShow}</Text>
+            <Text style={styles.lapText}>
+                {startTime.split(':')[0] + ':' + startTime.split(':')[1]}
+                {"\b"}-{"\b"}
+                {endTime.split(':')[0] + ':' + endTime.split(':')[1]}
+            </Text>
 
 
         </View>
@@ -296,10 +431,10 @@ function LapsTable({ laps }) {
                 {laps.map((lap, index) => (
                     <Lap
                         key={index}
-                        length={lap.length}
-                        timeApart={lap.timeApart}
-                        startTime={lap.startTime}
-                        endTime={lap.endTime}
+                        length={lap.Length}
+                        timeApart={lap.TimeApart}
+                        startTime={lap.StartTime}
+                        endTime={lap.EndTime}
                     // interval={index === 0 ? lap : lap}
                     />
                 ))}
@@ -320,7 +455,7 @@ const styles = StyleSheet.create({
     },
     lapText: {
         color: 'white',
-        fontSize: 14,
+        fontSize: 14 + fontScale,
     },
     RoundBtn: {
         alignSelf: 'center',
@@ -349,7 +484,7 @@ const styles = StyleSheet.create({
         // paddingTop: 25,
         textAlign: "center",
         fontWeight: '700',
-        fontSize: 17,
+        fontSize: 17 + fontScale,
         color: '#FFF',
 
 
@@ -376,7 +511,7 @@ const styles = StyleSheet.create({
     // },
     timer: {
         color: 'white',
-        fontSize: 76,
+        fontSize: 76 + fontScale,
         fontWeight: '200',
     }
 });

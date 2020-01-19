@@ -10,7 +10,7 @@ const APP_COLOR = '#304251';
 export default function BellyBumpHeaderButtons(props) {
 
     useEffect(() => {
-        console.log('props=', props)
+        // console.log('props=', props)
 
     }, [])
 
