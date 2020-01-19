@@ -302,32 +302,41 @@ ALTER PROC InsertContraction(
  @StartTime time(0),
  @EndTime time(0),
  @Length time(0),
- @TimeApart time(0)
+ @TimeApart time(0),
+ @DateTime nvarchar(50)
  )
  AS
 	BEGIN
 		
 		INSERT INTO TBUserContractionTimer(UserID,StartTime,EndTime,ContractionLength,TimeApart,Date)
-		VALUES(@UserID,@StartTime,@EndTime,@Length,@TimeApart,GETDATE())
+		VALUES(@UserID,@StartTime,@EndTime,@Length,@TimeApart,@DateTime)
 
 		SELECT @UserID AS UserId
 	END
 GO
 
-EXEC InsertContraction 12,'12:06','12:06','00:00:15','00:01:54'
+EXEC InsertContraction 12,'12:06','12:06','00:00:15','00:01:54','2020-01-15T14:00:39.000Z'
 
 ------------SP DeleteContractionsById------------
-CREATE PROC DeleteContractionsById(
+ALTER PROC DeleteContractionsById(
 	@UserID int
 	)
 	AS
 		BEGIN
-			DELETE FROM TBUserContractionTimer
-			WHERE UserID = @UserID
+			IF EXISTS (SELECT * FROM TBUserContractionTimer WHERE UserID = @UserID)
+				BEGIN
+					DELETE FROM TBUserContractionTimer
+					WHERE UserID = @UserID
+					SELECT 1 AS Result
+				END
+			ELSE
+				BEGIN
+					SELECT 0 AS Result
+				END
 		END
 GO
 
-EXEC DeleteContractionsById 11
+EXEC DeleteContractionsById 13
 ----------------------------------------
 ----- End User Pregnancy Controler -----
 ----------------------------------------
