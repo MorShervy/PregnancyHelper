@@ -14,6 +14,6 @@ namespace BusinessLogicLayer.Models
         public string EndTime { get; set; }
         public string Length { get; set; }
         public string TimeApart { get; set; }
-        public string Date { get; set; }
+        public string DateTime { get; set; }
     }
 }

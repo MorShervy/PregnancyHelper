@@ -417,7 +417,7 @@ namespace DataAccessLayer
             return null;
         }
 
-        public static DataTable InsertContraction(int userId,string startTime,string endTime,string length,string timeApart)
+        public static DataTable InsertContraction(int userId,string startTime,string endTime,string length,string timeApart, string dateTime)
         {
             try
             {
@@ -431,6 +431,7 @@ namespace DataAccessLayer
                 _command.Parameters.Add(new SqlParameter("EndTime", endTime));
                 _command.Parameters.Add(new SqlParameter("Length", length));
                 _command.Parameters.Add(new SqlParameter("TimeApart", timeApart));
+                _command.Parameters.Add(new SqlParameter("DateTime", dateTime));
 
                 _adtr = new SqlDataAdapter(_command);
                 DataSet ds = new DataSet();
@@ -438,6 +439,36 @@ namespace DataAccessLayer
 
                 if (ds.Tables["Contraction"].Rows.Count != 0)
                     return ds.Tables["Contraction"];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+        }
+
+        public static DataTable DeleteContractionByUserId(int userId)
+        {
+            try
+            {
+                Con.Open();
+                _command = new SqlCommand("DeleteContractionsById", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _command.Parameters.Add(new SqlParameter("UserId", userId));
+
+                _adtr = new SqlDataAdapter(_command);
+                DataSet ds = new DataSet();
+                _adtr.Fill(ds, "Contraction");
+
+                if (ds.Tables["Contraction"].Rows.Count != 0)
+                    return ds.Tables["Contraction"];
+            
             }
             catch (Exception ex)
             {

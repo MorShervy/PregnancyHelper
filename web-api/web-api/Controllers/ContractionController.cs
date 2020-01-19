@@ -37,8 +37,11 @@ namespace web_api.Controllers
                 List<Contraction> list = _BAL.GetContractions().ToList();
                 List<Contraction> contractions = _BAL.GetContractionsByUserId(id, list);
 
-                if(contractions==null)
-                    return Content(HttpStatusCode.NotFound, "contraction with user id {" + id + "} was not found");
+                if (contractions == null)
+                {
+                    var res =new  { Message = "contraction with user id {" + id + "} was not found" };
+                    return Content(HttpStatusCode.NotFound, res);
+                }
                 return Ok(contractions);
             }
             catch (Exception ex)
@@ -53,8 +56,25 @@ namespace web_api.Controllers
         {
             try
             {
-                Contraction contraction = _BAL.InsertContraction(c.UserID, c.StartTime, c.EndTime, c.Length, c.TimeApart);
+                Contraction contraction = _BAL.InsertContraction(c.UserID, c.StartTime, c.EndTime, c.Length, c.TimeApart,c.DateTime);
                 return Created(new Uri(Url.Link("GetContractionByUserId", new { id = c.UserID })), c);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("DeleteContractionByUserId")]
+        public IHttpActionResult PostDeleteContractionByUserId([FromBody]Contraction c)
+        {
+            try
+            {
+                bool isDeleted = _BAL.DeleteContractionByUserId(c.UserID);
+                if (!isDeleted)
+                    return Content(HttpStatusCode.BadRequest, isDeleted);
+                return Ok(isDeleted);
             }
             catch (Exception ex)
             {

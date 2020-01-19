@@ -251,7 +251,7 @@ namespace BusinessLogicLayer
                     EndTime = row["EndTime"].ToString(),
                     Length = row["ContractionLength"].ToString(),
                     TimeApart = row["TimeApart"].ToString(),
-                    Date = row["Date"].ToString(),
+                    DateTime = row["Date"].ToString(),
                 });
             }
             return contractions;
@@ -281,10 +281,10 @@ namespace BusinessLogicLayer
             return contractions;
         }
 
-        public static Contraction InsertContraction(int userId, string startTime, string endTime, string length, string timeApart)
+        public static Contraction InsertContraction(int userId, string startTime, string endTime, string length, string timeApart,string dateTime)
         {
             Contraction contraction = null;
-            DataTable res = _DAL.InsertContraction(userId,startTime,endTime,length,timeApart);
+            DataTable res = _DAL.InsertContraction(userId,startTime,endTime,length,timeApart,dateTime);
 
             if (res == null)
                 return null;
@@ -297,6 +297,19 @@ namespace BusinessLogicLayer
 
             return contraction;
 
+        }
+
+        public static bool DeleteContractionByUserId(int userId)
+        {
+            bool isDeleted = false;
+            DataTable result = _DAL.DeleteContractionByUserId(userId);
+
+            if (result == null)
+                return isDeleted;
+
+            isDeleted = Convert.ToBoolean((int)result.Rows[0]["Result"]);
+
+            return isDeleted;
         }
     }
 }

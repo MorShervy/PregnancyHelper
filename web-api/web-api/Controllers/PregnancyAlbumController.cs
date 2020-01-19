@@ -90,10 +90,10 @@ namespace web_api.Controllers
         {
             try
             {
-                bool isDleted = _BAL.DeletPictureFromPregnancyAlbum(pic.PregnantID, pic.WeekID);
-                if (!isDleted)
-                    return Content(HttpStatusCode.BadRequest,isDleted);
-                return Ok(isDleted);
+                bool isDeleted = _BAL.DeletPictureFromPregnancyAlbum(pic.PregnantID, pic.WeekID);
+                if (!isDeleted)
+                    return Content(HttpStatusCode.BadRequest, isDeleted);
+                return Ok(isDeleted);
 
             }
             catch (Exception ex)
