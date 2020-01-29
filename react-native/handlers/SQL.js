@@ -60,7 +60,7 @@ export default class SQL {
     } // END Login 
 
     static async GetPregnancyByUserId(id) {
-        console.log('userId=', id);
+        // console.log('userId=', id);
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -177,7 +177,7 @@ export default class SQL {
     }
 
     static async GetContractionsByUserId(id) {
-        console.log('userId=', id);
+        // console.log('userId=', id);
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -252,6 +252,91 @@ export default class SQL {
                     })
                 });
                 //console.log(`${URL}/contraction/DeleteContractionByUserId/`, res);
+                const data = await res.json();
+                //console.log('data=', data)
+                resolve(data);
+            }
+            catch (error) {
+                reject(error);
+            }
+        })
+
+    }
+
+    static async GetKickTrackerByPregnantId(id) {
+        // console.log('userId=', id);
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                const res = await fetch(`${URL}/kicktracker/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                })
+                // console.log(`${URL}/kicktracker/${id}`, res);
+                const data = await res.json();
+                // console.log('data=', data)
+                resolve(data);
+            }
+            catch (error) {
+                reject(error);
+            }
+        })
+    }
+
+    static async InsertKickTracker(pregnantId, date, length, time, kicks) {
+
+        console.log("pregnantId=", pregnantId)
+        console.log("date", date)
+        console.log("length", length)
+        console.log("time", time)
+        console.log("kicks", kicks)
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                const res = await fetch(`${URL}/kicktracker/InsertKickTracker/`, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        pregnantId,
+                        date,
+                        length,
+                        time,
+                        kicks
+                    })
+                });
+                //console.log(`${URL}/kicktracker/InsertKickTracker/`, res);
+                const data = await res.json();
+                //console.log('data=', data)
+                resolve(data);
+            }
+            catch (error) {
+                reject(error);
+            }
+        })
+    }
+
+    static async DeleteKickTrackerByPregnantId(pregnantId) {
+
+        console.log("pregnantId=", pregnantId)
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                const res = await fetch(`${URL}/kicktracker/DeleteKickTrackerByPregnantId/`, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        pregnantId
+                    })
+                });
+                //console.log(`${URL}/kicktracker/DeleteKickTrackerByPregnantId/`, res);
                 const data = await res.json();
                 //console.log('data=', data)
                 resolve(data);

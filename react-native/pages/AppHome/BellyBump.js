@@ -3,11 +3,14 @@ import { StyleSheet, View, Text, Dimensions, TouchableHighlight, AsyncStorage, M
 import { HeaderBackButton } from 'react-navigation-stack';
 import ItemPictureList from '../../components/ItemPictureList';
 import BellyBumpHeaderButtons from '../../components/BellyBumpHeaderButtons';
+import { Dates } from '../../handlers/Dates';
 
 import { observer } from 'mobx-react'
 import pregnancyStore from '../../mobx/PregnancyStore';
 import albumStore from '../../mobx/AlbumStore';
+import calendarStore from '../../mobx/CalendarStore';
 import SQL from '../../handlers/SQL';
+
 
 const { height, width } = Dimensions.get("window");
 const ORANGE_COLOR = '#F4AC32';
@@ -24,7 +27,7 @@ export default class BellyBump extends Component {
             isLoading: false,
             isUpdatedAlbum: false,
         }
-
+        console.log('Belly bump constructor')
     }
 
     static navigationOptions = ({ navigation }) => {
@@ -40,12 +43,24 @@ export default class BellyBump extends Component {
         };
     }
 
-    componentWillMount = async () => {
+    componentDidMount = async () => {
         const user = await AsyncStorage.getItem('user')
         const userId = JSON.parse(user)
         console.log('userId', userId)
         // if()
         albumStore.getPregnancyAlbumByPregnantId(pregnancyStore.pregnant.PregnantID)
+        let difference_in_days = Dates.CalculateDaysDifferenceBetweenTwoDates(pregnancyStore.pregnant.LastMenstrualPeriod)
+        let week = (difference_in_days / 7) | 0;
+        let w = week > 42 ? 42 : week;
+        // console.log('w = ', w)
+        pregnancyStore.setCurrWeek(w);
+        let newArr = [];
+        for (var i = 0; i < w; i++) {
+            newArr.push({
+                key: i + 1
+            })
+        }
+        this.setState({ newArr })
 
         // console.log('pregnancyStore.pregnant=', )
 
@@ -145,6 +160,7 @@ export default class BellyBump extends Component {
 
     render() {
         // console.log('render')
+        const { newArr } = this.state
 
         handleHeaderBackButton = navigation => {
             this.setState({ openModalPic: false });
@@ -181,6 +197,8 @@ export default class BellyBump extends Component {
                         <ItemPictureList
                             handlePress={(week) => this.takePicture(week)}
                             album={albumStore.album}
+                            week={pregnancyStore.currWeek}
+                            newArr={newArr}
                         />
                     </View>
                 </View>

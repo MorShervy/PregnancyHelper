@@ -179,8 +179,8 @@ const DrawerStack = createDrawerNavigator(
         // }
     },
     {
-        drawerWidth: width - 70,
-        edgeWidth: 100,
+        drawerWidth: width - 100,
+        edgeWidth: 35,
 
         contentComponent: DrawerNavigation,
     }
@@ -188,6 +188,9 @@ const DrawerStack = createDrawerNavigator(
 
 const ToolsStack = createStackNavigator(
     {
+        Tools: {
+            screen: Tools
+        },
         BellyBump: {
             screen: BellyBump
         },

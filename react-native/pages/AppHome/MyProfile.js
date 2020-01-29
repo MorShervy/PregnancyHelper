@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, BackHandler } from 'react-native';
 import { HeaderBackButton } from 'react-navigation-stack';
 import { NavigationActions } from 'react-navigation';
 import { DrawerActions } from 'react-navigation-drawer';
@@ -14,7 +14,10 @@ class MyProfile extends Component {
             headerLeft: (
                 <HeaderBackButton
                     onPress={() => {
-                        handleHeaderBackButton(navigation)
+                        navigation.navigate({
+                            routeName: 'Home',
+                        })
+                        navigation.toggleDrawer()
                     }}
                     tintColor={'#FFF'}
                 />
@@ -23,16 +26,27 @@ class MyProfile extends Component {
         };
     }
 
+    componentDidMount = async () => {
+        // adding the event listener for back button android
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
+    }
+
+    componentWillUnmount = () => {
+        // removing the event listener for back button android
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
+    }
+
+    handleBackButton = () => {
+        const { navigation } = this.props;
+        navigation.navigate({
+            routeName: 'Home',
+        })
+        navigation.toggleDrawer()
+    }
 
     render() {
 
-        handleHeaderBackButton = navigation => {
-            //console.log('navigation=', navigation)
-            navigation.navigate({
-                routeName: 'Home',
-            })
-            navigation.toggleDrawer()
-        }
+
 
         return (
             // <View>

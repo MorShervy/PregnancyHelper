@@ -13,9 +13,6 @@ const regexEmail = /^(([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}))$/;
 const regexPassword = /^(.{8,49})$/;
 const GREEN_COLOR = '#3CB371';
 const GREY_COLOR = '#8e8e8e';
-const DARKGREY_COLOR = '#2F4F4F';
-const DARKGRAY_COLOR = '#A9A9A9';
-const LIGHTGREY_COLOR = '#EFF0F4';
 const APP_COLOR = '#304251';
 const RED_COLOR = '#FF0000';
 
@@ -81,9 +78,7 @@ export default class Login extends Component {
 
             if (sqlResult.ID < 1) {
                 setTimeout(() => {
-                    //let delta = Date.now() - start;
                     this.setState({ isLoading: false, errorEmailExist: true })
-                    //console.log('delta/1000=', Math.floor(delta / 1000))
                 }, 1000)
                 return;
             }
@@ -95,7 +90,6 @@ export default class Login extends Component {
             )
             userStore.setId(sqlResult.ID);
             pregnancyStore.getPregnancyByUserId(sqlResult.ID)
-            // userStore.getUserAsync(sqlResult.ID)
             navigation.navigate('HomeStack')
         }
 

@@ -47,9 +47,26 @@ export class Dates {
     static CalculateDaysDifferenceBetweenTwoDates(date) {
 
         var dd = date.split('/')
-        console.log('dd=', `${dd[1]}/${dd[0]}/${dd[2]}`)
+        // console.log('dd=', `${dd[1]}/${dd[0]}/${dd[2]}`)
         var d1 = new Date(`${dd[1]}/${dd[0]}/${dd[2]}`);
         var d2 = new Date()
+
+        var difference_in_time = d2.getTime() - d1.getTime();
+        var difference_in_days = difference_in_time / (1000 * 3600 * 24)
+
+
+        // console.log('d1=', d1)
+        // console.log('d2=', d2)
+        // console.log('difference_in_days=', difference_in_days / 7)
+        return difference_in_days;
+    }
+
+    static GetDaysToGo(date) {
+
+        var dd = date.split('/')
+        // console.log('dd=', `${dd[1]}/${dd[0]}/${dd[2]}`)
+        var d2 = new Date(`${dd[1]}/${dd[0]}/${dd[2]}`);
+        var d1 = new Date()
 
         var difference_in_time = d2.getTime() - d1.getTime();
         var difference_in_days = difference_in_time / (1000 * 3600 * 24)

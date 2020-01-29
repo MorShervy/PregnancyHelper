@@ -44,10 +44,6 @@ export default class Register extends Component {
     }
 
     componentWillMount = () => {
-        // AsyncStorage.getItem("user").then(
-        //     res => res !== null && console.log('res=', res)
-        // );
-
     }
 
     componentDidMount = () => {

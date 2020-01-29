@@ -1,4 +1,6 @@
-import { observable, action, computed, runInAction } from 'mobx'
+
+import { decorate, observable, action, computed, runInAction, configure } from 'mobx'
+configure({ enforceActions: "observed" });
 
 const HOUR_IN_SEC = 3600
 const MIN_IN_SEC = 60
@@ -9,6 +11,12 @@ const URL = "http://ruppinmobile.tempdomain.co.il/site08/api";
 class ContractionStore {
 
     @observable contraction = null;
+
+    @action setContractions = async arr => {
+
+        this.contraction = [...arr]
+
+    }
 
     @action getContractionList = (id) => {
         fetch(`${URL}/contraction/${id}`)
@@ -25,10 +33,11 @@ class ContractionStore {
             })
     }
 
-    get AverageInLastHour() {
+
+    AverageInLastHour(arrList) {
         var toDate = new Date()
 
-        var filteredCon = this.contraction.filter(con =>
+        var filteredCon = arrList.filter(con =>
             new Date(con.DateTime).getFullYear() === toDate.getFullYear() &&
             new Date(con.DateTime).getMonth() === toDate.getMonth() &&
             new Date(con.DateTime).getDate() === toDate.getDate()
@@ -45,7 +54,7 @@ class ContractionStore {
     }
 
     getAvgLength = arr => {
-
+        console.log('getAvgLength arr=', arr)
         let sec = 0;
         let min = 0;
         let hour = 0;
@@ -70,6 +79,7 @@ class ContractionStore {
     }
 
     getAvgTimeApart = arr => {
+        console.log('getAvgTimeApart arr=', arr)
         let sec = 0;
         let min = 0;
         let hour = 0;

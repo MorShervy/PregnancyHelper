@@ -7,31 +7,35 @@ const { height, width } = Dimensions.get("window");
 const ItemPicture = ({ item }, props) => {
 
 
-
-    const picture = props.album.filter(pic => pic.WeekID === item.key);
-    let pic = picture[0]
-    // if (pic !== undefined)
-    // console.log('pic=', pic.PictureUri)
-    return (
-        <TouchableHighlight
-            style={styles.item}
-            underlayColor={APP_COLOR}
-            activeOpacity={1}
-            onPress={() => props.handlePress(item.key)}
-        >
-
-            <ImageBackground
-                style={styles.backgroundImageStyle}
-                imageStyle={{ resizeMode: 'stretch' }}
-                source={
-                    (pic !== undefined && { uri: pic.PictureUri } || null)
-
-                }
+    if (props.album.length > 0) {
+        const picture = props.album.filter(pic => pic.WeekID === item.key);
+        let pic = picture[0]
+        // if (pic !== undefined)
+        // console.log('pic=', pic.PictureUri)
+        return (
+            <TouchableHighlight
+                style={styles.item}
+                underlayColor={APP_COLOR}
+                activeOpacity={1}
+                onPress={() => props.handlePress(item.key)}
             >
-                {pic === undefined && <Text style={styles.txtStyle}>{item.key}</Text>}
-            </ImageBackground>
-        </TouchableHighlight>
-    )
+
+                <ImageBackground
+                    style={styles.backgroundImageStyle}
+                    imageStyle={{ resizeMode: 'stretch' }}
+                    source={
+                        (pic !== undefined && { uri: pic.PictureUri } || null)
+
+                    }
+                >
+                    {pic === undefined && <Text style={styles.txtStyle}>{item.key}</Text>}
+                </ImageBackground>
+            </TouchableHighlight>
+        )
+    }
+    else {
+        return (<View></View>)
+    }
 }
 
 

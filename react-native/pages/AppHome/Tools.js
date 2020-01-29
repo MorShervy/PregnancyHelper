@@ -2,20 +2,29 @@ import React, { Component } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { StackActions, NavigationActions, SwitchActions } from 'react-navigation';
 import ItemToolList from '../../components/ItemToolList';
-
+import SQL from '../../handlers/SQL';
+import { observer } from 'mobx-react'
+import contractionStore from '../../mobx/ContractionStore';
+import userStore from "../../mobx/UserStore";
+import pregnancyStore from "../../mobx/PregnancyStore";
 const { height, width, fontScale } = Dimensions.get("window");
 
 const GREY_COLOR = '#8e8e8e';
 
+@observer
 class Tools extends Component {
     constructor(props) {
         super(props);
+        console.log('tools constructor')
 
+        // SQL.GetContractionsByUserId(userStore.id).
+        //     then(res => res !== undefined && res.map(r => console.log('r', r)))
     }
 
     render() {
+        // console.log('sdsd.=', contractionStore.contraction)
         const { navigation } = this.props;
-
+        // console.log('navigation=', navigation)
         handlePrees = (item) => {
             //console.log('item=', item)
             if (item.key === 1)

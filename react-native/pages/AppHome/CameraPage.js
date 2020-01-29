@@ -9,6 +9,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Slider, Platform, Modal, Imag
 import { Ionicons, MaterialIcons, Octicons } from "@expo/vector-icons";
 import SQL from "../../handlers/SQL";
 import BellyBumpHeaderButtons from '../../components/BellyBumpHeaderButtons';
+import TestPenRes from '../../components/TestPenRes';
 
 import { observer } from 'mobx-react'
 import pregnancyStore from '../../mobx/PregnancyStore';
@@ -55,30 +56,33 @@ const wbIcons = {
 
 @observer
 export default class CameraPage extends Component {
-    state = {
-        flash: "off",
-        zoom: 0,
-        autoFocus: "on",
-        type: "back",
-        whiteBalance: "auto",
-        ratio: "16:9",
-        ratios: [],
-        newPhotos: false,
-        permissionsGranted: false,
-        pictureSize: undefined,
-        pictureSizes: [],
-        pictureSizeId: 0,
-        showMoreOptions: false,
-        openModalPic: false,
-        picUri: "",
-        user: null,
-        isLoading: false,
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            flash: "off",
+            zoom: 0,
+            autoFocus: "on",
+            type: "back",
+            whiteBalance: "auto",
+            ratio: "16:9",
+            ratios: [],
+            newPhotos: false,
+            permissionsGranted: false,
+            pictureSize: undefined,
+            pictureSizes: [],
+            pictureSizeId: 0,
+            showMoreOptions: false,
+            openModalPic: false,
+            picUri: "",
+            user: null,
+            isLoading: false,
+        };
 
-    static navigationOptions = {
-        header: null,
-    };
-
+        console.log('camera constractor')
+        // static navigationOptions = {
+        //     header: null,
+        // };
+    }
     async componentWillMount() {
         const { status } = await Permissions.askAsync(Permissions.CAMERA);
         this.setState({ permissionsGranted: status === "granted" });
@@ -260,7 +264,10 @@ export default class CameraPage extends Component {
                     handleLeftBtn={() => this.setState({ openModalPic: false })}
                     handleRightBtn={this.handleSavePicture}
                 />
-                <Image source={{ uri: this.state.picUri }} style={{ flex: 0.9 }} />
+                {/* <TestPenRes /> */}
+                <Image source={{ uri: this.state.picUri }} style={{ flex: 0.9 }} >
+
+                </Image>
             </Modal>
         );
     }

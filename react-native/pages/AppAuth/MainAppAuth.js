@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, ImageBackground, Dimensions, TouchableOpacity, AsyncStorage, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from "@expo/vector-icons";
-
 import { observer } from 'mobx-react'
 import userStore from '../../mobx/UserStore';
 import pregnancyStore from '../../mobx/PregnancyStore';
@@ -13,14 +11,13 @@ const { height, width } = Dimensions.get("window");
 export default class MainAppAuth extends Component {
     constructor(props) {
         super(props);
-
     }
 
     static navigationOptions = {
         header: null,
     };
 
-    componentWillMount() {
+    componentDidMount = async = () => {
         // console.log('mainapp will mount')
         AsyncStorage.getItem("user").then(
             res => JSON.parse(res)).then(
@@ -35,32 +32,22 @@ export default class MainAppAuth extends Component {
             );
     }
 
-    componentDidMount() {
 
-    }
 
     render() {
-        // console.log('mainapp render')
-
         return (
             <View style={styles.container}>
-
                 <ImageBackground style={styles.backgroundImage} source={require('../../assets/images/bgpic.png')} />
-
                 <LinearGradient
                     colors={['#00000070', '#00000070']}
                     style={styles.LinearGradientStyle}
                 >
                     {/* logo with app name and some text */}
                     <View style={[{ flex: 0.6 }, styles.marginTopHeader]}>
-
-
                         <View style={{ width: width - 100, alignSelf: 'center', opacity: 0.9 }}>
                             {/* header text */}
                             <Text style={[styles.textStyle, { fontSize: 20, fontWeight: '700' }]}>Pregnancy Helper</Text>
-
                             {/* paragraph text */}
-
                             <Text style={[styles.textStyle, { fontSize: 16, marginTop: '5%' }]}>
                                 Welcome to your trusted weekly{'\n'}
                                 guide to pregnancy.{'\n'}
@@ -83,9 +70,7 @@ export default class MainAppAuth extends Component {
                             />
                         </View>
                     </View>
-
                     <View style={styles.buttonsStyle}>
-
                         {/* sign up button */}
                         <View style={styles.btnSignupMarginBottom}>
                             <TouchableOpacity
@@ -95,7 +80,6 @@ export default class MainAppAuth extends Component {
                                 <Text style={styles.txtBtnStyle}>New? Sign up</Text>
                             </TouchableOpacity>
                         </View>
-
                         {/* Login button */}
                         <View style={styles.btnLoginMarginTop}>
                             <TouchableOpacity
@@ -105,8 +89,6 @@ export default class MainAppAuth extends Component {
                                 <Text style={styles.txtBtnStyle}>Log in</Text>
                             </TouchableOpacity>
                         </View>
-
-
                     </View>
                 </LinearGradient>
             </View >

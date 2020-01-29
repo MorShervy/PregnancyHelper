@@ -3,7 +3,7 @@ import { View, I18nManager, AsyncStorage } from 'react-native';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { Asset } from 'expo-asset';
 import { AppLoading } from 'expo';
-import { useKeepAwake } from 'expo-keep-awake';
+import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import AuthStack from './AuthStack';
 import HomeStack from './HomeStack';
 import { observer } from 'mobx-react'
@@ -28,14 +28,19 @@ export default class App extends Component {
       then(res => {
         console.log("app will mount - res= ", res)
       })
+    activateKeepAwake()
+  }
 
+  componentWillUnmount = () => {
+    // deactivateKeepAwake()
   }
 
   async _cacheResourcesAsync() {
     const images = [
       require('./assets/images/bgpic.png'),
       require('./assets/images/user.png'),
-      require('./assets/images/logo.png')
+      require('./assets/images/logo.png'),
+      require('./assets/images/bgCal.jpg')
     ];
 
     const cacheImages = images.map(image => {

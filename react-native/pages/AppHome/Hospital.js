@@ -70,12 +70,12 @@ export default class Hospital extends Component {
 
   componentWillUnmount = () => {
     // removing the event listener for back button android
-    console.log('test=', BackHandler)
+
     BackHandler.removeEventListener();
   }
 
   handleHeaderBackButton = navigation => {
-    console.log('navigation=', navigation)
+
     navigation.navigate({
       routeName: 'Home',
     })

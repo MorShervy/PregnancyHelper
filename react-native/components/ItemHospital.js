@@ -6,7 +6,7 @@ const { height, width } = Dimensions.get("window");
 
 const ItemHospital = ({ item }, props) => {
 
-    console.log('props=', props)
+    // console.log('props=', props)
 
     return (
         <View>

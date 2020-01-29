@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, Image, Dimensions, TouchableOpacity, SafeAreaView, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, Image, ProgressBarAndroid, Dimensions, TouchableOpacity, SafeAreaView, ScrollView, ActivityIndicator, ImageBackground } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
-import { WeekbyWeekData } from '../../data/WeekbyWeekData';
+import { WeeksData } from '../../data/WeeksData';
 import { Video } from 'expo-av';
 
 import SQL from '../../handlers/SQL';
@@ -17,8 +17,9 @@ import pregnancyStore from '../../mobx/PregnancyStore';
 
 
 const APP_COLOR = '#304251';
+const ORANGE_COLOR = '#F4AC32';
 
-const { height, width } = Dimensions.get("window");
+const { height, width, fontScale } = Dimensions.get("window");
 
 
 @observer class Calendar extends Component {
@@ -28,36 +29,81 @@ const { height, width } = Dimensions.get("window");
         this.state = {
             isLoading: true,
             hidePrevBtn: false,
+            hideNextBtn: false,
+            currWeek: 0,
+            week: 0,
+            pregnant: null,
+            weekData: null
         }
-        this.week = 1;
 
-
+        pregnancyStore.getPregnancyByUserId(userStore.id)
+        console.log('calendar constructor')
     }
 
-    async componentWillMount() {
+    componentDidMount = async () => {
+        console.log('didmount')
+        const { week } = this.state;
+        console.log('week1s=', week)
+        let pregnant = await SQL.GetPregnancyByUserId(userStore.id)
+        console.log('pregna=', pregnant)
 
+        if (pregnant.Message === undefined) {
+            console.log('true', pregnant.LastMenstrualPeriod)
+            let difference_in_days = Dates.CalculateDaysDifferenceBetweenTwoDates(pregnant.LastMenstrualPeriod)
+            console.log('(difference_in_days / 7)=', (difference_in_days / 7) - ((difference_in_days / 7) | 0))
+            let getWeek = (difference_in_days / 7) | 0;
+            const w = getWeek > 42 ? 42 : getWeek;
+            // only for the first time
 
+            if (calendarStore.currWeek === 0)
+                calendarStore.setCurrWeek(w);
+            const weekData = WeeksData.filter(week => week.key === w)[0]
+            pregnancyStore.setCurrWeek(w)
+            this.setState({ week: w, pregnant, weekData, currWeek: w })
+        }
     }
 
     handlePreviousWeek = () => {
-        if (calendarStore.currWeek > 1)
-            calendarStore.setCurrWeek(calendarStore.currWeek - 1)
+        console.log('sds', calendarStore.currWeek)
+        if (this.state.week === 42)
+            this.setState({ hideNextBtn: false })
+        if (this.state.week > 2) {
+            const weekData = WeeksData.filter(week => week.key === calendarStore.currWeek - 1)[0]
+            const week = this.state.week - 1
+            this.setState({ weekData, week })
+        }
         else {
-            calendarStore.setCurrWeek(calendarStore.currWeek - 1)
-            this.setState({ hidePrevBtn: true })
+            console.log('pre btn else')
+            const weekData = WeeksData.filter(week => week.key === calendarStore.currWeek - 1)[0]
+            const week = this.state.week - 1
+            this.setState({ hidePrevBtn: true, weekData, week })
         }
     }
 
     handleNextWeek = () => {
-        calendarStore.setCurrWeek(calendarStore.currWeek + 1)
+        console.log()
+        if (this.state.week === 1)
+            this.setState({ hidePrevBtn: false })
+
+        if (this.state.week < 41) {
+            const weekData = WeeksData.filter(week => week.key === calendarStore.currWeek + 1)[0]
+            const week = this.state.week + 1
+            this.setState({ weekData, week })
+        }
+        else {
+            const weekData = WeeksData.filter(week => week.key === calendarStore.currWeek + 1)[0]
+            const week = this.state.week + 1
+            this.setState({ hideNextBtn: true, weekData, week })
+        }
+
     }
 
     render() {
-        const { hidePrevBtn } = this.state;
-
+        const { hidePrevBtn, hideNextBtn, week, w, pregnant, weekData, currWeek } = this.state;
+        console.log('week', week, pregnant)
         // console.log('pregnancyStore.pregnant=', pregnancyStore.pregnant)
 
-        if (pregnancyStore.pregnant === null) {
+        if (pregnant === null || week === 0) {
             return (
                 <View style={{ flex: 1 }}>
                     <ActivityIndicator color={APP_COLOR} size={25} />
@@ -65,25 +111,11 @@ const { height, width } = Dimensions.get("window");
             )
         }
 
-
-        // console.log('true', pregnancyStore.pregnant.LastMenstrualPeriod)
-        let difference_in_days = Dates.CalculateDaysDifferenceBetweenTwoDates(pregnancyStore.pregnant.LastMenstrualPeriod)
-        let week = (difference_in_days / 7) | 0;
-        let w = week > 40 ? 40 : week;
-        // only for the first time
-        if (calendarStore.currWeek === 0)
-            calendarStore.setCurrWeek(w);
-        let weekData = calendarStore.filter(calendarStore.currWeek);
-
-
-
-
-
         return (
             // <View style={{ flex: 1 }}>
 
             //     <ItemCalendarList
-            //         weekData={weekData}
+            //         weekData={week}
             //         week={w}
             //         currWeek={calendarStore.currWeek}
             //         handlePreviousWeek={this.handlePreviousWeek}
@@ -93,69 +125,101 @@ const { height, width } = Dimensions.get("window");
 
             <View style={{ flex: 1 }}>
 
-                <ScrollView style={{ width: '100%' }} contentContainerStyle={{ paddingVertical: 0, paddingBottom: 100 }}>
+                <ScrollView
+                    style={{ width: '100%' }}
+                    contentContainerStyle={{ paddingVertical: 0, paddingBottom: 100 }}
+                    showsHorizontalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}
+                >
                     <View>
                         <View style={styles.pic}>
-                            <ImageCalendar weekData={weekData} />
+                            <ImageCalendar week={week} />
                         </View>
                         <View style={styles.title}>
                             <View style={{ flexDirection: 'column' }}>
                                 <View style={styles.flexRow}>
+
                                     <TouchableOpacity
-                                        style={styles.btn}
+                                        style={[styles.btn, hidePrevBtn ? { backgroundColor: '#fff' } : null]}
                                         onPress={this.handlePreviousWeek}
+                                        disabled={hidePrevBtn}
                                     >
                                         <Ionicons name="md-arrow-back" color="#FFF" size={25} />
-                                        <Text style={styles.txtBtn}>{weekData.key - 1}</Text>
+                                        <Text style={styles.txtBtn}>{week - 1}</Text>
                                     </TouchableOpacity>
+
 
                                     <View style={styles.midCircle}>
                                         <View style={{ opacity: 1 }}>
-                                            <Text style={styles.txtWeekNumber}>{weekData.key} </Text>
-                                            <Text style={styles.txtString}>WEEKS TODAY</Text>
+                                            <Text style={styles.txtWeekNumber}>{week} </Text>
+                                            <Text style={styles.txtString}>{currWeek !== week ? `\t\b\bWEEKS \n PREGNANT` : `WEEKS TODAY`}</Text>
                                             <View style={{ width: '80%', borderWidth: 0.5, alignSelf: 'center', borderColor: APP_COLOR, top: -10 }}>
 
                                             </View>
-                                            <Text style={styles.txtDaysToGo}>Days to go: 127</Text>
+                                            {
+
+
+                                                <Text style={styles.txtDaysToGo}> {
+                                                    currWeek !== week ?
+                                                        null
+                                                        :
+                                                        `Days to go: ${(Dates.GetDaysToGo(pregnant.DueDate) + 1) | 0}`}
+                                                </Text>
+                                            }
 
                                         </View>
                                     </View>
-                                    <TouchableOpacity
-                                        style={styles.btn}
-                                        onPress={this.handleNextWeek}
-                                    >
-                                        <Text style={styles.txtBtn}>{weekData.key + 1}</Text>
-                                        <Ionicons name="md-arrow-forward" color="#FFF" size={25} />
-                                    </TouchableOpacity>
+                                    {
+                                        hideNextBtn ? null :
+                                            <TouchableOpacity
+                                                style={styles.btn}
+                                                onPress={this.handleNextWeek}
+                                            >
+                                                <Text style={styles.txtBtn}>{week + 1}</Text>
+                                                <Ionicons name="md-arrow-forward" color="#FFF" size={25} />
+                                            </TouchableOpacity>
+                                    }
+
                                 </View>
-                                <View style={[styles.flexRow, { opacity: 0.3 }]}>
-                                    <Text style={{ color: APP_COLOR, fontSize: 12, left: -10 }}>Previous week</Text>
-                                    <Text style={{ color: APP_COLOR, fontSize: 12 }}>Next week</Text>
-                                </View>
+
 
                             </View>
                         </View>
                         <View style={styles.body}>
                             <View style={styles.content}>
-                                <View style={{ width: width - 100, alignSelf: 'center', height: 45 }}>
-                                    <Ionicons name="md-arrow-dropdown" color='#F4AC32' size={40} style={{ left: `${weekData.key / 40 * 100 - 3}%`, top: -10 }} />
-                                    <View style={{ borderWidth: 3, top: -23, borderColor: '#FFDAB9' }}>
-                                        <View style={[styles.progress, { width: `${w / 40 * 100}%` }]}>
-                                            <Text style={{ alignSelf: 'center', fontSize: 12, fontWeight: '300', color: '#FFF' }}>
-                                                {w > 5 ? w / 40 * 100 + '%' : null}
-                                            </Text>
-                                        </View>
-                                    </View>
-                                </View>
-                                <View style={{}}>
-                                    <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
-                                        <Text style={{ color: APP_COLOR, fontWeight: '300', fontSize: 15 }}>WEEK 20 - DAY 3</Text>
-                                        <Text style={{ color: APP_COLOR, fontWeight: '100', fontSize: 9 }}>(Nov 23 - Nov 30)</Text>
-                                    </View>
-                                    <Text style={{ color: APP_COLOR, fontWeight: '100', fontSize: 10, alignSelf: 'center', color: '#F4AC32' }}>Today: Nov 26, 2019</Text>
+                                <ImageBackground
+                                    source={require('../../assets/images/bgCal.jpg')}
+                                    style={{ width: width - 40, height: 100, alignSelf: 'center' }}
+                                >
+                                    <View style={{ width: width - 100, alignSelf: 'center', height: 45 }}>
 
-                                </View>
+                                        <Ionicons
+                                            name="md-arrow-dropdown"
+                                            color={APP_COLOR}
+                                            size={40}
+                                            style={{ left: `${week / 42 * 100 - 3}%`, top: -10 }}
+                                        />
+                                        <View style={{ top: -23, backgroundColor: '#f6f6f6' }}>
+                                            <ProgressBarAndroid
+                                                styleAttr="Horizontal"
+                                                color='#E52B50'
+                                                indeterminate={false}
+                                                progress={currWeek / 42}
+                                            />
+                                        </View>
+
+                                    </View>
+                                    <View style={{}}>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
+                                            <Text style={{ color: APP_COLOR, fontWeight: '300', fontSize: 15 }}>WEEK {week} - DAY 3</Text>
+                                            <Text style={{ color: APP_COLOR, fontWeight: '100', fontSize: 9 }}>(Nov 23 - Nov 30)</Text>
+                                        </View>
+                                        <Text style={{ color: APP_COLOR, fontWeight: '100', fontSize: 10, alignSelf: 'center', color: '#F4AC32' }}>Today: Nov 26, 2019</Text>
+
+                                    </View>
+                                </ImageBackground>
                             </View>
+
                             <View style={styles.content}>
                                 <Text style={{ margin: 10, fontSize: 20, fontWeight: '500', color: APP_COLOR }}>{weekData.title}</Text>
                                 <Text style={{ margin: 10, fontSize: 13, fontWeight: '200', color: '#A9A9A9' }}>{weekData.body}</Text>
@@ -247,7 +311,7 @@ const styles = StyleSheet.create({
     txtDaysToGo: {
         alignSelf: 'center',
         color: APP_COLOR,
-        fontSize: 10,
+        fontSize: 9 * fontScale,
         fontWeight: '400'
     },
     midCircle: {
