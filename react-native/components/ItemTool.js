@@ -6,7 +6,6 @@ const GREY_COLOR = '#8e8e8e';
 const BG_KICKTRACKER = '#A52A2A';
 const BG_BELLYBUMP = '#F5DEB3';
 const BG_CONTRACTION = '#2F4F4F';
-const BG_BABYNAMES = '#94b8b8';
 const BG_DUEDATE = '#e0ebeb';
 const BG_HOSPITAL = '#F05555';
 const APP_COLOR = '#304251';
@@ -24,9 +23,8 @@ const ItemTool = ({ item }, props) => (
                     item.key === 1 && BG_KICKTRACKER ||
                     item.key === 2 && BG_BELLYBUMP ||
                     item.key === 3 && BG_CONTRACTION ||
-                    item.key === 4 && BG_BABYNAMES ||
-                    item.key === 5 && BG_DUEDATE ||
-                    item.key === 6 && BG_HOSPITAL)
+                    item.key === 4 && BG_DUEDATE ||
+                    item.key === 5 && BG_HOSPITAL)
             }]}>
 
                 <Image
@@ -35,9 +33,8 @@ const ItemTool = ({ item }, props) => (
                         item.key === 1 && require('../assets/icons/feet.png') ||
                         item.key === 2 && require('../assets/icons/camera.png') ||
                         item.key === 3 && require('../assets/icons/contraction.png') ||
-                        item.key === 4 && require('../assets/icons/babyNames.png') ||
-                        item.key === 5 && require('../assets/icons/schedule.png') ||
-                        item.key === 6 && require('../assets/icons/hospital.png')
+                        item.key === 4 && require('../assets/icons/schedule.png') ||
+                        item.key === 5 && require('../assets/icons/hospital.png')
                     )}
                 />
             </View>

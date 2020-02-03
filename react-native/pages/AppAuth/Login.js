@@ -89,7 +89,6 @@ export default class Login extends Component {
                 })
             )
             userStore.setId(sqlResult.ID);
-            pregnancyStore.getPregnancyByUserId(sqlResult.ID)
             navigation.navigate('HomeStack')
         }
 

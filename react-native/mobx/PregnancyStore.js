@@ -5,35 +5,29 @@ import { decorate, observable, action, computed, runInAction, configure, observe
 configure({ enforceActions: "observed" });
 class PregnancyStore {
 
-    @observable pregnant = null;
+    @observable id = null;
     @observable week = 0;
     @observable currWeek = 0;
-    @observable pictures = [];
 
-    @action getPregnancyByUserId = id => {
-        // console.log('getPregnancyByUserId=', id)
-        fetch(`${URL}/Pregnancy/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                runInAction(() => {
-                    // console.log('data=', data)
-                    this.pregnant = data;
-                    return data;
-                })
-            })
+    @action setId(id) {
+        this.id = id;
+    }
+
+    get id() {
+        return this.id;
     }
 
     @action setWeek(week) {
         this.week = week;
     }
 
+    get currWeek() {
+        return this.currWeek;
+    }
+
     @action setCurrWeek = week => {
         // console.log('week=', week)
         this.currWeek = week;
-    }
-
-    get currWeek() {
-        return this.currWeek;
     }
 
     get week() {

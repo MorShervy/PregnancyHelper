@@ -44,6 +44,53 @@ export class Dates {
         return `${mm}/${dd}/${y}`
     }
 
+    static GetSafeRangeToGiveBirth(dueDate) {
+        var date = new Date(dueDate)
+        var d1 = new Date(date)
+        var d2 = new Date(date)
+
+        d1.setDate(d1.getDate() - 21)
+        d2.setDate(d2.getDate() + 14)
+
+        let d1_split = (d1.toDateString()).split(' ')
+        let d2_split = (d2.toDateString()).split(' ')
+
+        const preTerm = `${d1_split[1]} ${d1_split[2]}, ${d1_split[3]}`
+        const postTerm = `${d2_split[1]} ${d2_split[2]}, ${d2_split[3]}`
+        // console.log('res1=', preTerm)
+        // console.log('res2=', postTerm)
+
+        const range = { preTerm, postTerm }
+        return range
+
+
+    }
+
+    static GetCurrWeekRange(week, lastMenstrualDate) {
+        var date = lastMenstrualDate.split('/')
+        // console.log('dd=', `${dd[1]}/${dd[0]}/${dd[2]}`)
+        var newDate = new Date(`${date[1]}/${date[0]}/${date[2]}`);
+        // newDate.setDate(newDate.getDate() + 6)
+        console.log('date=', newDate)
+
+        var startDate = new Date(newDate)
+        var endDate = new Date(newDate)
+        startDate.setDate(startDate.getDate() + (week * 7))
+        endDate.setDate(endDate.getDate() + (week * 7) + 6)
+        console.log('stardDate=', startDate)
+        console.log('endDate=', endDate)
+
+        let startDateSplit = startDate.toDateString().split(' ')
+        let endDateSplit = endDate.toDateString().split(' ')
+
+        let range = {
+            preTerm: `${startDateSplit[1]} ${startDateSplit[2]}, ${startDateSplit[3]}`,
+            postTerm: `${endDateSplit[1]} ${endDateSplit[2]}, ${endDateSplit[3]}`
+        }
+        return range;
+
+    }
+
     static CalculateDaysDifferenceBetweenTwoDates(date) {
 
         var dd = date.split('/')

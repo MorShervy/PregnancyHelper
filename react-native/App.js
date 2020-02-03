@@ -3,7 +3,7 @@ import { View, I18nManager, AsyncStorage } from 'react-native';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { Asset } from 'expo-asset';
 import { AppLoading } from 'expo';
-import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
+import { activateKeepAwake, deactivateKeepAwake, useKeepAwake } from 'expo-keep-awake';
 import AuthStack from './AuthStack';
 import HomeStack from './HomeStack';
 import { observer } from 'mobx-react'
@@ -22,12 +22,13 @@ export default class App extends Component {
     };
   }
 
-  componentWillMount = () => {
+  componentDidMount = () => {
     AsyncStorage.getItem('user').
       then(res => JSON.parse(res)).
       then(res => {
         console.log("app will mount - res= ", res)
       })
+
     activateKeepAwake()
   }
 

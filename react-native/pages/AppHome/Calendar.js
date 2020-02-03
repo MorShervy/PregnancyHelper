@@ -33,76 +33,89 @@ const { height, width, fontScale } = Dimensions.get("window");
             currWeek: 0,
             week: 0,
             pregnant: null,
-            weekData: null
+            weekData: null,
+            range: null,
         }
-
-        pregnancyStore.getPregnancyByUserId(userStore.id)
         console.log('calendar constructor')
     }
 
     componentDidMount = async () => {
         console.log('didmount')
         const { week } = this.state;
-        console.log('week1s=', week)
         let pregnant = await SQL.GetPregnancyByUserId(userStore.id)
-        console.log('pregna=', pregnant)
-
         if (pregnant.Message === undefined) {
             console.log('true', pregnant.LastMenstrualPeriod)
             let difference_in_days = Dates.CalculateDaysDifferenceBetweenTwoDates(pregnant.LastMenstrualPeriod)
             console.log('(difference_in_days / 7)=', (difference_in_days / 7) - ((difference_in_days / 7) | 0))
+            let doubleNum = (difference_in_days / 7) - ((difference_in_days / 7) | 0)
+            console.log('du=', typeof (doubleNum))
+            let getDayOfCurrWeek = (((doubleNum * 100) / (100 / 7)) + 1) | 0;
             let getWeek = (difference_in_days / 7) | 0;
             const w = getWeek > 42 ? 42 : getWeek;
             // only for the first time
 
-            if (calendarStore.currWeek === 0)
-                calendarStore.setCurrWeek(w);
+            let range = Dates.GetCurrWeekRange(w, pregnant.LastMenstrualPeriod)
             const weekData = WeeksData.filter(week => week.key === w)[0]
+            pregnancyStore.setId(pregnant.PregnantID)
             pregnancyStore.setCurrWeek(w)
-            this.setState({ week: w, pregnant, weekData, currWeek: w })
+            this.setState({ week: w, pregnant, weekData, currWeek: w, getDayOfCurrWeek, range })
         }
     }
 
     handlePreviousWeek = () => {
-        console.log('sds', calendarStore.currWeek)
-        if (this.state.week === 42)
-            this.setState({ hideNextBtn: false })
-        if (this.state.week > 2) {
-            const weekData = WeeksData.filter(week => week.key === calendarStore.currWeek - 1)[0]
-            const week = this.state.week - 1
-            this.setState({ weekData, week })
+        const { week, pregnant } = this.state;
+        // console.log('week=', week)
+        if (week === 42) {
+            const weekData = WeeksData.filter(res => res.key === week - 1)[0]
+            const w = this.state.week - 1
+            let range = Dates.GetCurrWeekRange(w, pregnant.LastMenstrualPeriod)
+            this.setState({ hideNextBtn: false, weekData, week: w, range })
+
+        }
+        else if (week > 2) {
+            const weekData = WeeksData.filter(res => res.key === week - 1)[0]
+            const w = this.state.week - 1
+            let range = Dates.GetCurrWeekRange(w, pregnant.LastMenstrualPeriod)
+            this.setState({ weekData, week: w, range })
         }
         else {
             console.log('pre btn else')
-            const weekData = WeeksData.filter(week => week.key === calendarStore.currWeek - 1)[0]
-            const week = this.state.week - 1
-            this.setState({ hidePrevBtn: true, weekData, week })
+            const weekData = WeeksData.filter(res => res.key === week - 1)[0]
+            const w = this.state.week - 1
+            let range = Dates.GetCurrWeekRange(w, pregnant.LastMenstrualPeriod)
+            this.setState({ hidePrevBtn: true, weekData, week: w, range })
         }
     }
 
     handleNextWeek = () => {
+        const { week, pregnant } = this.state;
         console.log()
-        if (this.state.week === 1)
-            this.setState({ hidePrevBtn: false })
+        if (week === 1) {
+            const weekData = WeeksData.filter(res => res.key === week + 1)[0]
+            const w = this.state.week + 1
+            let range = Dates.GetCurrWeekRange(w, pregnant.LastMenstrualPeriod)
+            this.setState({ hidePrevBtn: false, weekData, week: w, range })
+        }
 
-        if (this.state.week < 41) {
-            const weekData = WeeksData.filter(week => week.key === calendarStore.currWeek + 1)[0]
-            const week = this.state.week + 1
-            this.setState({ weekData, week })
+        else if (week < 41) {
+            const weekData = WeeksData.filter(res => res.key === week + 1)[0]
+            const w = this.state.week + 1
+            let range = Dates.GetCurrWeekRange(w, pregnant.LastMenstrualPeriod)
+            this.setState({ weekData, week: w, range })
         }
         else {
-            const weekData = WeeksData.filter(week => week.key === calendarStore.currWeek + 1)[0]
-            const week = this.state.week + 1
-            this.setState({ hideNextBtn: true, weekData, week })
+            const weekData = WeeksData.filter(res => res.key === week + 1)[0]
+            const w = this.state.week + 1
+            let range = Dates.GetCurrWeekRange(w, pregnant.LastMenstrualPeriod)
+            this.setState({ hideNextBtn: true, weekData, week: w, range })
         }
 
     }
 
     render() {
-        const { hidePrevBtn, hideNextBtn, week, w, pregnant, weekData, currWeek } = this.state;
-        console.log('week', week, pregnant)
-        // console.log('pregnancyStore.pregnant=', pregnancyStore.pregnant)
-
+        const { hidePrevBtn, hideNextBtn, week, w, pregnant, weekData, currWeek, getDayOfCurrWeek, range } = this.state;
+        var todaySplit = new Date().toDateString().split(' ');
+        const today = todaySplit[0] + ', ' + todaySplit[1] + ' ' + todaySplit[2] + ', ' + todaySplit[3]
         if (pregnant === null || week === 0) {
             return (
                 <View style={{ flex: 1 }}>
@@ -111,22 +124,12 @@ const { height, width, fontScale } = Dimensions.get("window");
             )
         }
 
+        // console.log('Data=', weekData.body)
         return (
-            // <View style={{ flex: 1 }}>
-
-            //     <ItemCalendarList
-            //         weekData={week}
-            //         week={w}
-            //         currWeek={calendarStore.currWeek}
-            //         handlePreviousWeek={this.handlePreviousWeek}
-            //         handleNextWeek={this.handleNextWeek}
-            //     />
-            // </View>
-
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, backgroundColor: '#f6f6f6', }}>
 
                 <ScrollView
-                    style={{ width: '100%' }}
+                    style={{ width: '100%', }}
                     contentContainerStyle={{ paddingVertical: 0, paddingBottom: 100 }}
                     showsHorizontalScrollIndicator={false}
                     showsVerticalScrollIndicator={false}
@@ -189,40 +192,49 @@ const { height, width, fontScale } = Dimensions.get("window");
                             <View style={styles.content}>
                                 <ImageBackground
                                     source={require('../../assets/images/bgCal.jpg')}
-                                    style={{ width: width - 40, height: 100, alignSelf: 'center' }}
+                                    style={{ width: width - 40, alignSelf: 'center' }}
+
                                 >
-                                    <View style={{ width: width - 100, alignSelf: 'center', height: 45 }}>
+                                    <View style={{ width: width - 100, alignSelf: 'center', }}>
 
                                         <Ionicons
                                             name="md-arrow-dropdown"
                                             color={APP_COLOR}
                                             size={40}
-                                            style={{ left: `${week / 42 * 100 - 3}%`, top: -10 }}
+                                            style={{ width: 25, height: 30, left: `${week / 42 * 100 - 3}%`, top: 10 }}
                                         />
-                                        <View style={{ top: -23, backgroundColor: '#f6f6f6' }}>
-                                            <ProgressBarAndroid
-                                                styleAttr="Horizontal"
-                                                color='#E52B50'
-                                                indeterminate={false}
-                                                progress={currWeek / 42}
-                                            />
-                                        </View>
+
+                                        <ProgressBarAndroid
+                                            styleAttr="Horizontal"
+                                            color='#E52B50'
+                                            indeterminate={false}
+                                            progress={currWeek / 42}
+
+                                        />
+
 
                                     </View>
-                                    <View style={{}}>
-                                        <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
-                                            <Text style={{ color: APP_COLOR, fontWeight: '300', fontSize: 15 }}>WEEK {week} - DAY 3</Text>
-                                            <Text style={{ color: APP_COLOR, fontWeight: '100', fontSize: 9 }}>(Nov 23 - Nov 30)</Text>
+                                    <View style={{ width: width - 100, alignSelf: 'center' }}>
+                                        <View style={{ flexDirection: 'column', justifyContent: 'space-evenly' }}>
+                                            <Text style={{ color: APP_COLOR, fontWeight: '300', fontSize: 15 * fontScale }}>
+                                                WEEK {week}{currWeek !== week ? null : `- DAY ${getDayOfCurrWeek}`}
+                                            </Text>
+                                            {
+                                                this.state.range !== null &&
+                                                <Text style={{ color: APP_COLOR, fontWeight: '100', fontSize: 10 * fontScale }}>{`${range.preTerm} - ${range.postTerm}`}</Text>
+                                            }
                                         </View>
-                                        <Text style={{ color: APP_COLOR, fontWeight: '100', fontSize: 10, alignSelf: 'center', color: '#F4AC32' }}>Today: Nov 26, 2019</Text>
-
+                                        {
+                                            currWeek === week &&
+                                            <Text style={{ color: APP_COLOR, fontWeight: '100', fontSize: 10 * fontScale, color: '#F4AC32' }}>Today: {today}</Text>
+                                        }
                                     </View>
                                 </ImageBackground>
                             </View>
 
                             <View style={styles.content}>
                                 <Text style={{ margin: 10, fontSize: 20, fontWeight: '500', color: APP_COLOR }}>{weekData.title}</Text>
-                                <Text style={{ margin: 10, fontSize: 13, fontWeight: '200', color: '#A9A9A9' }}>{weekData.body}</Text>
+                                <Text style={{ margin: 10, fontSize: 13, fontWeight: '200', color: '#A9A9A9' }}>{weekData.body + '\n'}</Text>
                             </View>
                             <View style={[styles.content, {}]}>
                                 <Text>Video</Text>
@@ -328,14 +340,16 @@ const styles = StyleSheet.create({
 
     },
     body: {
-        flex: 0.62,
+        flex: 1,
+        top: '6%',
+        bottom: 0,
         width: '100%',
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'center',
         alignSelf: 'center',
-        backgroundColor: '#f6f6f6',
-        top: '6%',
+
+
     },
     content: {
         top: '2%',
@@ -345,7 +359,6 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         backgroundColor: '#FFF',
         marginBottom: '3%',
-        // paddingBottom: '4%'
     },
     progress: {
         height: 20,

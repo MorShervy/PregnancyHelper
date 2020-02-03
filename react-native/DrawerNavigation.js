@@ -4,6 +4,7 @@ import { StyleSheet, View, ScrollView, SafeAreaView, Text, TouchableOpacity, Ima
 import { DrawerItems } from 'react-navigation-drawer';
 
 const { height, width } = Dimensions.get("window");
+const APP_COLOR = '#304251';
 
 class DrawerNavigation extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -13,6 +14,9 @@ class DrawerNavigation extends Component {
         };
     }
 
+    handleProfilePicture = () => {
+        console.log('press')
+    }
 
     render() {
 
@@ -40,10 +44,13 @@ class DrawerNavigation extends Component {
                 <SafeAreaView forceInset={{ top: "always", horizontal: "never" }}>
 
                     <View style={styles.header}>
-                        <Image
-                            style={styles.img}
-                            source={require('./assets/images/user.png')}
-                        />
+                        <TouchableOpacity
+                            onPress={this.handleProfilePicture}>
+                            <Image
+                                style={styles.img}
+                                source={require('./assets/images/user.png')}
+                            />
+                        </TouchableOpacity>
                     </View>
 
 
@@ -70,8 +77,8 @@ export default DrawerNavigation;
 const styles = StyleSheet.create({
     header: {
         height: '35%',
-        backgroundColor: "#2C3E50",
-        paddingTop: 10
+        backgroundColor: APP_COLOR,
+        paddingTop: 40
     },
     img: {
         left: 20,

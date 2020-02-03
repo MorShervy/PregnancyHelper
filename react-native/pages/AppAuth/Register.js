@@ -150,7 +150,6 @@ export default class Register extends Component {
             // Mobx קריאה לפונקציה ששומרת את נתוני המשתמש החדש בניהול מידע באמצעות  
             // userStore.getUserAsync(sqlResult.ID)
             userStore.setId(sqlResult.ID)
-            pregnancyStore.getPregnancyByUserId(sqlResult.ID)
             // מעבר לדף הבית
             navigation.navigate('HomeStack')
         }

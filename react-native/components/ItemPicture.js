@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Dimensions, ImageBackground, TouchableHighlight } from "react-native";
 
+
 const APP_COLOR = '#304251';
 const { height, width } = Dimensions.get("window");
 
@@ -43,7 +44,7 @@ export default ItemPicture;
 
 const styles = StyleSheet.create({
     item: {
-        height: height / 5.2,
+        height: height / 6,
         width: width / 3,
         marginHorizontal: '1%',
         marginVertical: '1%',
@@ -55,15 +56,15 @@ const styles = StyleSheet.create({
         elevation: 10,
     },
     backgroundImageStyle: {
-        height: height / 5.2,
+        height: height / 6,
         width: '100%',
         alignSelf: 'center'
 
     },
     txtStyle: {
-        paddingTop: '9%',
+        // paddingTop: 20,
         fontSize: 70,
-        fontWeight: '500',
+        fontWeight: '100',
         color: 'grey',
         textAlign: 'center',
     }

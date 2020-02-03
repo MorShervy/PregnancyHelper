@@ -1,12 +1,23 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text, BackHandler } from 'react-native';
+import { StyleSheet, View, Text, BackHandler, Dimensions, DatePickerAndroid } from 'react-native';
 import { HeaderBackButton } from 'react-navigation-stack';
 import { NavigationActions } from 'react-navigation';
 import { DrawerActions } from 'react-navigation-drawer';
-import FadeInView from '../../components/FadeInView';
+import { Ionicons } from "@expo/vector-icons";
+
+const { height, width } = Dimensions.get("window");
+const GREY_COLOR = '#8e8e8e';
+const APP_COLOR = '#304251';
 
 
 class MyProfile extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            lastMenstrualPeriodToShow: 'Select a date',
+            lastMenstrualPeriodDate: '',
+        }
+    }
 
     static navigationOptions = ({ navigation }) => {
         return {
@@ -49,16 +60,16 @@ class MyProfile extends Component {
 
 
         return (
-            // <View>
-            //     <Text>My Profile</Text>
-            // </View>
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <FadeInView style={{ width: 250, height: 50, backgroundColor: 'powderblue' }}>
-                    <Text style={{ fontSize: 28, textAlign: 'center', margin: 10 }}>Fading in</Text>
-                </FadeInView>
+            <View style={styles.page}>
+
             </View>
         )
     }
 }
+
+const styles = StyleSheet.create({
+    page: { flex: 1 },
+
+})
 
 export default MyProfile;

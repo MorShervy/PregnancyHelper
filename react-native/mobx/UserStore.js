@@ -25,6 +25,10 @@ class UserStore {
         this.id = id;
     }
 
+    get id() {
+        return this.id;
+    }
+
 }
 
 const userStore = new UserStore();

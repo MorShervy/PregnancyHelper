@@ -33,7 +33,9 @@ class Tools extends Component {
                 navigation.navigate('BellyBump')
             else if (item.key === 3)
                 navigation.navigate('ContractionTimer')
-            else if (item.key === 6)
+            else if (item.key === 4)
+                navigation.navigate('DueDate')
+            else if (item.key === 5)
                 navigation.navigate('Hospital')
 
         }

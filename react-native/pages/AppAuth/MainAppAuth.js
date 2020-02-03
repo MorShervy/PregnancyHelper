@@ -25,7 +25,6 @@ export default class MainAppAuth extends Component {
                     if (res !== null) {
                         console.log('MainApp will mount')
                         userStore.setId(res.ID);
-                        pregnancyStore.getPregnancyByUserId(res.ID)
                         this.props.navigation.navigate("HomeStack")
                     }
                 }

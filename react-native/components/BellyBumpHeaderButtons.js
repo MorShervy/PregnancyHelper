@@ -58,7 +58,7 @@ export default function BellyBumpHeaderButtons(props) {
 }
 
 const styles = StyleSheet.create({
-    headerButtonsStyle: { flex: 0.08, flexDirection: 'row' },
+    headerButtonsStyle: { flex: 0.07, flexDirection: 'row' },
     buttonStyle: { flex: 0.5, backgroundColor: '#F4AC32', justifyContent: 'center' },
     rowDirection: { flexDirection: 'row', justifyContent: 'space-evenly' },
     iconViewStyle: { alignSelf: 'center' },

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TouchableOpacity, Text, AsyncStorage, View, Dimensions, Image } from 'react-native';
+import { TouchableOpacity, Text, AsyncStorage, View, Dimensions, Image, StatusBar } from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createMaterialTopTabNavigator } from 'react-navigation-tabs';
 import { createDrawerNavigator } from 'react-navigation-drawer';
@@ -15,9 +15,10 @@ import Settings from './pages/AppHome/Settings';
 import About from './pages/AppHome/About';
 import DrawerNavigation from './DrawerNavigation';
 import CameraPage from './pages/AppHome/CameraPage';
+import DueDate from './pages/AppHome/DueDate';
 
 const { height, width } = Dimensions.get("window");
-
+const APP_COLOR = '#304251';
 const TabNavigation = createMaterialTopTabNavigator(
     {
         Calendar,
@@ -27,7 +28,7 @@ const TabNavigation = createMaterialTopTabNavigator(
         swipeEnabled: false,
         tabBarOptions: {
             style: {
-                backgroundColor: '#304251'
+                backgroundColor: APP_COLOR
             },
             indicatorStyle: {
                 backgroundColor: '#FFF'
@@ -194,6 +195,9 @@ const ToolsStack = createStackNavigator(
         BellyBump: {
             screen: BellyBump
         },
+        CameraPage: {
+            screen: CameraPage
+        },
         Hospital: {
             screen: Hospital
         },
@@ -203,8 +207,9 @@ const ToolsStack = createStackNavigator(
         ContractionTimer: {
             screen: ContractionTimer
         },
-        CameraPage: {
-            screen: CameraPage
+
+        DueDate: {
+            screen: DueDate
         }
     },
     {
@@ -245,6 +250,9 @@ export default class AppScreens extends Component {
                     height,
                 }}
             >
+                <StatusBar
+                    translucent={true}
+                    backgroundColor={APP_COLOR} />
                 <HomeStack navigation={navigation} />
             </View>
         )

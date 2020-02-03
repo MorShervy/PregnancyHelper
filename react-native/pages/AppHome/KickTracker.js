@@ -57,7 +57,7 @@ export default class KickTracker extends Component {
 
     componentDidMount = async () => {
 
-        const list = await SQL.GetKickTrackerByPregnantId(pregnancyStore.pregnant.PregnantID)
+        const list = await SQL.GetKickTrackerByPregnantId(pregnancyStore.id)
         // console.log('list=', list)
 
         this.setState({ list })
@@ -73,7 +73,7 @@ export default class KickTracker extends Component {
     componentDidMount() {
         // adding the event listener for back button android
         BackHandler.addEventListener('hardwareBackPress', () => {
-            this.props.navigation.goBack()
+            this.props.navigation.navigate('Home')
         });
     }
 
