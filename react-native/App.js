@@ -74,9 +74,9 @@ const AppContainer = createAppContainer(
     },
     {
       initialRouteName: 'AuthStack',
-      defaultNavigationOptions: {
-        header: null,
-      }
+      // defaultNavigationOptions: {
+      //   header: null,
+      // }
     }
   )
 )

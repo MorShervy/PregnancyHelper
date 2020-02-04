@@ -2,11 +2,15 @@ import React, { Component } from 'react';
 import { StyleSheet, View, Text, Image, ProgressBarAndroid, Dimensions, TouchableOpacity, SafeAreaView, ScrollView, ActivityIndicator, ImageBackground } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import { WeeksData } from '../../data/WeeksData';
+import { NameOfDay } from '../../data/NameOfDay';
+import { NameOfMonth } from '../../data/NameOfMonth';
 import { Video } from 'expo-av';
 
 import SQL from '../../handlers/SQL';
 import ItemCalendarList from '../../components/ItemCalendarList';
 import ImageCalendar from '../../components/ImageCalendar';
+import VideoCalendar from '../../components/VideoCalendar';
+
 
 import { Dates } from '../../handlers/Dates';
 import calendarStore from '../../mobx/CalendarStore';
@@ -17,7 +21,8 @@ import pregnancyStore from '../../mobx/PregnancyStore';
 
 
 const APP_COLOR = '#304251';
-const ORANGE_COLOR = '#F4AC32';
+const DARKBLUE_COLOR = '#1B1B3A';
+const TXT_GREY = '#808080';
 
 const { height, width, fontScale } = Dimensions.get("window");
 
@@ -65,6 +70,7 @@ const { height, width, fontScale } = Dimensions.get("window");
     handlePreviousWeek = () => {
         const { week, pregnant } = this.state;
         // console.log('week=', week)
+        calendarStore.setIsLoadVideo(true)
         if (week === 42) {
             const weekData = WeeksData.filter(res => res.key === week - 1)[0]
             const w = this.state.week - 1
@@ -90,6 +96,7 @@ const { height, width, fontScale } = Dimensions.get("window");
     handleNextWeek = () => {
         const { week, pregnant } = this.state;
         console.log()
+        calendarStore.setIsLoadVideo(true)
         if (week === 1) {
             const weekData = WeeksData.filter(res => res.key === week + 1)[0]
             const w = this.state.week + 1
@@ -114,8 +121,10 @@ const { height, width, fontScale } = Dimensions.get("window");
 
     render() {
         const { hidePrevBtn, hideNextBtn, week, w, pregnant, weekData, currWeek, getDayOfCurrWeek, range } = this.state;
-        var todaySplit = new Date().toDateString().split(' ');
-        const today = todaySplit[0] + ', ' + todaySplit[1] + ' ' + todaySplit[2] + ', ' + todaySplit[3]
+        var date = new Date()
+        // var todaySplit = date.toDateString().split(' ');
+        // const today = todaySplit[0] + ', ' + todaySplit[1] + ' ' + todaySplit[2] + ', ' + todaySplit[3]
+        var today = `${NameOfDay[date.getDay()].toUpperCase()}, ${NameOfMonth[date.getMonth()].toUpperCase()} ${date.getDate()}, ${date.getFullYear()}`
         if (pregnant === null || week === 0) {
             return (
                 <View style={{ flex: 1 }}>
@@ -125,6 +134,7 @@ const { height, width, fontScale } = Dimensions.get("window");
         }
 
         // console.log('Data=', weekData.body)
+        console.log('render return')
         return (
             <View style={{ flex: 1, backgroundColor: '#f6f6f6', }}>
 
@@ -166,7 +176,7 @@ const { height, width, fontScale } = Dimensions.get("window");
                                                     currWeek !== week ?
                                                         null
                                                         :
-                                                        `Days to go: ${(Dates.GetDaysToGo(pregnant.DueDate) + 1) | 0}`}
+                                                        `${(Dates.GetDaysToGo(pregnant.DueDate) + 1) | 0} Days to go`}
                                                 </Text>
                                             }
 
@@ -195,8 +205,16 @@ const { height, width, fontScale } = Dimensions.get("window");
                                     style={{ width: width - 40, alignSelf: 'center' }}
 
                                 >
-                                    <View style={{ width: width - 100, alignSelf: 'center', }}>
+                                    <View style={{ width: width - 50, alignSelf: 'center', }}>
+                                        {
+                                            this.state.range !== null &&
+                                            <Text style={{
+                                                color: DARKBLUE_COLOR, fontWeight: '100', fontSize: 11 * fontScale, textAlign: 'center', paddingTop: 15, bottom: -10
+                                            }}>
+                                                {`${range.preTerm} ${'\u2022'} ${range.postTerm}`}
+                                            </Text>
 
+                                        }
                                         <Ionicons
                                             name="md-arrow-dropdown"
                                             color={APP_COLOR}
@@ -213,22 +231,32 @@ const { height, width, fontScale } = Dimensions.get("window");
                                         />
 
 
-                                    </View>
-                                    <View style={{ width: width - 100, alignSelf: 'center' }}>
-                                        <View style={{ flexDirection: 'column', justifyContent: 'space-evenly' }}>
-                                            <Text style={{ color: APP_COLOR, fontWeight: '300', fontSize: 15 * fontScale }}>
-                                                WEEK {week}{currWeek !== week ? null : `- DAY ${getDayOfCurrWeek}`}
-                                            </Text>
-                                            {
-                                                this.state.range !== null &&
-                                                <Text style={{ color: APP_COLOR, fontWeight: '100', fontSize: 10 * fontScale }}>{`${range.preTerm} - ${range.postTerm}`}</Text>
-                                            }
+
+
+                                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', paddingTop: 10 }}>
+                                            <View style={{ flex: 0.1 }}>
+                                                <Text style={{ color: DARKBLUE_COLOR }}>{'\u2B24'}</Text>
+                                            </View>
+                                            <View style={{ flexDirection: 'column', flex: 0.9 }}>
+                                                <Text style={{ color: DARKBLUE_COLOR, fontWeight: '200', fontSize: 12 * fontScale }}>
+                                                    {
+                                                        currWeek === week ?
+                                                            `${week} WEEKS ${'\u30fb'} DAY ${getDayOfCurrWeek}`
+                                                            :
+                                                            `${week} WEEKS`
+                                                    }
+                                                </Text>
+                                                {
+                                                    currWeek === week ?
+                                                        <Text style={{ color: TXT_GREY, fontWeight: '100', fontSize: 9 * fontScale }}>{today}</Text>
+                                                        :
+                                                        <View style={{ paddingTop: 25 }}></View>
+                                                }
+                                            </View>
                                         </View>
-                                        {
-                                            currWeek === week &&
-                                            <Text style={{ color: APP_COLOR, fontWeight: '100', fontSize: 10 * fontScale, color: '#F4AC32' }}>Today: {today}</Text>
-                                        }
                                     </View>
+
+
                                 </ImageBackground>
                             </View>
 
@@ -238,7 +266,8 @@ const { height, width, fontScale } = Dimensions.get("window");
                             </View>
                             <View style={[styles.content, {}]}>
                                 <Text>Video</Text>
-                                <Video
+                                <VideoCalendar week={week} />
+                                {/* <Video
                                     // ref={this._handleVideoRef}
                                     source={{ uri: 'http://ruppinmobile.tempdomain.co.il/site08/PregnantVideo/Weeks20.mp4' }}
                                     rate={1.0}
@@ -248,7 +277,7 @@ const { height, width, fontScale } = Dimensions.get("window");
                                     // shouldPlay
                                     isLooping
                                     style={{ height: 300 }}
-                                />
+                                /> */}
 
 
                             </View>
