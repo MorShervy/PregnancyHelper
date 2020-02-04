@@ -157,7 +157,7 @@ export default class KickTracker extends Component {
 
     deleteAll = async () => {
         console.log('deleteAll')
-        const sqlRes = await SQL.DeleteKickTrackerByPregnantId(pregnancyStore.pregnant.PregnantID)
+        const sqlRes = await SQL.DeleteKickTrackerByPregnantId(pregnancyStore.id)
         console.log('sql res=', sqlRes)
         this.setState({
             h: '00', m: '00', s: '00',

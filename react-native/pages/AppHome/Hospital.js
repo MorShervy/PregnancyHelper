@@ -135,8 +135,7 @@ export default class Hospital extends Component {
                   //description={m.description}
                   phone={m.phone}
                   key={`marker-${i}`}
-                  onPress={() => this.setState({ hospitalChoose: m.title }),
-                    () => this.markerClick(m.phone)}
+                  onPress={() => this.setState({ hospitalChoose: m.title })}
                 />
               )
             }

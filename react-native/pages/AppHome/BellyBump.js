@@ -84,7 +84,10 @@ export default class BellyBump extends Component {
 
     takePicture = async (week) => {
         const { album } = this.state;
-        let picture = album.filter(p => p.WeekID === week)[0]
+
+        let picture;
+        if (album !== undefined && album.length > 0)
+            picture = album.filter(p => p.WeekID === week)[0]
         console.log('picture=', picture)
 
         // user already have picture on this week

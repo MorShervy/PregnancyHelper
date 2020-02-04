@@ -14,7 +14,7 @@ export const Hospitals = [
         key: '3',
         title: 'Assaf Harofeh Hospital',
         description: '.',
-        phone: '0544444444',
+        phone: '089779070',
         latLong: {
             latitude: 31.966995,
             longitude: 34.839231,

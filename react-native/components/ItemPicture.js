@@ -8,11 +8,18 @@ const { height, width } = Dimensions.get("window");
 const ItemPicture = ({ item }, props) => {
 
 
-    if (props.album.length > 0) {
-        const picture = props.album.filter(pic => pic.WeekID === item.key);
-        let pic = picture[0]
-        // if (pic !== undefined)
-        // console.log('pic=', pic.PictureUri)
+    if (props.newArr.length > 0) {
+        let picture;
+        let pic
+
+        if (props.album !== undefined && props.album.length > 0) {
+            console.log('props.album.length=', props.album.length)
+            picture = props.album.filter(pic => pic.WeekID === item.key);
+            pic = picture[0];
+        }
+
+        if (pic !== undefined)
+            console.log('pic=', pic.PictureUri)
         return (
             <TouchableHighlight
                 style={styles.item}

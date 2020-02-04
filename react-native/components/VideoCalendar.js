@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, Dimensions } from 'react-native';
 import { Video } from 'expo-av';
 import { MaterialIcons, Octicons } from '@expo/vector-icons';
+
 import { observer } from 'mobx-react'
 import calendarStore from '../mobx/CalendarStore';
 
@@ -44,7 +45,7 @@ export default class VideoCalendar extends React.Component {
         await this.loadCurrentVideo()
 
         const { isLoaded } = await this._video.getStatusAsync()
-        console.log('isLoadVideo=', isLoaded)
+        // console.log('isLoadVideo=', isLoaded)
         this.setState({ isLoaded })
     }
 
@@ -90,7 +91,7 @@ export default class VideoCalendar extends React.Component {
             initialStatus = { androidImplementation: 'MediaPlayer' },
             downloadFirst = true
         )
-        console.log('res=', res)
+        // console.log('res=', res)
     }
 
     handlePlayAndPause = () => {
@@ -133,6 +134,8 @@ export default class VideoCalendar extends React.Component {
                         // isMuted={this.state.mute}
                         isLooping={false}
                         useNativeControls={true}
+                    // posterSource={require('../assets/images/logo.png')}
+                    // usePoster={true}
                     />
                     {/* <View style={styles.controlBar}>
                         <MaterialIcons

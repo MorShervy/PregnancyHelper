@@ -8,6 +8,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@react-native-community/netinfo": "^3.2.1",
     "expo": "^34.0.1",
     "expo-av": "^6.0.0",
     "expo-camera": "^6.0.0",
@@ -15,6 +16,7 @@
     "expo-keep-awake": "^6.0.0",
     "expo-linear-gradient": "^6.0.0",
     "expo-media-library": "^6.0.0",
+    "expo-video-player": "^1.5.7",
     "geolib": "^3.0.4",
     "mobx": "^5.14.2",
     "mobx-react": "^6.1.4",
