@@ -1,7 +1,7 @@
 
 
 
-------------------------------------------- טבלאות -------------------------------------------
+------------------------------------------- Tables -------------------------------------------
 
 CREATE TABLE [dbo].[TBUsers](
 	[UserID] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY,
@@ -38,7 +38,7 @@ CREATE TABLE [dbo].[TBUserPregnancy](
 	[LastMenstrualPeriod] date NOT NULL,
 	[ChildName] [nvarchar](30) NULL,
 	[BirthDate] date NULL,
-	[Gender] bit NULL,
+	[Gender] int NULL,
 	[IsNewBorn] bit NULL
 	)
 GO
@@ -83,7 +83,7 @@ CREATE TABLE [dbo].[TBUserContractionTimer](
 	[EndTime] time(0) NULL,
 	[ContractionLength]	time(0) NULL, -- seconds
 	[TimeApart] time(0) NULL, -- seconds
-	[Date] date NULL
+	[Date] nvarchar(50) NULL
 	)
 GO
 
@@ -96,7 +96,7 @@ GO
 
 CREATE TABLE [dbo].[TBKickTrackerPregnant](
 	[PregnantID] [int] FOREIGN KEY REFERENCES TBUserPregnancy([PregnantID]) NOT NULL PRIMARY KEY,
-	[Date] date NOT NULL,
+	[Date] nvarchar(50) NOT NULL,
 	[Length] time(0) NULL,
 	[Time] time(0) NULL,
 	[Kicks] int NULL
@@ -124,11 +124,12 @@ GO
 */
 
 
-------------------------------------------- פרוצדרות -------------------------------------------
+------------------------------------------- Procedures -------------------------------------------
+
 
 
 ----------------------------------------
------------ User Controler -------------
+----------- User controller -------------
 ----------------------------------------
 
 ------------SP GetUsers------------
@@ -165,21 +166,21 @@ AS
 		-- שמירת קוד משתמש --
 		SET @UserID = (SELECT UserID FROM TBUsers WHERE UserID = @@IDENTITY)
 		-- יצירת הריון חדש והכנסת ערכים לטבלת הריונות --
-		INSERT INTO TBUserPregnancy(UserID, DueDate, LastMenstrualPeriod)
-			VALUES(@UserID,@DueDate,@LastMenstrualPeriod)
+		INSERT INTO TBUserPregnancy(UserID, DueDate, LastMenstrualPeriod,Gender)
+			VALUES(@UserID,@DueDate,@LastMenstrualPeriod,-1)
 
 		-- ערך מוחזר קוד משתמשת --
-		SELECT @UserID AS ID
+		SELECT UserID,Email FROM TBUsers WHERE UserID = @UserID
 		END
 	ELSE -- במידה והמשתמש קיים --
 		BEGIN
 		-- ערך מוחזר קוד משתמש קיים --
-		SELECT -1 AS ID
+		SELECT -1 AS UserID
 		END
 	END
 GO
 
-EXEC Register 'test3@gmail.com','123456','09-04-2019'
+EXEC Register 'test4@gmail.com','12345678','09/04/2019','2020/04/24','2019/07/19'
 
 ------------SP Login------------
 ALTER PROC Login (
@@ -193,12 +194,12 @@ AS
 		BEGIN
 		SET @UserID = (SELECT UserID FROM TBUsers WHERE Email = @Email AND PasswordHash =HASHBYTES('SHA2_512',@Password+CAST(Salt AS NVARCHAR(36))))
 		IF(@UserID IS NULL)
-			SELECT 0 AS ID
+			SELECT 0 AS UserID
 		ELSE
-			SELECT @UserID AS ID
+			SELECT UserID,Email FROM TBUsers WHERE UserID = @UserID
 		END
 	ELSE
-		SELECT -1 AS ID
+		SELECT -1 AS UserID
 	END
 GO
 
@@ -274,12 +275,15 @@ GO
 exec ResetPassword '8efc0390-e25f-492c-af92-4b3206bb4f34','1q2w3e4r'
 
 ----------------------------------------
------------ End User Controler ---------
+----------- End User controller ---------
 ----------------------------------------
 
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 
 ----------------------------------------
-------- User Pregnancy Controler -------
+------- User Pregnancy controller -------
 ----------------------------------------
 
 ------------SP GetPregnancies------------
@@ -287,46 +291,19 @@ ALTER PROC GetPregnancies
 AS
 SELECT * FROM TBUserPregnancy
 
-
-------------SP GetContractionsById------------
-CREATE PROC GetContractions
-AS
-	SELECT * FROM TBUserContractionTimer
-GO
-
-EXEC GetContractions
-
-------------SP InsertContraction------------
-ALTER PROC InsertContraction(
- @UserID int,
- @StartTime time(0),
- @EndTime time(0),
- @Length time(0),
- @TimeApart time(0),
- @DateTime nvarchar(50)
- )
- AS
-	BEGIN
-		
-		INSERT INTO TBUserContractionTimer(UserID,StartTime,EndTime,ContractionLength,TimeApart,Date)
-		VALUES(@UserID,@StartTime,@EndTime,@Length,@TimeApart,@DateTime)
-
-		SELECT @UserID AS UserId
-	END
-GO
-
-EXEC InsertContraction 12,'12:06','12:06','00:00:15','00:01:54','2020-01-15T14:00:39.000Z'
-
-------------SP DeleteContractionsById------------
-ALTER PROC DeleteContractionsById(
-	@UserID int
+------------SP UpdatePregnancyDates------------
+ALTER PROC UpdatePregnancyDates(
+	@PregnantID int,
+	@DueDate date,
+	@LastMenstrualPeriod date
 	)
 	AS
 		BEGIN
-			IF EXISTS (SELECT * FROM TBUserContractionTimer WHERE UserID = @UserID)
+			IF EXISTS (SELECT * FROM TBUserPregnancy WHERE PregnantID = @PregnantID)
 				BEGIN
-					DELETE FROM TBUserContractionTimer
-					WHERE UserID = @UserID
+					UPDATE TBUserPregnancy
+					SET DueDate = @DueDate,LastMenstrualPeriod = @LastMenstrualPeriod
+					WHERE PregnantID = @PregnantID
 					SELECT 1 AS Result
 				END
 			ELSE
@@ -336,21 +313,71 @@ ALTER PROC DeleteContractionsById(
 		END
 GO
 
-EXEC DeleteContractionsById 13
+EXEC UpdatePregnancyDates 33,'11/12/2020','02/06/2020'
+
+
+------------SP UpdatePregnancyDates------------
+CREATE PROC UpdateChildName(
+	@PregnantID int,
+	@ChildName nvarchar(50)
+	)
+	AS 
+		BEGIN
+			IF EXISTS (SELECT * FROM TBUserPregnancy WHERE PregnantID = @PregnantID)
+				BEGIN
+					 UPDATE TBUserPregnancy
+					SET ChildName = @ChildName
+					WHERE PregnantID = @PregnantID
+					SELECT 1 AS Result
+				END
+			ELSE
+				BEGIN
+					SELECT 0 AS Result
+				END
+		END
+GO
+
+EXEC UpdateChildName 1,null
+
+------------SP UpdatePregnancyDates------------
+CREATE PROC UpdateGender(
+	@PregnantID int,
+	@Gender int
+	)
+	AS
+		BEGIN
+			IF EXISTS (SELECT * FROM TBUserPregnancy WHERE PregnantID = @PregnantID)
+				BEGIN
+					UPDATE TBUserPregnancy
+					SET Gender = @Gender
+					WHERE PregnantID = @PregnantID
+					SELECT 1 AS Result
+				END
+			ELSE
+				BEGIN
+					SELECT 0 AS Result
+				END
+		END
+GO
+
+EXEC UpdateGender 1,-1
+
 ----------------------------------------
------ End User Pregnancy Controler -----
+----- End User Pregnancy controller -----
+----------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------
+------ Pregnancy Album controller -------
 ----------------------------------------
 
 ------------SP GetPregnanciesAlbums------------
 CREATE PROC GetPregnanciesAlbums
 AS
 SELECT * FROM TBPregnantAlbum
-
-
-
-----------------------------------------
------- Pregnancy Album Controler -------
-----------------------------------------
 
 ------------SP InsertPictureToPregnantAlbum------------
 ALTER PROC InsertPictureToPregnantAlbum(
@@ -409,5 +436,145 @@ GO
 
 exec DeletPictureFromPregnancyAlbum 9,9
 ----------------------------------------
----- End Pregnancy Album Controler -----
+---- End Pregnancy Album controller -----
+----------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------
+----  Contraction controller -----
+----------------------------------------
+
+------------SP GetContractions------------
+CREATE PROC GetContractions
+AS
+	SELECT * FROM TBUserContractionTimer
+GO
+
+EXEC GetContractions
+
+------------SP InsertContraction------------
+ALTER PROC InsertContraction(
+ @UserID int,
+ @StartTime time(0),
+ @EndTime time(0),
+ @Length time(0),
+ @TimeApart time(0),
+ @DateTime nvarchar(50)
+ )
+ AS
+	BEGIN
+		IF EXISTS(SELECT * FROM TBUsers WHERE UserID = @UserID)
+			BEGIN
+				INSERT INTO TBUserContractionTimer(UserID,StartTime,EndTime,ContractionLength,TimeApart,Date)
+				VALUES(@UserID,@StartTime,@EndTime,@Length,@TimeApart,@DateTime)
+
+				SELECT * FROM TBUserContractionTimer WHERE UserID = @UserID ---change!!!!
+			END
+		ELSE
+			BEGIN
+				SELECT 0 AS Result
+			END
+	END
+GO
+
+EXEC InsertContraction 12,'12:06','12:06','00:00:15','00:01:54','2020-01-15T14:00:39.000Z'
+
+------------SP DeleteContractionsById------------
+ALTER PROC DeleteContractionsById(
+	@UserID int
+	)
+	AS
+		BEGIN
+			IF EXISTS (SELECT * FROM TBUserContractionTimer WHERE UserID = @UserID)
+				BEGIN
+					DELETE FROM TBUserContractionTimer
+					WHERE UserID = @UserID
+					SELECT 1 AS Result
+				END
+			ELSE
+				BEGIN
+					SELECT 0 AS Result
+				END
+		END
+GO
+
+EXEC DeleteContractionsById 13
+
+
+----------------------------------------
+---- End  Contraction controller -----
+----------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------
+---- KickTracker controller -----
+----------------------------------------
+
+----- SP Get KickTracker Table --------
+CREATE PROC GetKickTrackers
+AS
+	BEGIN
+		SELECT * FROM TBKickTrackerPregnant
+	END
+GO
+
+EXEC GetKickTrackers
+
+
+------ SP Insert KickTracker  ------
+ALTER PROC InsertKickTracker(
+	@PregnantId int,
+	@Date nvarchar(50),
+	@Length time(0),
+	@Time time(0),
+	@Kicks int
+)
+AS
+	BEGIN
+		IF EXISTS(SELECT * FROM TBUserPregnancy WHERE PregnantID = @PregnantId)
+			BEGIN
+				INSERT INTO		
+				TBKickTrackerPregnant(PregnantID,Date,Length,Time,Kicks)
+				VALUES(@PregnantId,@Date,@Length,@Time,@Kicks)
+				SELECT 1 AS Result
+			END
+		ELSE
+			BEGIN
+				SELECT 0 AS Result
+			END
+	END
+GO
+
+EXEC InsertKickTracker 9,'2','01:30:25','20:00:15',10
+
+------ Delete kickTracker by Pr Id ------
+CREATE PROC DeleteKickTrackerById(
+	@PregnantId int
+)
+AS
+	BEGIN
+		IF EXISTS (SELECT * FROM TBKickTrackerPregnant WHERE PregnantID = @PregnantId)
+			BEGIN
+				DELETE FROM TBKickTrackerPregnant
+				WHERE PregnantID = @PregnantId
+				SELECT 1 AS Result
+			END
+		ELSE
+			BEGIN
+				SELECT 0 AS Result
+			END
+	END
+GO
+
+EXEC DeleteKickTrackerById 9
+
+
+----------------------------------------
+---- End KickTracker controller -----
 ----------------------------------------
