@@ -138,6 +138,7 @@ export default class Register extends Component {
             })
             //  קריאה לפונקציה הרשמה על מנת להעביר את הנתונים מצד לקוח ושמירתם
             const sqlResult = await SQL.Register(email.toLowerCase(), pass, childBirthDate, lastMenstrualPeriod);
+            console.log('register sqlResult=', sqlResult)
             // במידה והתוצאה קטנה מ1 המשתמש קיים ומציגים הודעת מתאימה
             if (sqlResult.ID < 1) {
                 setTimeout(() => {
@@ -146,12 +147,13 @@ export default class Register extends Component {
                 return;
             }
             // שמירת משתמש חדש באחסון מקומי על הטלפון כדי לזהות משתמשים מחוברים
-            AsyncStorage.setItem("user", JSON.stringify({ ID: sqlResult.ID }))
+            await AsyncStorage.setItem("user", JSON.stringify({ ID: sqlResult.ID }))
             // Mobx קריאה לפונקציה ששומרת את נתוני המשתמש החדש בניהול מידע באמצעות  
             // userStore.getUserAsync(sqlResult.ID)
             userStore.setId(sqlResult.ID)
+            userStore.setEmail(sqlResult.Email)
             // מעבר לדף הבית
-            navigation.navigate('HomeStack')
+            navigation.navigate('AppStack')
         }
 
         toggleVisiblePass = () => {
@@ -163,6 +165,7 @@ export default class Register extends Component {
             let maxDueDateByCurDate = new Date(Dates.CalculateChildBirthByLastMenstrual(date));
             try {
                 const { action, year, month, day } = await DatePickerAndroid.open({
+                    minDate: date,
                     maxDate: maxDueDateByCurDate, // 
                     mode: 'default' // spiner or calender
                 });
@@ -178,9 +181,13 @@ export default class Register extends Component {
         }
 
         handleOnPressDatePickerLastMenstrual = async () => {
+            const date = new Date()
+            let minLastMenstrual = new Date(Dates.CalculateLastMenstrualByDueDate(date))
+            console.log('minLastMenstrual=', minLastMenstrual)
             try {
                 const { action, year, month, day } = await DatePickerAndroid.open({
-                    maxDate: new Date(),
+                    minDate: minLastMenstrual,
+                    maxDate: date,
                     mode: 'default' // spiner or calender
                 });
                 if (action === DatePickerAndroid.dateSetAction) {
@@ -478,12 +485,6 @@ export default class Register extends Component {
                                 </View>
                             </View>
                         </View>
-                        <View style={styles.footer}>
-                            <Text style={styles.txtFooter}>
-                                As a member, you'll receive regular emails{`\n`}
-                                from us. It's easy to opt-out later.
-                        </Text>
-                        </View>
                     </LinearGradient>
                 </View>
         );
@@ -493,7 +494,6 @@ export default class Register extends Component {
 const styles = StyleSheet.create({
     page: { flex: 1 },
     body: { flex: 0.7, width: width - 50, alignSelf: 'center' },
-    footer: { flex: 0.3, backgroundColor: LIGHTGREY_COLOR },
     flexRow: { width: width - 50, flexDirection: 'row', justifyContent: 'flex-start', marginTop: '5%' },
     btnSelectDateView: { justifyContent: 'center', alignItems: 'flex-start', marginLeft: '3%' },
     activityIndicator: { position: 'absolute', alignSelf: 'center', marginTop: '45%' },
@@ -515,7 +515,6 @@ const styles = StyleSheet.create({
     txtBtnCalcStyle: { color: APP_COLOR, fontSize: 17, marginTop: '2%', },
     btnStyle: { width: width - 50, height: 50, borderRadius: 7, },
     txtBtnStyle: { color: '#fff', textAlign: 'center', fontWeight: 'bold', fontSize: 17, marginTop: 7.5, },
-    txtFooter: { width: width - 75, fontSize: 13.5, color: DARKGRAY_COLOR, alignSelf: 'center', marginTop: 15 },
     btnSelectDate: { alignSelf: 'flex-start', width: width - 100, height: 50, borderBottomColor: GREY_COLOR, borderBottomWidth: 1, flexDirection: 'row', justifyContent: 'flex-start' },
     LinearGradientStyle: { position: 'absolute', left: 0, right: 0, top: 0, height: '100%' },
     marginTopBtn: { marginTop: '5%' },

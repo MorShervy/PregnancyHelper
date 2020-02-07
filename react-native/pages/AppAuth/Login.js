@@ -83,14 +83,15 @@ export default class Login extends Component {
                 }, 1000)
                 return;
             }
-            AsyncStorage.setItem(
+            await AsyncStorage.setItem(
                 "user",
                 JSON.stringify({
                     ID: sqlResult.ID
                 })
             )
             userStore.setId(sqlResult.ID);
-            navigation.navigate('HomeStack')
+            userStore.setEmail(sqlResult.Email)
+            navigation.navigate('AppStack')
         }
 
         toggleVisiblePass = () => {

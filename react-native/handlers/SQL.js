@@ -2,6 +2,28 @@ const URL = "http://ruppinmobile.tempdomain.co.il/site08/api";
 
 export default class SQL {
 
+    static GetUserById(id) {
+        console.log('GetUserById id=', id)
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                const res = await fetch(`${URL}/user/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        "content-type": "application/json"
+                    }
+                })
+                // console.log(`${URL}/user/${id}`, res);
+                const data = await res.json();
+                // console.log('data=', data)
+                resolve(data)
+            }
+            catch (error) {
+                reject(error)
+            }
+        })
+    }
+
 
     static Register(email, password, dueDate, lastMenstrualPeriod) {
         console.log('email=', email, 'pass=', password)
@@ -73,6 +95,79 @@ export default class SQL {
                 // console.log(`${URL}/user/Login`, res);
                 const data = await res.json();
                 // console.log('data=', data)
+                resolve(data);
+            }
+            catch (error) {
+                reject(error);
+            }
+        })
+    }
+
+    static async UpdatePregnancyDates(pregnantId, dueDate, lastMenstrualPeriod) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const res = await fetch(`${URL}/pregnancy/UpdatePregnancyDates`, {
+                    method: 'POST',
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        pregnantId,
+                        dueDate,
+                        lastMenstrualPeriod
+                    })
+                })
+                // console.log(`${URL}/pregnancy/UpdatePregnancyDates`, res);
+                const data = await res.json();
+                // console.log('data=', data)
+                resolve(data)
+            }
+            catch (error) {
+                reject(error);
+            }
+        })
+    }
+
+    static async UpdateChildName(pregnantId, childName) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const res = await fetch(`${URL}/pregnancy/UpdateChildName`, {
+                    method: 'POST',
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        pregnantId,
+                        childName
+                    })
+                })
+                // console.log(`${URL}/pregnancy/UpdateChildName`, res)
+                const data = await res.json();
+                // console.log('data=', data);
+                resolve(data);
+            }
+            catch (error) {
+                reject(error);
+            }
+        })
+    }
+
+    static async UpdateGender(pregnantId, gender) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const res = await fetch(`${URL}/pregnancy/UpdateGender`, {
+                    method: 'POST',
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        pregnantId,
+                        gender
+                    })
+                })
+                // console.log(`${URL}/pregnancy/UpdateGender`, res)
+                const data = await res.json();
+                // console.log('data=', data);
                 resolve(data);
             }
             catch (error) {

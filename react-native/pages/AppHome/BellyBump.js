@@ -13,6 +13,7 @@ import { observer } from 'mobx-react'
 import pregnancyStore from '../../mobx/PregnancyStore';
 import albumStore from '../../mobx/AlbumStore';
 import userStore from '../../mobx/UserStore';
+import CameraPage from './CameraPage';
 
 
 const { height, width } = Dimensions.get("window");
@@ -25,6 +26,7 @@ export default class BellyBump extends Component {
         super(props);
         this.state = {
             openModalPic: false,
+            openCamera: false,
             album: null,
             picture: null,
             isChangePic: false,
@@ -38,10 +40,18 @@ export default class BellyBump extends Component {
 
     static navigationOptions = ({ navigation }) => {
         return {
+            // header: navigation.state.params !== undefined ? navigation.state.params.header : undefined,
             headerTitle: "Belly bump",
             headerLeft: (
                 <HeaderBackButton
-                    onPress={() => handleHeaderBackButton(navigation)}
+                    onPress={() => {
+                        const navigateAction = NavigationActions.navigate({
+                            routeName: 'Home',
+                            action: NavigationActions.navigate({ routeName: 'Tools' }),
+                        });
+
+                        navigation.dispatch(navigateAction);
+                    }}
                     tintColor={'#FFF'}
                 />
             ),
@@ -50,10 +60,10 @@ export default class BellyBump extends Component {
     }
 
     componentDidMount = async () => {
-        console.log('did mounth BellyBump')
-        console.log('currweek-', pregnancyStore.currWeek)
-        console.log('userId', userStore.id)
-        console.log('pregnant id=', pregnancyStore.id)
+        // console.log('did mounth BellyBump')
+        // console.log('currweek-', pregnancyStore.currWeek)
+        // console.log('userId', userStore.id)
+        // console.log('pregnant id=', pregnancyStore.id)
         let album = await SQL.GetPregnancyAlbumByPregnantId(pregnancyStore.id)
 
         let newArr = [];
@@ -79,7 +89,12 @@ export default class BellyBump extends Component {
 
     }
     handleBackButton = () => {
-        this.props.navigation.goBack();
+        const navigateAction = NavigationActions.navigate({
+            routeName: 'Home',
+            action: NavigationActions.navigate({ routeName: 'Tools' }),
+        });
+
+        this.props.navigation.dispatch(navigateAction);
     }
 
     takePicture = async (week) => {
@@ -98,7 +113,8 @@ export default class BellyBump extends Component {
         // no picture
         else {
             albumStore.setWeek(week);
-            await this.props.navigation.navigate('CameraPage')
+            // await this.props.navigation.navigate('CameraPageScreen')
+            this.setState({ openCamera: true })
         }
 
     }
@@ -144,6 +160,15 @@ export default class BellyBump extends Component {
         )
     }
 
+    handleBackCamera = async () => {
+        this.setState({ openCamera: false })
+
+    }
+
+    handleBackWithRefresh = async () => {
+        let album = await SQL.GetPregnancyAlbumByPregnantId(pregnancyStore.id)
+        this.setState({ openCamera: false, album })
+    }
     renderPicUri() {
         const { picture } = this.state;
 
@@ -190,18 +215,16 @@ export default class BellyBump extends Component {
 
     render() {
         // console.log('render')
-        const { newArr, album } = this.state
+        const { newArr, album, openCamera, openModalPic } = this.state
 
-        handleHeaderBackButton = navigation => {
-            this.setState({ openModalPic: false });
-            navigation.navigate({
-                routeName: 'Home',
-            })
-        }
-
-
-        if (this.state.openModalPic)
+        if (openModalPic)
             return this.renderPicUri();
+
+        if (openCamera)
+            return <CameraPage
+                handleBack={this.handleBackCamera}
+                handleBackWithRefresh={this.handleBackWithRefresh}
+            />
 
         const buttonsData = {
             txtLeft: `BELLY\nPICTURE`,

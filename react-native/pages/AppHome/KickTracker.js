@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import { StyleSheet, View, Text, Dimensions, TouchableHighlight, BackHandler, Alert, TouchableOpacity, ScrollView } from 'react-native';
 import { HeaderBackButton } from 'react-navigation-stack';
 import { NavigationActions } from 'react-navigation';
-import { } from 'react-native-gesture-handler';
 import { Ionicons } from "@expo/vector-icons";
 import SQL from '../../handlers/SQL';
+import InformationAlertComponent from '../../components/InformationAlertComponent';
+import { Information } from '../../data/Information';
 import { observer } from 'mobx-react'
 import pregnancyStore from '../../mobx/PregnancyStore';
 import kickTrackerStore from '../../mobx/KickTrackerStore';
@@ -23,6 +24,7 @@ export default class KickTracker extends Component {
             isStartTime: false,
             kickNumber: 0,
             list: null,
+            displayAlert: false,
         }
         console.log('kick tracker constructor')
     }
@@ -31,23 +33,41 @@ export default class KickTracker extends Component {
         return {
             headerTitle: "Kick tracker",
             headerRight: (
-                <TouchableOpacity
-                    onPress={() => {
-                        const setParamsAction = NavigationActions.setParams({
-                            params: { isMoreOptToShow: navigation.state.params !== undefined ? !navigation.state.params.isMoreOptToShow : true },
-                            key: navigation.state.key,
-                        });
-                        navigation.dispatch(setParamsAction);
-                    }}
-                >
-                    <Ionicons name="md-more" size={35} color={'#FFF'} style={{ paddingRight: 20 }} />
-                </TouchableOpacity>
+                <View style={{ display: 'flex', flexDirection: 'row-reverse' }}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const setParamsAction = NavigationActions.setParams({
+                                params: { isMoreOptToShow: navigation.state.params !== undefined ? !navigation.state.params.isMoreOptToShow : true },
+                                key: navigation.state.key,
+                            });
+                            navigation.dispatch(setParamsAction);
+                        }}
+                    >
+                        <Ionicons name="md-more" size={35} color={'#FFF'} style={{ paddingRight: 20 }} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            const setParamsAction = NavigationActions.setParams({
+                                params: { isMoreInfo: true },
+                                key: navigation.state.key,
+                            });
+                            navigation.dispatch(setParamsAction);
+                        }}
+                    >
+                        <Ionicons name="md-information-circle-outline" size={30} color={'#FFF'} style={{ paddingRight: 20 }} />
+                    </TouchableOpacity>
+                </View>
             ),
             headerLeft: (
                 <HeaderBackButton
-                    onPress={() => navigation.navigate({
-                        routeName: 'Home',
-                    })}
+                    onPress={() => {
+                        const navigateAction = NavigationActions.navigate({
+                            routeName: 'Home',
+                            action: NavigationActions.navigate({ routeName: 'Tools' }),
+                        });
+
+                        navigation.dispatch(navigateAction);
+                    }}
                     tintColor={'#FFF'}
                 />
             ),
@@ -56,27 +76,41 @@ export default class KickTracker extends Component {
     }
 
     componentDidMount = async () => {
+        console.log('kick tracker did mount1')
 
         const list = await SQL.GetKickTrackerByPregnantId(pregnancyStore.id)
         // console.log('list=', list)
 
         this.setState({ list })
+        // adding the event listener for back button android
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
+    }
+
+    componentDidUpdate = () => {
+        console.log('timer did update')
+        const { params } = this.props.navigation.state;
+        const { navigation } = this.props;
+        if (params !== undefined && params.isMoreInfo) {
+            console.log('yes', params.isMoreInfo)
+            navigation.setParams({ isMoreInfo: false })
+            this.setState({ displayAlert: true })
+        }
     }
 
     componentWillUnmount = () => {
         // removing the event listener for back button android
-        BackHandler.removeEventListener();
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
         if (this.timer1 !== undefined)
             clearInterval(this.timer1)
     }
 
-    componentDidMount() {
-        // adding the event listener for back button android
-        BackHandler.addEventListener('hardwareBackPress', () => {
-            this.props.navigation.navigate('Home')
+    handleBackButton = () => {
+        const navigateAction = NavigationActions.navigate({
+            routeName: 'Home',
+            action: NavigationActions.navigate({ routeName: 'Tools' }),
         });
+        this.props.navigation.dispatch(navigateAction);
     }
-
 
     handleStartTimer = () => {
         this.setState({ isStartTime: true })
@@ -109,8 +143,8 @@ export default class KickTracker extends Component {
         if (kickNumber > 9) {
             this.setState({ isStartTime: false })
             const length = `${h}:${m}:${s}`;
-            const sqlRes = await SQL.InsertKickTracker(pregnancyStore.pregnant.PregnantID, date, length, startTime, kickNumber)
-            const list = await SQL.GetKickTrackerByPregnantId(pregnancyStore.pregnant.PregnantID)
+            const sqlRes = await SQL.InsertKickTracker(pregnancyStore.id, date, length, startTime, kickNumber)
+            const list = await SQL.GetKickTrackerByPregnantId(pregnancyStore.id)
             this.setState({
                 list: [...list],
                 kickNumber: 0,
@@ -167,14 +201,24 @@ export default class KickTracker extends Component {
         clearInterval(this.timer1)
     }
 
+    handleCloseAlert = () => {
+        this.setState({ displayAlert: false })
+    }
+
     render() {
 
         const { h, m, s } = this.state;
-        const { kickNumber, isStartTime, list } = this.state;
+        const { kickNumber, isStartTime, list, displayAlert } = this.state;
         const { navigation } = this.props;
 
         return (
             <View style={{ flex: 1, paddingTop: '5%', alignItems: 'center' }}>
+                <InformationAlertComponent
+                    handleCloseAlert={this.handleCloseAlert}
+                    displayAlert={displayAlert}
+                    header={Information[1].header}
+                    body={Information[1].body}
+                />
                 {
                     navigation.state.params !== undefined &&
                     navigation.state.params.isMoreOptToShow &&

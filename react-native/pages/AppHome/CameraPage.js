@@ -105,23 +105,23 @@ export default class CameraPage extends Component {
 
     handleBackButton = async () => {
         // console.log(this.props.navigation)
+        this.props.handleBack()
+        // const navigateAction = NavigationActions.navigate({
+        //     routeName: 'BellyBumpScreen',
+        //     params: { isCameraPage: false },
+        //     action: NavigationActions.navigate({ routeName: 'BellyBump' }),
+        // });
 
-        const navigateAction = NavigationActions.navigate({
-            routeName: 'BellyBump',
-            params: { isCameraPage: false },
-            action: NavigationActions.navigate({ routeName: 'BellyBump' }),
-        });
-
-        await this.props.navigation.dispatch(navigateAction);
+        // await this.props.navigation.dispatch(navigateAction);
     }
 
     handleSavePicture = async () => {
         const { picUri } = this.state
         this.setState({ isLoading: true });
-        console.log('pregnantid=', pregnancyStore.id)
-        console.log('user id=', userStore.id)
-        console.log('album week=', albumStore.week)
-        console.log('picUri=', picUri)
+        // console.log('pregnantid=', pregnancyStore.id)
+        // console.log('user id=', userStore.id)
+        // console.log('album week=', albumStore.week)
+        // console.log('picUri=', picUri)
 
         let data = await SQL.InsertPictureToPregnantAlbum(pregnancyStore.id, albumStore.week, picUri)
         console.log('data2=', data)
@@ -137,8 +137,8 @@ export default class CameraPage extends Component {
         // console.log("asset=", asset)
 
         this.setState({ isLoading: false, openModalPic: false });
-        this.props.navigation.replace('BellyBump');
-
+        // this.props.navigation.navigate('BellyBumpScreen');
+        this.props.handleBackWithRefresh()
 
 
         // SQL.UploadPicture(picUri, picName)
@@ -252,7 +252,22 @@ export default class CameraPage extends Component {
                     this.setState({ openModalPic: false });
                 }}
             >
-
+                <View
+                    style={styles.headerForModalSave}
+                >
+                    <TouchableOpacity
+                        onPress={() => {
+                            this.setState({ openModalPic: false })
+                        }}
+                    >
+                        <Ionicons name="md-arrow-back" color="#FFF" size={25} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={this.handleSavePicture}
+                    >
+                        <Ionicons name="md-save" color="#FFF" size={25} />
+                    </TouchableOpacity>
+                </View>
                 <View style={styles.darkBackground}></View>
                 <ImageBackground
                     source={{ uri: this.state.picUri }}
@@ -261,12 +276,12 @@ export default class CameraPage extends Component {
                 />
                 <View style={styles.darkBackground}></View>
 
-                <BellyBumpHeaderButtons
+                {/* <BellyBumpHeaderButtons
                     buttons={buttonData}
                     style={style}
                     handleLeftBtn={() => this.setState({ openModalPic: false })}
                     handleRightBtn={this.handleSavePicture}
-                />
+                /> */}
             </Modal>
         );
     }
@@ -357,7 +372,7 @@ export default class CameraPage extends Component {
     );
 
     renderCamera = () => (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: '#000' }}>
             {this.renderTopBar()}
             <Camera
                 ref={ref => {
@@ -387,12 +402,21 @@ export default class CameraPage extends Component {
         const content = this.state.openModalPic
             ? this.renderPicUri()
             : cameraScreenContent;
-        return <View style={styles.container}>{content}</View>;
+        return <Modal
+            style={styles.container}
+            animationType="slide"
+            transparent={false}
+            onRequestClose={() => {
+                this.props.handleBack();
+            }}
+        >
+            {content}
+        </Modal>;
     }
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#000" },
+    container: { flex: 1 },
     camera: { flex: 0.80, justifyContent: "space-between" },
     topBar: { flex: 0.1, backgroundColor: "transparent", flexDirection: "row", justifyContent: "space-around", paddingTop: Constants.statusBarHeight },
     bottomBar: { flex: 0.1, backgroundColor: "transparent", alignSelf: "flex-end", justifyContent: "space-between", flexDirection: "row", paddingTop: Constants.statusBarHeight / 2 },
@@ -406,5 +430,6 @@ const styles = StyleSheet.create({
     pictureSizeChooser: { alignItems: "center", justifyContent: "space-between", flexDirection: "row" },
     pictureSizeLabel: { flex: 1, alignItems: "center", justifyContent: "center" },
     row: { flexDirection: "row" },
-    darkBackground: { flex: 0.1, backgroundColor: '#000' }
+    darkBackground: { flex: 0.1, backgroundColor: '#000' },
+    headerForModalSave: { flex: 0.07, backgroundColor: '#141414', alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', paddingRight: 15, paddingLeft: 15 }
 });

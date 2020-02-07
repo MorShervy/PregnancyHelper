@@ -17,16 +17,26 @@ class Tools extends Component {
         super(props);
         console.log('tools constructor')
 
-        // SQL.GetContractionsByUserId(userStore.id).
-        //     then(res => res !== undefined && res.map(r => console.log('r', r)))
     }
 
-    render() {
-        // console.log('sdsd.=', contractionStore.contraction)
+    static navigationOptions = {
+        header: null,
+    };
+
+    componentDidMount = () => {
         const { navigation } = this.props;
-        // console.log('navigation=', navigation)
+
+    }
+
+    componentDidUpdate = () => {
+        console.log('tools did update')
+    }
+    render() {
+
+        const { navigation } = this.props;
+
         handlePrees = (item) => {
-            //console.log('item=', item)
+            console.log('item=', item)
             if (item.key === 1)
                 navigation.navigate('KickTracker')
             else if (item.key === 2)
@@ -39,6 +49,7 @@ class Tools extends Component {
                 navigation.navigate('Hospital')
 
         }
+        console.log('tools render')
         return (
             <View style={styles.page} >
                 <View style={styles.body}>

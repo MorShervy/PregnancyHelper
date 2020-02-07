@@ -7,6 +7,7 @@ import pregnancyStore from '../../mobx/PregnancyStore';
 
 const { height, width } = Dimensions.get("window");
 
+
 @observer
 export default class MainAppAuth extends Component {
     constructor(props) {
@@ -25,7 +26,7 @@ export default class MainAppAuth extends Component {
                     if (res !== null) {
                         console.log('MainApp will mount')
                         userStore.setId(res.ID);
-                        this.props.navigation.navigate("HomeStack")
+                        this.props.navigation.navigate("AppStack")
                     }
                 }
             );

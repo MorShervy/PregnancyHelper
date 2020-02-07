@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, Image, ProgressBarAndroid, Dimensions, TouchableOpacity, SafeAreaView, ScrollView, ActivityIndicator, ImageBackground } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
+import { withNavigation } from 'react-navigation';
 import { WeeksData } from '../../data/WeeksData';
 import { NameOfDay } from '../../data/NameOfDay';
 import { NameOfMonth } from '../../data/NameOfMonth';
@@ -45,33 +46,49 @@ const { height, width, fontScale } = Dimensions.get("window");
     }
 
     componentDidMount = async () => {
-        console.log('didmount')
+        console.log('calendar didmount')
         const { week } = this.state;
         let pregnant = await SQL.GetPregnancyByUserId(userStore.id)
         if (pregnant.Message === undefined) {
-            console.log('true', pregnant.LastMenstrualPeriod)
+            // console.log('true', pregnant.LastMenstrualPeriod)
             let difference_in_days = Dates.CalculateDaysDifferenceBetweenTwoDates(pregnant.LastMenstrualPeriod)
-            console.log('(difference_in_days / 7)=', (difference_in_days / 7) - ((difference_in_days / 7) | 0))
+            // console.log('(difference_in_days / 7)=', (difference_in_days / 7) - ((difference_in_days / 7) | 0))
             let doubleNum = (difference_in_days / 7) - ((difference_in_days / 7) | 0)
-            console.log('du=', typeof (doubleNum))
+            // console.log('du=', typeof (doubleNum))
             let getDayOfCurrWeek = (((doubleNum * 100) / (100 / 7)) + 1) | 0;
             let getWeek = (difference_in_days / 7) | 0;
-            const w = getWeek > 42 ? 42 : getWeek;
+            const w = (getWeek < 1 && 1) ||
+                (getWeek > 40 && 40) ||
+                getWeek
+
+
             // only for the first time
 
             let range = Dates.GetCurrWeekRange(w, pregnant.LastMenstrualPeriod)
-            const weekData = WeeksData.filter(week => week.key === w)[0]
+
+            const weekData = WeeksData.filter(week => week.key === w)[0] // no
+
             pregnancyStore.setId(pregnant.PregnantID)
             pregnancyStore.setCurrWeek(w)
+            pregnancyStore.setDuedate(pregnant.DueDate)
+
+            console.log('pregnant.Gender=', pregnant.Gender)
+            pregnancyStore.setGender(pregnant.Gender)
+            pregnancyStore.setChildName(pregnant.ChildName)
             this.setState({ week: w, pregnant, weekData, currWeek: w, getDayOfCurrWeek, range })
         }
+    }
+
+    componentDidUpdate = async () => {
+        console.log('calendar did update')
+        // console.log(this.props.navigation)
     }
 
     handlePreviousWeek = () => {
         const { week, pregnant } = this.state;
         // console.log('week=', week)
         calendarStore.setIsLoadVideo(true)
-        if (week === 42) {
+        if (week === 40) {
             const weekData = WeeksData.filter(res => res.key === week - 1)[0]
             const w = this.state.week - 1
             let range = Dates.GetCurrWeekRange(w, pregnant.LastMenstrualPeriod)
@@ -104,7 +121,7 @@ const { height, width, fontScale } = Dimensions.get("window");
             this.setState({ hidePrevBtn: false, weekData, week: w, range })
         }
 
-        else if (week < 41) {
+        else if (week < 39) {
             const weekData = WeeksData.filter(res => res.key === week + 1)[0]
             const w = this.state.week + 1
             let range = Dates.GetCurrWeekRange(w, pregnant.LastMenstrualPeriod)
@@ -134,7 +151,7 @@ const { height, width, fontScale } = Dimensions.get("window");
         }
 
         // console.log('Data=', weekData.body)
-        console.log('render return')
+        console.log('calendar render return')
         return (
             <View style={{ flex: 1, backgroundColor: '#f6f6f6', }}>
 
@@ -153,7 +170,7 @@ const { height, width, fontScale } = Dimensions.get("window");
                                 <View style={styles.flexRow}>
 
                                     <TouchableOpacity
-                                        style={[styles.btn, hidePrevBtn ? { backgroundColor: '#fff' } : null]}
+                                        style={[styles.btn, hidePrevBtn ? { backgroundColor: '#f6f6f6' } : null]}
                                         onPress={this.handlePreviousWeek}
                                         disabled={hidePrevBtn}
                                     >
@@ -267,19 +284,6 @@ const { height, width, fontScale } = Dimensions.get("window");
                             <View style={[styles.content, {}]}>
                                 <Text>Video</Text>
                                 <VideoCalendar week={week} />
-                                {/* <Video
-                                    // ref={this._handleVideoRef}
-                                    source={{ uri: 'http://ruppinmobile.tempdomain.co.il/site08/PregnantVideo/Weeks20.mp4' }}
-                                    rate={1.0}
-                                    volume={1.0}
-                                    isMuted={false}
-                                    resizeMode="cover"
-                                    // shouldPlay
-                                    isLooping
-                                    style={{ height: 300 }}
-                                /> */}
-
-
                             </View>
                         </View>
                     </View>
@@ -292,7 +296,7 @@ const { height, width, fontScale } = Dimensions.get("window");
 
 }
 
-export default Calendar;
+export default withNavigation(Calendar);
 
 const styles = StyleSheet.create({
     page: {

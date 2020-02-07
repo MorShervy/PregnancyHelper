@@ -41,7 +41,7 @@ export default class VideoCalendar extends React.Component {
 
 
     componentDidMount = async () => {
-        console.log('did mount video calendar')
+        // console.log('did mount video calendar')
         await this.loadCurrentVideo()
 
         const { isLoaded } = await this._video.getStatusAsync()
@@ -51,7 +51,7 @@ export default class VideoCalendar extends React.Component {
 
 
     componentDidUpdate = async () => {
-        console.log('did update video calendar')
+        // console.log('did update video calendar')
         if (calendarStore.isLoadVideo) {
             this.loadCurrentVideo().
                 then(() => {
@@ -60,7 +60,7 @@ export default class VideoCalendar extends React.Component {
                         mute: true,
                         shouldPlay: false
                     }))
-                    console.log('yes')
+                    // console.log('yes')
                 })
 
 
@@ -69,12 +69,12 @@ export default class VideoCalendar extends React.Component {
     }
 
     componentWillUnmount = async () => {
-        console.log('unmpunt')
+        // console.log('unmpunt')
         await this._video.unloadAsync()
     }
 
     _mountVideo = async (component) => {
-        console.log('mount video')
+        // console.log('mount video')
         this._video = component;
 
 
@@ -84,8 +84,8 @@ export default class VideoCalendar extends React.Component {
     loadCurrentVideo = async () => {
         const { week } = this.props;
         const { playList } = this;
-        console.log('week=', week)
-        console.log('playList=', playList[week - 1].uri)
+        // console.log('week=', week)
+        // console.log('playList=', playList[week - 1].uri)
         let res = await this._video.loadAsync(
             { uri: playList[week - 1].uri },
             initialStatus = { androidImplementation: 'MediaPlayer' },
@@ -120,7 +120,7 @@ export default class VideoCalendar extends React.Component {
     render() {
         const { width } = Dimensions.get('window');
         const { isLoaded } = this.state;
-        console.log('isLoaded=', isLoaded)
+        // console.log('isLoaded=', isLoaded)
         return (
             <View style={styles.container}>
                 <View>

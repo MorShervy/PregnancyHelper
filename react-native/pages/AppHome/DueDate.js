@@ -29,7 +29,11 @@ class DueDate extends Component {
             headerLeft: (
                 <HeaderBackButton
                     onPress={() => {
-                        navigation.navigate('Home')
+                        const navigateAction = NavigationActions.navigate({
+                            routeName: 'Home',
+                            action: NavigationActions.navigate({ routeName: 'Tools' }),
+                        });
+                        navigation.dispatch(navigateAction);
                     }}
                     tintColor={'#FFF'}
                 />
@@ -49,8 +53,12 @@ class DueDate extends Component {
     }
 
     handleBackButton = () => {
-        const { navigation } = this.props;
-        navigation.navigate('Tools')
+        const navigateAction = NavigationActions.navigate({
+            routeName: 'Home',
+            action: NavigationActions.navigate({ routeName: 'Tools' }),
+        });
+
+        this.props.navigation.dispatch(navigateAction);
     }
 
     handleOnPressDatePickerLastMenstrual = async () => {

@@ -5,7 +5,9 @@ import { StackActions } from 'react-navigation';
 import { SwitchActions } from 'react-navigation';
 import { Ionicons } from "@expo/vector-icons";
 import { HeaderBackButton } from 'react-navigation-stack';
+import InformationAlertComponent from '../../components/InformationAlertComponent';
 import SQL from '../../handlers/SQL';
+import { Information } from '../../data/Information';
 import { Dates } from '../../handlers/Dates';
 import { observer } from 'mobx-react'
 import userStore from '../../mobx/UserStore';
@@ -30,13 +32,14 @@ export default class ContractionTimer extends Component {
             ss: "00",
             contractionList: null,
             avgLength: "",
-            avgTimeApart: ""
+            avgTimeApart: "",
+            displayAlert: false
         }
 
     }
 
     componentDidMount = async () => {
-        console.log('didMount')
+        console.log('contraction timer didMount')
         // adding the event listener for back button android
         BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
 
@@ -46,6 +49,17 @@ export default class ContractionTimer extends Component {
             this.setState({ avgLength, avgTimeApart })
         }
         this.setState({ contractionList: conArr })
+    }
+
+    componentDidUpdate = () => {
+        console.log('timer did update')
+        const { params } = this.props.navigation.state;
+        const { navigation } = this.props;
+        if (params !== undefined && params.isMoreInfo) {
+            console.log('yes', params.isMoreInfo)
+            navigation.setParams({ isMoreInfo: false })
+            this.setState({ displayAlert: true })
+        }
     }
 
     componentWillUnmount = () => {
@@ -76,7 +90,7 @@ export default class ContractionTimer extends Component {
                     <TouchableOpacity
                         onPress={() => {
                             const setParamsAction = NavigationActions.setParams({
-                                params: { isMoreOptToShow: navigation.state.params !== undefined ? !navigation.state.params.isMoreOptToShow : true },
+                                params: { isMoreInfo: true },
                                 key: navigation.state.key,
                             });
                             navigation.dispatch(setParamsAction);
@@ -88,7 +102,15 @@ export default class ContractionTimer extends Component {
             ),
             headerLeft: (
                 <HeaderBackButton
-                    onPress={() => navigation.navigate({ routeName: 'Home' })}
+                    // onPress={() => navigation.navigate({ routeName: 'Home' })}
+                    onPress={() => {
+                        const navigateAction = NavigationActions.navigate({
+                            routeName: 'Home',
+                            params: {},
+                            action: NavigationActions.navigate({ routeName: 'Tools' }),
+                        });
+                        navigation.dispatch(navigateAction);
+                    }}
                     tintColor={'#FFF'}
                 />
             ),
@@ -97,7 +119,13 @@ export default class ContractionTimer extends Component {
     }
 
     handleBackButton = () => {
-        this.props.navigation.goBack();
+        const navigateAction = NavigationActions.navigate({
+            routeName: 'Home',
+            action: NavigationActions.navigate({ routeName: 'Tools' }),
+        });
+
+        this.props.navigation.dispatch(navigateAction);
+        // this.props.navigation.goBack();
     }
 
     start = () => {
@@ -261,19 +289,28 @@ export default class ContractionTimer extends Component {
         clearInterval(this.timer2)
     }
 
+    handleCloseAlert = () => {
+        this.setState({ displayAlert: false })
+    }
+
 
     render() {
 
         const { toggle } = this.state;
         const { h, m, s } = this.state;
         const { hh, mm, ss } = this.state;
-        const { contractionList, avgLength, avgTimeApart } = this.state;
+        const { contractionList, avgLength, avgTimeApart, displayAlert } = this.state;
         const { navigation } = this.props;
 
 
         return (
             <View style={{ flex: 1, backgroundColor: APP_COLOR, alignItems: 'center' }}>
-
+                <InformationAlertComponent
+                    handleCloseAlert={this.handleCloseAlert}
+                    displayAlert={displayAlert}
+                    header={Information[0].header}
+                    body={Information[0].body}
+                />
                 {
                     navigation.state.params !== undefined &&
                     navigation.state.params.isMoreOptToShow &&
