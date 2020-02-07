@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Contraction.cs" />
+    <Compile Include="Models\KickTracker.cs" />
     <Compile Include="Models\PregnancyAlbum.cs" />
     <Compile Include="Models\ResetPasswordRequest.cs" />
     <Compile Include="Models\User.cs" />

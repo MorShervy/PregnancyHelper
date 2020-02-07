@@ -237,6 +237,100 @@ namespace DataAccessLayer
             return null;
         }
 
+        public static DataTable UpdatePregnancyDates(int pregnantId, string dueDate, string lastMenstrualPeriod)
+        {
+            try
+            {
+                Con.Open();
+                _command = new SqlCommand("UpdatePregnancyDates", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _command.Parameters.Add(new SqlParameter("PregnantID", pregnantId));
+                _command.Parameters.Add(new SqlParameter("DueDate", dueDate));
+                _command.Parameters.Add(new SqlParameter("LastMenstrualPeriod", lastMenstrualPeriod));
+
+                DataSet ds = new DataSet();
+                _adtr = new SqlDataAdapter(_command);
+                _adtr.Fill(ds, "Result");
+
+                if (ds.Tables["Result"].Rows.Count != 0)
+                    return ds.Tables["Result"];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+        }
+
+
+        public static DataTable UpdateChildName(int pregnantId, string childName)
+        {
+            try
+            {
+                Con.Open();
+                _command = new SqlCommand("UpdateChildName", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _command.Parameters.Add(new SqlParameter("PregnantID", pregnantId));
+                _command.Parameters.Add(new SqlParameter("ChildName", childName));
+
+
+                DataSet ds = new DataSet();
+                _adtr = new SqlDataAdapter(_command);
+                _adtr.Fill(ds, "Result");
+
+                if (ds.Tables["Result"].Rows.Count != 0)
+                    return ds.Tables["Result"];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+        }
+
+        public static DataTable UpdateGender(int pregnantId, int gender)
+        {
+            try
+            {
+                Con.Open();
+                _command = new SqlCommand("UpdateGender", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _command.Parameters.Add(new SqlParameter("PregnantID", pregnantId));
+                _command.Parameters.Add(new SqlParameter("Gender", gender));
+
+
+                DataSet ds = new DataSet();
+                _adtr = new SqlDataAdapter(_command);
+                _adtr.Fill(ds, "Result");
+
+                if (ds.Tables["Result"].Rows.Count != 0)
+                    return ds.Tables["Result"];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+        }
+
         public static DataTable GetPregnanciesAlbums()
         {
             try
@@ -352,7 +446,7 @@ namespace DataAccessLayer
                     Con.Close();
             }
             return null;
-        
+
         }
 
         public static DataTable DeletPictureFromPregnancyAlbum(int pregnantId, int weekId)
@@ -417,7 +511,7 @@ namespace DataAccessLayer
             return null;
         }
 
-        public static DataTable InsertContraction(int userId,string startTime,string endTime,string length,string timeApart, string dateTime)
+        public static DataTable InsertContraction(int userId, string startTime, string endTime, string length, string timeApart, string dateTime)
         {
             try
             {
@@ -468,7 +562,96 @@ namespace DataAccessLayer
 
                 if (ds.Tables["Contraction"].Rows.Count != 0)
                     return ds.Tables["Contraction"];
-            
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+        }
+
+        public static DataTable GetKickTrackers()
+        {
+            try
+            {
+                Con.Open();
+                _command = new SqlCommand("GetKickTrackers", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _adtr = new SqlDataAdapter(_command);
+                DataSet ds = new DataSet();
+                _adtr.Fill(ds, "KickTracker");
+
+                if (ds.Tables["KickTracker"].Rows.Count != 0)
+                    return ds.Tables["KickTracker"];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+        }
+
+        public static DataTable InsertKickTracker(int pregnantId, string date, string length, string time, int kicks)
+        {
+            try
+            {
+                Con.Open();
+                _command = new SqlCommand("InsertKickTracker", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _command.Parameters.Add(new SqlParameter("PregnantID", pregnantId));
+                _command.Parameters.Add(new SqlParameter("Date", date));
+                _command.Parameters.Add(new SqlParameter("Length", length));
+                _command.Parameters.Add(new SqlParameter("Time", time));
+                _command.Parameters.Add(new SqlParameter("Kicks", kicks));
+
+                _adtr = new SqlDataAdapter(_command);
+                DataSet ds = new DataSet();
+                _adtr.Fill(ds, "KickTracker");
+
+                if (ds.Tables["KickTracker"].Rows.Count != 0)
+                    return ds.Tables["KickTracker"];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (Con.State == ConnectionState.Open)
+                    Con.Close();
+            }
+            return null;
+        }
+
+        public static DataTable DeleteKickTrackerByPregnantId(int pregnantId)
+        {
+            try
+            {
+                Con.Open();
+                _command = new SqlCommand("DeleteKickTrackerById", Con);
+                _command.CommandType = CommandType.StoredProcedure;
+
+                _command.Parameters.Add(new SqlParameter("PregnantID", pregnantId));
+
+                _adtr = new SqlDataAdapter(_command);
+                DataSet ds = new DataSet();
+                _adtr.Fill(ds, "KickTracker");
+
+                if (ds.Tables["KickTracker"].Rows.Count != 0)
+                    return ds.Tables["KickTracker"];
             }
             catch (Exception ex)
             {

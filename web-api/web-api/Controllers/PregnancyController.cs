@@ -47,10 +47,64 @@ namespace web_api.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("UpdatePregnancyDates")]
+        public IHttpActionResult PostUpdatePregnancyDates([FromBody]Pregnancy p)
+        {
+            bool isUpdated = false;
+            try
+            {
+                isUpdated = _BAL.UpdatePregnancyDates(p.PregnantID, p.DueDate, p.LastMenstrualPeriod);
+                if (isUpdated)
+                    return Ok(isUpdated);
+                return BadRequest(isUpdated.ToString());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(isUpdated.ToString() + "message = "+ ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("UpdateChildName")]
+        public IHttpActionResult PostUpdateChildName([FromBody]Pregnancy p)
+        {
+            bool isUpdated = false;
+            try
+            {
+                isUpdated = _BAL.UpdateChildName(p.PregnantID, p.ChildName);
+                if (isUpdated)
+                    return Ok(isUpdated);
+                return BadRequest(isUpdated.ToString());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(isUpdated.ToString() + " " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("UpdateGender")]
+        public IHttpActionResult PostUpdateGender([FromBody]Pregnancy p)
+        {
+            bool isUpdated = false;
+            try
+            {
+                isUpdated = _BAL.UpdateGender(p.PregnantID, p.Gender);
+                if (isUpdated)
+                    return Ok(isUpdated);
+                return BadRequest(isUpdated.ToString());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(isUpdated.ToString() + " " + ex.Message);
+            }
+        }
 
 
 
 
-    }    
+
+    }
 }
 

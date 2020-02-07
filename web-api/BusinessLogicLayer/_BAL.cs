@@ -45,10 +45,23 @@ namespace BusinessLogicLayer
             if (res == null)
                 return null;
 
-            u = new User()
+            int id = int.Parse(res.Rows[0]["UserID"].ToString());
+
+            if (id < 1)
             {
-                ID = int.Parse(res.Rows[0]["ID"].ToString())
-            };
+                u = new User()
+                {
+                    ID = id,
+                };
+            }
+            else
+            {
+                u = new User()
+                {
+                    ID = int.Parse(res.Rows[0]["UserID"].ToString()),
+                    Email = res.Rows[0]["Email"].ToString()
+                };
+            }
 
             return u;
         }
@@ -61,10 +74,23 @@ namespace BusinessLogicLayer
             if (res == null)
                 return null;
 
-            u = new User()
+            int id = int.Parse(res.Rows[0]["UserID"].ToString());
+
+            if (id < 1)
             {
-                ID = int.Parse(res.Rows[0]["ID"].ToString()),
-            };
+                u = new User()
+                {
+                    ID = id,
+                };
+            }
+            else
+            {
+                u = new User()
+                {
+                    ID = int.Parse(res.Rows[0]["UserID"].ToString()),
+                    Email = res.Rows[0]["Email"].ToString()
+                };
+            }
 
             return u;
         }
@@ -124,12 +150,45 @@ namespace BusinessLogicLayer
                     LastMenstrualPeriod = DateTime.Parse(row["LastMenstrualPeriod"].ToString()).ToShortDateString(),
                     ChildName = row["ChildName"].ToString(),
                     BirthDate = row["BirthDate"].ToString(),
-                    Gender = row["Gender"].ToString(),
+                    Gender = int.Parse(row["Gender"].ToString()),
                     IsNewBorn = row["IsNewBorn"].ToString()
                 });
             }
             return p;
 
+        }
+
+        public static bool UpdatePregnancyDates(int pregnantId,string dueDate,string lastMenstrualPeriod)
+        {
+            DataTable res = _DAL.UpdatePregnancyDates(pregnantId, dueDate, lastMenstrualPeriod);
+            bool isUpdated = false;
+            if (res == null)
+                return isUpdated;
+
+            isUpdated = Convert.ToBoolean((int)res.Rows[0]["Result"]);
+            return isUpdated;
+        }
+
+        public static bool UpdateChildName(int pregnantId, string childName)
+        {
+            DataTable res = _DAL.UpdateChildName(pregnantId, childName);
+            bool isUpdated = false;
+            if (res == null)
+                return isUpdated;
+
+            isUpdated = Convert.ToBoolean((int)res.Rows[0]["Result"]);
+            return isUpdated;
+        }
+
+        public static bool UpdateGender(int pregnantId, int gender)
+        {
+            DataTable res = _DAL.UpdateGender(pregnantId, gender);
+            bool isUpdated = false;
+            if (res == null)
+                return isUpdated;
+
+            isUpdated = Convert.ToBoolean((int)res.Rows[0]["Result"]);
+            return isUpdated;
         }
 
         public static List<PregnancyAlbum> GetPregnanciesAlbums()
@@ -303,6 +362,79 @@ namespace BusinessLogicLayer
         {
             bool isDeleted = false;
             DataTable result = _DAL.DeleteContractionByUserId(userId);
+
+            if (result == null)
+                return isDeleted;
+
+            isDeleted = Convert.ToBoolean((int)result.Rows[0]["Result"]);
+
+            return isDeleted;
+        }
+
+        public static List<KickTracker> GetKickTrackers()
+        {
+            List<KickTracker> list = null;
+            DataTable res = _DAL.GetKickTrackers();
+
+            if (res == null)
+                return null;
+
+            foreach(DataRow row in res.Rows)
+            {
+                if (list == null)
+                    list = new List<KickTracker>();
+                list.Add(new KickTracker()
+                {
+                    PregnantID = int.Parse(row["PregnantID"].ToString()),
+                    Date = row["Date"].ToString(),
+                    Length = row["Length"].ToString(),
+                    Time = row["Time"].ToString(),
+                    Kicks = int.Parse(row["Kicks"].ToString())
+                });
+            }
+            return list;
+        }
+
+        public static List<KickTracker> GetKickTrackerByPregnantId(int id, List<KickTracker> list)
+        {
+            List<KickTracker> kickTrackers = null;
+
+            if (list == null)
+                return null;
+
+            foreach (KickTracker kickTracker in list)
+            {
+                if (kickTrackers == null)
+                    kickTrackers = new List<KickTracker>();
+
+                if (kickTracker.PregnantID == id)
+                {
+                    kickTrackers.Add(kickTracker);
+                }
+            }
+
+            if (kickTrackers == null || kickTrackers.Count == 0)
+                return null;
+
+            return kickTrackers;
+        }
+
+        public static bool InsertKickTracker(int pregnantId, string date,string length,string time,int kicks)
+        {
+            DataTable res = _DAL.InsertKickTracker(pregnantId, date, length, time, kicks);
+
+            if (res == null)
+                return false;
+
+            bool result = Convert.ToBoolean((int)res.Rows[0]["Result"]);
+            return result;
+
+        }
+
+        public static bool DeleteKickTrackerByPregnantId(int pregnantId)
+        {
+            bool isDeleted = false;
+            DataTable result = _DAL.DeleteKickTrackerByPregnantId(pregnantId);
 
             if (result == null)
                 return isDeleted;
