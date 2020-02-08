@@ -15,6 +15,7 @@ using System.Web.Http.Cors;
 namespace web_api.Controllers
 {
     [RoutePrefix("api/User")]
+    [EnableCors("*", "*", "*")]
     public class UserController : ApiController
     {
         // GET api/user
@@ -88,7 +89,7 @@ namespace web_api.Controllers
 
         // פונקציה לשליחת מייל איפוס סיסמה למשתמש
         [HttpPost]
-        [EnableCors("*","*","*")]
+        
         [Route("SendResetPasswordEmail")]
         public IHttpActionResult PostSendResetPasswordEmail([FromBody]User user)
         {
@@ -97,9 +98,9 @@ namespace web_api.Controllers
                 ResetPasswordRequest result = _BAL.SendResetPasswordEmail(user.Email); // קריאה לפונקציה שתחזיר את פרטי הבקשה
                 if (result == null) // במידה והמשתמש לא קיים
                     return BadRequest("Email does not exists");
-                
-                MailMessage mailMessage = new MailMessage("pregnancy.helper.proj@gmail.com",user.Email); // יצירת אובייקט לשליחת מייל
-                
+
+                MailMessage mailMessage = new MailMessage("pregnancy.helper.proj@gmail.com", user.Email); // יצירת אובייקט לשליחת מייל
+
                 StringBuilder sbEmailBody = new StringBuilder(); // יצירת אובייקט לבניית תוכן הודעת המייל
                 sbEmailBody.Append("Dear " + user.Email.Substring(0, user.Email.IndexOf("@")) + ",<br/><br/>");
                 sbEmailBody.Append("Please click on the following link to reset your password");
@@ -112,9 +113,10 @@ namespace web_api.Controllers
                 mailMessage.IsBodyHtml = true;
                 mailMessage.Body = sbEmailBody.ToString();
                 mailMessage.Subject = "Reset Your Password";
-				
-                SmtpClient client = new SmtpClient("smtp.gmail.com", 587) // יצירת אובייקט לשליחת המייל
-                {
+
+                SmtpClient client = new SmtpClient("smtp.gmail.com", 587)
+                { // יצירת אובייקט לשליחת המייל
+
                     Credentials = new NetworkCredential("pregnancy.helper.proj@gmail.com", "PREGNANCYhelper90"), // יצירת אובייקט עם פרטי כניסה של המייל השולח
                     EnableSsl = true
                 };
@@ -128,7 +130,7 @@ namespace web_api.Controllers
         }
 
         [HttpPost]
-        [EnableCors("*", "*", "*")]
+        
         [Route("ResetPassword")]
         public IHttpActionResult PostResetPassword([FromBody]ResetPasswordRequest request)
         {
