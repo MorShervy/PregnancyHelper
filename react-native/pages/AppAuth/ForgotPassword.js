@@ -5,8 +5,6 @@ import { WebView } from 'react-native-webview';
 
 export default class ForgotPassword extends Component {
 
-
-
     render() {
         return (
             <View style={{ flex: 1 }}>

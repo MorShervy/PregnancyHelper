@@ -3,33 +3,17 @@ import { StyleSheet, View, I18nManager, AsyncStorage } from 'react-native';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { Asset } from 'expo-asset';
 import { AppLoading } from 'expo';
-import { activateKeepAwake, deactivateKeepAwake, useKeepAwake } from 'expo-keep-awake';
+import { activateKeepAwake } from 'expo-keep-awake';
 import AuthStack from './AuthStack';
 import AppStack from './AppStack'
 import SQL from './handlers/SQL';
 import { observer } from 'mobx-react'
 import userStore from './mobx/UserStore';
-import pregnancyStore from './mobx/PregnancyStore';
-import CostumAlertComponent from './components/CostumAlertComponent';
+
 
 I18nManager.forceRTL(false);
 
-class Test extends Component {
 
-  render() {
-    return (
-      <View style={styles.container}>
-        <CostumAlertComponent
-          displayAlert={true}
-          header={'Gender'}
-          boy={'Boy'}
-          girl={'Girl'}
-          unknown={`Don't know`}
-        />
-      </View>
-    )
-  }
-}
 
 @observer
 export default class App extends Component {
@@ -39,27 +23,8 @@ export default class App extends Component {
       isReady: false,
       userId: 0
     };
-  }
 
-  componentDidMount = async () => {
     activateKeepAwake()
-    // console.disableYellowBox = true
-    AsyncStorage.getItem('user').
-      then(res => JSON.parse(res)).
-      then(async res => {
-        console.log("app did mount - res= ", res)
-        if (res !== null) {
-          SQL.GetUserById(res.ID).then(
-            (sqlRes) => userStore.setEmail(sqlRes.Email)
-          )
-        }
-      })
-
-
-  }
-
-  componentWillUnmount = () => {
-    // deactivateKeepAwake()
   }
 
   async _cacheResourcesAsync() {
@@ -103,9 +68,6 @@ const AppContainer = createAppContainer(
     },
     {
       initialRouteName: 'AuthStack',
-      // defaultNavigationOptions: {
-      //   header: null,
-      // }
     }
   )
 )

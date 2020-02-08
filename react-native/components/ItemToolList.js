@@ -27,10 +27,6 @@ export default ItemToolList;
 
 const styles = StyleSheet.create({
     container: {
-        //display: 'flex',
-        //flexDirection: 'row',
-        //justifyContent: 'flex-start',
-        //flexWrap: 'wrap',
         alignItems: 'center'
     },
 });

@@ -18,7 +18,7 @@ const ItemHospital = ({ item }, props) => {
             >
                 <Text style={styles.txtStyle}>{item.title}{'\n'}{item.phone}{'\n'}Distance: {(geolib.getDistance(props.currentLocation, item.latLong) / 1000).toString().substring(0, 2)}km</Text>
             </TouchableHighlight>
-            {/* {renderSeparator} */}
+
         </View>
     )
 }

@@ -120,7 +120,7 @@ export default class VideoCalendar extends React.Component {
     render() {
         const { width } = Dimensions.get('window');
         const { isLoaded } = this.state;
-        // console.log('isLoaded=', isLoaded)
+        console.log('isLoaded=', isLoaded)
         return (
             <View style={styles.container}>
                 <View>
@@ -137,20 +137,7 @@ export default class VideoCalendar extends React.Component {
                     // posterSource={require('../assets/images/logo.png')}
                     // usePoster={true}
                     />
-                    {/* <View style={styles.controlBar}>
-                        <MaterialIcons
-                            name={!this.state.mute ? "volume-mute" : "volume-up"}
-                            size={45}
-                            color="white"
-                            onPress={this.handleVolume}
-                        />
-                        <MaterialIcons
-                            name={this.state.shouldPlay ? "pause" : "play-arrow"}
-                            size={45}
-                            color="white"
-                            onPress={this.handlePlayAndPause}
-                        />
-                    </View> */}
+
                 </View>
             </View>
         );

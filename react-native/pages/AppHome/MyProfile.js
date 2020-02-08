@@ -1,8 +1,6 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text, BackHandler, Dimensions, DatePickerAndroid, Image, ImageBackground, TextInput, TouchableOpacity, ClippingRectangle } from 'react-native';
+import { StyleSheet, View, Text, BackHandler, Dimensions, DatePickerAndroid, Image, ImageBackground, TextInput, TouchableOpacity } from 'react-native';
 import { HeaderBackButton } from 'react-navigation-stack';
-import { NavigationActions } from 'react-navigation';
-import { DrawerActions } from 'react-navigation-drawer';
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { Dates } from '../../handlers/Dates';
 import SQL from "../../handlers/SQL";

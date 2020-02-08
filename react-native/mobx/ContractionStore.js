@@ -10,29 +10,6 @@ const URL = "http://ruppinmobile.tempdomain.co.il/site08/api";
 
 class ContractionStore {
 
-    @observable contraction = null;
-
-    @action setContractions = async arr => {
-
-        this.contraction = [...arr]
-
-    }
-
-    @action getContractionList = (id) => {
-        fetch(`${URL}/contraction/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                runInAction(() => {
-                    // console.log('data=', data)
-                    if (data.Message !== undefined)
-                        this.contraction = null
-                    else
-                        this.contraction = data;
-                    return true
-                })
-            })
-    }
-
 
     AverageInLastHour(arrList) {
         var toDate = new Date()

@@ -8,7 +8,6 @@ import InformationAlertComponent from '../../components/InformationAlertComponen
 import { Information } from '../../data/Information';
 import { observer } from 'mobx-react'
 import pregnancyStore from '../../mobx/PregnancyStore';
-import kickTrackerStore from '../../mobx/KickTrackerStore';
 
 const { height, width, fontScale } = Dimensions.get("window");
 const APP_COLOR = '#304251';
@@ -76,7 +75,7 @@ export default class KickTracker extends Component {
     }
 
     componentDidMount = async () => {
-        console.log('kick tracker did mount1')
+        // console.log('kick tracker did mount1')
 
         const list = await SQL.GetKickTrackerByPregnantId(pregnancyStore.id)
         // console.log('list=', list)

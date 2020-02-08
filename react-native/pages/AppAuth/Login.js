@@ -5,7 +5,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import SQL from '../../handlers/SQL';
 import { observer } from 'mobx-react'
 import userStore from '../../mobx/UserStore';
-import pregnancyStore from '../../mobx/PregnancyStore';
 
 const { height, width } = Dimensions.get("window");
 
@@ -62,61 +61,64 @@ export default class Login extends Component {
         }
     }
 
+    toggleVisiblePass = () => {
+        this.setState({ isVisiblePass: !isVisiblePass })
+    }
+
+    handleOnPressLogin = async () => {
+        const { navigation } = this.props;
+        const { email, pass } = this.state;
+        const isPassed = this.handleInputTesting()
+        if (!isPassed)
+            return;
+
+        this.setState({ errorEmail: false, errorPass: false, errorEmailExist: false, isLoading: true })
+        const sqlResult = await SQL.Login(email.toLowerCase(), pass);
+        // console.log('res=', sqlResult)
+
+        if (sqlResult.ID < 1) {
+            setTimeout(() => {
+                this.setState({ isLoading: false, errorEmailExist: true })
+            }, 1000)
+            return;
+        }
+        await AsyncStorage.setItem(
+            "user",
+            JSON.stringify({
+                ID: sqlResult.ID
+            })
+        )
+        userStore.setId(sqlResult.ID);
+        userStore.setEmail(sqlResult.Email)
+        navigation.navigate('AppStack')
+    }
+
+    handleInputTesting = () => {
+        const { email, pass } = this.state;
+        // email test
+        if (email === '' || !(regexEmail.test(email.toUpperCase()))) {
+            this.setState({
+                errorEmail: true,
+                errorPass: false,
+            })
+            return false;
+        }
+        // pass test
+        if (pass === '' || !(regexPassword.test(pass.toUpperCase()))) {
+            this.setState({
+                errorEmail: false,
+                errorPass: true,
+            })
+            return false;
+        }
+        return true;
+    }
+
     render() {
         const { email, pass } = this.state;
         const { errorEmail, errorPass, errorEmailExist } = this.state;
         const { isFocusedEmail, isFocusedPass, isVisiblePass, isLoading } = this.state;
         const { navigation } = this.props;
-
-        handleOnPressLogin = async () => {
-            const isPassed = handleInputTesting()
-            if (!isPassed)
-                return;
-
-            this.setState({ errorEmail: false, errorPass: false, errorEmailExist: false, isLoading: true })
-            const sqlResult = await SQL.Login(email.toLowerCase(), pass);
-            // console.log('res=', sqlResult)
-
-            if (sqlResult.ID < 1) {
-                setTimeout(() => {
-                    this.setState({ isLoading: false, errorEmailExist: true })
-                }, 1000)
-                return;
-            }
-            await AsyncStorage.setItem(
-                "user",
-                JSON.stringify({
-                    ID: sqlResult.ID
-                })
-            )
-            userStore.setId(sqlResult.ID);
-            userStore.setEmail(sqlResult.Email)
-            navigation.navigate('AppStack')
-        }
-
-        toggleVisiblePass = () => {
-            this.setState({ isVisiblePass: !isVisiblePass })
-        }
-
-        handleInputTesting = () => {
-            // email test
-            if (email === '' || !(regexEmail.test(email.toUpperCase()))) {
-                this.setState({
-                    errorEmail: true,
-                    errorPass: false,
-                })
-                return false;
-            }
-            // pass test
-            if (pass === '' || !(regexPassword.test(pass.toUpperCase()))) {
-                this.setState({
-                    errorEmail: false,
-                    errorPass: true,
-                })
-                return false;
-            }
-            return true;
-        }
 
         return (
             <View style={styles.page}>
@@ -228,7 +230,7 @@ export default class Login extends Component {
                                                 />
                                                 <TouchableOpacity
                                                     style={{ right: 25, top: 10 }}
-                                                    onPress={toggleVisiblePass}
+                                                    onPress={this.toggleVisiblePass}
                                                 >
                                                     <Ionicons
                                                         name={isVisiblePass ? "md-eye-off" : "md-eye"}
@@ -260,7 +262,7 @@ export default class Login extends Component {
                         <View style={{ marginTop: 20 }}>
                             <TouchableOpacity
                                 style={[styles.btnStyle, { backgroundColor: APP_COLOR }]}
-                                onPress={handleOnPressLogin}
+                                onPress={this.handleOnPressLogin}
                             >
                                 <Text
                                     style={styles.txtBtnStyle}

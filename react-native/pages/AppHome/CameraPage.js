@@ -4,13 +4,10 @@ import * as Permissions from "expo-permissions";
 import * as MediaLibrary from 'expo-media-library';
 import Constants from "expo-constants";
 
-import { NavigationActions, StackActions } from 'react-navigation';
-import { SwitchActions } from 'react-navigation';
 import { StyleSheet, BackHandler, Text, View, TouchableOpacity, ImageBackground, Platform, Modal, Image, Dimensions, ActivityIndicator } from "react-native";
 import { Ionicons, MaterialIcons, Octicons } from "@expo/vector-icons";
 import SQL from "../../handlers/SQL";
-import BellyBumpHeaderButtons from '../../components/BellyBumpHeaderButtons';
-import TestPenRes from '../../components/TestPenRes';
+
 
 
 import { observer } from 'mobx-react'

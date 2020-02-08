@@ -103,10 +103,10 @@ class DueDate extends Component {
         const { childBirthDate, childBirthToShow } = this.state;
         const { range } = this.state;
 
-        console.log('childBirthToShow=', childBirthToShow)
-        console.log('childBirthDate=', childBirthDate)
-        console.log('lastMenstrualPeriodDate=', lastMenstrualPeriodDate)
-        console.log('lastMenstrualPeriodToShow=', lastMenstrualPeriodToShow)
+        // console.log('childBirthToShow=', childBirthToShow)
+        // console.log('childBirthDate=', childBirthDate)
+        // console.log('lastMenstrualPeriodDate=', lastMenstrualPeriodDate)
+        // console.log('lastMenstrualPeriodToShow=', lastMenstrualPeriodToShow)
         return (
             <View style={styles.page}>
                 <View style={styles.body}>

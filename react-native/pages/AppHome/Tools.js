@@ -1,12 +1,8 @@
 import React, { Component } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
-import { StackActions, NavigationActions, SwitchActions } from 'react-navigation';
 import ItemToolList from '../../components/ItemToolList';
-import SQL from '../../handlers/SQL';
 import { observer } from 'mobx-react'
-import contractionStore from '../../mobx/ContractionStore';
-import userStore from "../../mobx/UserStore";
-import pregnancyStore from "../../mobx/PregnancyStore";
+
 const { height, width, fontScale } = Dimensions.get("window");
 
 const GREY_COLOR = '#8e8e8e';

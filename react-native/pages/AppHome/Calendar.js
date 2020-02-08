@@ -1,18 +1,13 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, Image, ProgressBarAndroid, Dimensions, TouchableOpacity, SafeAreaView, ScrollView, ActivityIndicator, ImageBackground } from 'react-native';
+import { StyleSheet, View, Text, ProgressBarAndroid, Dimensions, TouchableOpacity, ScrollView, ActivityIndicator, ImageBackground } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import { withNavigation } from 'react-navigation';
 import { WeeksData } from '../../data/WeeksData';
 import { NameOfDay } from '../../data/NameOfDay';
 import { NameOfMonth } from '../../data/NameOfMonth';
-import { Video } from 'expo-av';
-
 import SQL from '../../handlers/SQL';
-import ItemCalendarList from '../../components/ItemCalendarList';
 import ImageCalendar from '../../components/ImageCalendar';
 import VideoCalendar from '../../components/VideoCalendar';
-
-
 import { Dates } from '../../handlers/Dates';
 import calendarStore from '../../mobx/CalendarStore';
 import { observer } from 'mobx-react'
@@ -49,6 +44,7 @@ const { height, width, fontScale } = Dimensions.get("window");
         console.log('calendar didmount')
         const { week } = this.state;
         let pregnant = await SQL.GetPregnancyByUserId(userStore.id)
+        console.log('pregnantn=', pregnant)
         if (pregnant.Message === undefined) {
             // console.log('true', pregnant.LastMenstrualPeriod)
             let difference_in_days = Dates.CalculateDaysDifferenceBetweenTwoDates(pregnant.LastMenstrualPeriod)

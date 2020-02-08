@@ -52,7 +52,7 @@ export default class ContractionTimer extends Component {
     }
 
     componentDidUpdate = () => {
-        console.log('timer did update')
+        // console.log('timer did update')
         const { params } = this.props.navigation.state;
         const { navigation } = this.props;
         if (params !== undefined && params.isMoreInfo) {

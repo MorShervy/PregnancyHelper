@@ -184,9 +184,6 @@ const AboutStack = createStackNavigator(
 
 const ToolsStack = createStackNavigator(
     {
-        // Tools: {
-        //     screen: Tools
-        // },
         BellyBump: {
             screen: BellyBump
         },
@@ -207,7 +204,6 @@ const ToolsStack = createStackNavigator(
         }
     },
     {
-        //initialRouteName: 'KickTracker',
         defaultNavigationOptions: ({ navigation }) => ({
 
             headerStyle: {
@@ -282,10 +278,6 @@ TabNavigationStack.navigationOptions = {
     drawerLabel: () => null,
 }
 
-
-
-//DrawerStack
-//HomeStack
 const DrawerStack = createDrawerNavigator(
     {
         Home: {
@@ -324,61 +316,46 @@ const DrawerStack = createDrawerNavigator(
                 )
             }
         },
-        SettingsStack: {
-            name: SettingsStack,
-            screen: SettingsStack,
-            navigationOptions: {
-                drawerLabel: 'Settings',
-                drawerIcon: ({ tintColor }) => (
-                    <Ionicons
-                        name="md-settings"
-                        size={25}
-                        color='#8e8e8e'
-                    />
-                )
-            },
-        },
-        AboutStack: {
-            name: AboutStack,
-            screen: AboutStack,
-            navigationOptions: {
-                drawerLabel: 'About',
-                drawerIcon: ({ tintColor }) => (
-                    <Ionicons
-                        name="md-information-circle"
-                        size={25}
-                        color='#8e8e8e'
-                    />
-                )
-            },
-        },
+        // SettingsStack: {
+        //     name: SettingsStack,
+        //     screen: SettingsStack,
+        //     navigationOptions: {
+        //         drawerLabel: 'Settings',
+        //         drawerIcon: ({ tintColor }) => (
+        //             <Ionicons
+        //                 name="md-settings"
+        //                 size={25}
+        //                 color='#8e8e8e'
+        //             />
+        //         )
+        //     },
+        // },
+        // AboutStack: {
+        //     name: AboutStack,
+        //     screen: AboutStack,
+        //     navigationOptions: {
+        //         drawerLabel: 'About',
+        //         drawerIcon: ({ tintColor }) => (
+        //             <Ionicons
+        //                 name="md-information-circle"
+        //                 size={25}
+        //                 color='#8e8e8e'
+        //             />
+        //         )
+        //     },
+        // },
         // LogOut: {
 
         // }
     },
     {
         unmountInactiveRoutes: true,
-        // laze: true,
         drawerWidth: width - 100,
         edgeWidth: 35,
-
         contentComponent: DrawerNavigation,
     }
 )
 
-
-
-// const HomeStack = createStackNavigator(
-//     {
-//         DrawerStack,
-//     },
-//     {
-//         defaultNavigationOptions: {
-//             header: null,
-//         }
-
-//     }
-// )
 
 export default class AppStack extends Component {
     static router = DrawerStack.router;

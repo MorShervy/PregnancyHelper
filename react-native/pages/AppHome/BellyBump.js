@@ -131,8 +131,6 @@ export default class BellyBump extends Component {
         pregnancyStore.setWeek(week);
         this.setState({ openModalPic: false })
         this.props.navigation.navigate('CameraPage')
-
-        // let data = await SQL.UpdatePictureToPregnantAlbum(albumStore.picture.PregnantID,week,albumStore.picture.)
     }
 
     deletePictureFromAlbum = async (week) => {

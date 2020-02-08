@@ -7,7 +7,6 @@ import { Dates } from '../../handlers/Dates';
 import SQL from '../../handlers/SQL';
 import { observer } from 'mobx-react'
 import userStore from '../../mobx/UserStore';
-import pregnancyStore from '../../mobx/PregnancyStore';
 
 const { height, width } = Dimensions.get("window");
 
@@ -41,9 +40,6 @@ export default class Register extends Component {
             isVisiblePass: false,
             isLoading: false,
         }
-    }
-
-    componentWillMount = () => {
     }
 
     componentDidMount = () => {
@@ -113,147 +109,150 @@ export default class Register extends Component {
         }
     }
 
+    toggleVisiblePass = () => {
+        this.setState({ isVisiblePass: !isVisiblePass })
+    }
+
+    // פונקציה הרשמה צד לקוח
+    handleOnPressRegister = async () => {
+        const { childBirthDate } = this.state;
+        const { email, pass } = this.state;
+        const { navigation } = this.props;
+        const isPassed = this.handleInputTesting() // קריאה לפונקציה לבדיקת קלט 
+
+        if (!isPassed) // במידה והבדיקה לא עברה מסיים את הפונקציה
+            return;
+
+        let lastMenstrualPeriod;
+        if (childBirthDate !== '') // במידה והמשתמשת הכניסה תאריך לידה משוער
+            // קריאה לפונקציה שמחשבת את היום הראשון של המחזור האחרון שלה 
+            lastMenstrualPeriod = Dates.CalculateLastMenstrualByDueDate(childBirthDate)
+
+        // מאפס את כל הודעות השגיאה ומציג דף נטען
+        this.setState({
+            errorEmail: false, errorPass: false, errorDate: false, errorEmailExist: false, isLoading: true,
+        })
+        //  קריאה לפונקציה הרשמה על מנת להעביר את הנתונים מצד לקוח ושמירתם
+        const sqlResult = await SQL.Register(email.toLowerCase(), pass, childBirthDate, lastMenstrualPeriod);
+        console.log('register sqlResult=', sqlResult)
+        // במידה והתוצאה קטנה מ1 המשתמש קיים ומציגים הודעת מתאימה
+        if (sqlResult.ID < 1) {
+            setTimeout(() => {
+                this.setState({ isLoading: false, errorEmailExist: true })
+            }, 1000)
+            return;
+        }
+        // שמירת משתמש חדש באחסון מקומי על הטלפון כדי לזהות משתמשים מחוברים
+        await AsyncStorage.setItem("user", JSON.stringify({ ID: sqlResult.ID }))
+        // Mobx קריאה לפונקציה ששומרת את נתוני המשתמש החדש בניהול מידע באמצעות  
+        userStore.setId(sqlResult.ID)
+        userStore.setEmail(sqlResult.Email)
+        // מעבר לדף הבית
+        navigation.navigate('AppStack')
+    }
+
+    handleOnPressDatePickerChildBirth = async () => {
+        const date = new Date()
+        let maxDueDateByCurDate = new Date(Dates.CalculateChildBirthByLastMenstrual(date));
+        try {
+            const { action, year, month, day } = await DatePickerAndroid.open({
+                minDate: date,
+                maxDate: maxDueDateByCurDate, // 
+                mode: 'default' // spiner or calender
+            });
+            if (action === DatePickerAndroid.dateSetAction) {
+                this.setState({
+                    childBirthDate: `${month + 1}/${day}/${year}`,
+                    childBirthToShow: new Date(`${month + 1}/${day}/${year}`).toDateString().split(' ').slice(1).join(' '),
+                });
+            }
+        } catch ({ code, message }) {
+            console.log('Cannot open date picker', message);
+        }
+    }
+
+    handleOnPressDatePickerLastMenstrual = async () => {
+        const date = new Date()
+        let minLastMenstrual = new Date(Dates.CalculateLastMenstrualByDueDate(date))
+        console.log('minLastMenstrual=', minLastMenstrual)
+        try {
+            const { action, year, month, day } = await DatePickerAndroid.open({
+                minDate: minLastMenstrual,
+                maxDate: date,
+                mode: 'default' // spiner or calender
+            });
+            if (action === DatePickerAndroid.dateSetAction) {
+                this.setState({
+                    lastMenstrualPeriodToShow: new Date(`${month + 1}/${day}/${year}`).toDateString().split(' ').slice(1).join(' '),
+                    lastMenstrualPeriodDate: `${month + 1}/${day}/${year}`,
+                });
+            }
+        } catch ({ code, message }) {
+            console.log('Cannot open date picker', message);
+        }
+    }
+
+    handleOnPressCalculate = async () => {
+        const { navigation } = this.props;
+        const { lastMenstrualPeriodDate } = this.state;
+        // console.log('lastMenstrualPeriodDate=', lastMenstrualPeriodDate)
+        const estimateDueDate = Dates.CalculateChildBirthByLastMenstrual(lastMenstrualPeriodDate);
+        //console.log('childBirth=', estimateDueDate);
+        this.setState({
+            childBirthDate: estimateDueDate,
+            childBirthToShow: new Date(estimateDueDate).toDateString().split(' ').slice(1).join(' '),
+        })
+
+        await navigation.setParams({ showCalc: false })
+    }
+
+    renderCalcDueDate = async () => {
+        this.setState({
+            lastMenstrualPeriodToShow: 'Select a date',
+            lastMenstrualPeriodDate: '',
+        })
+        await this.props.navigation.setParams({ showCalc: true })
+    }
+
+    handleInputTesting = () => {
+        // email test
+        const { email, pass, childBirthDate } = this.state;
+        if (email === '' || !(regexEmail.test(email.toUpperCase()))) {
+            this.setState({
+                errorEmail: true,
+                errorPass: false,
+                errorDate: false,
+                errorEmailExist: false,
+            })
+            return false;
+        }
+        // pass test
+        if (pass === '' || !(regexPassword.test(pass.toUpperCase()))) {
+            this.setState({
+                errorEmail: false,
+                errorPass: true,
+                errorDate: false,
+            })
+            return false;
+        }
+        // datepicker test
+        if (childBirthDate === '') {
+            this.setState({
+                errorEmail: false,
+                errorPass: false,
+                errorDate: true,
+            })
+            return false;
+        }
+        return true;
+    }
+
     render() {
         const { email, pass, childBirthDate } = this.state;
         const { errorEmail, errorPass, errorDate, errorEmailExist } = this.state;
         const { isFocusedEmail, isFocusedPass, isVisiblePass, isLoading } = this.state;
         const { childBirthToShow, lastMenstrualPeriodToShow, lastMenstrualPeriodDate } = this.state;
         const { navigation } = this.props;
-
-        // פונקציה הרשמה צד לקוח
-        handleOnPressRegister = async () => {
-            const isPassed = handleInputTesting() // קריאה לפונקציה לבדיקת קלט 
-
-            if (!isPassed) // במידה והבדיקה לא עברה מסיים את הפונקציה
-                return;
-
-            let lastMenstrualPeriod;
-            if (childBirthDate !== '') // במידה והמשתמשת הכניסה תאריך לידה משוער
-                // קריאה לפונקציה שמחשבת את היום הראשון של המחזור האחרון שלה 
-                lastMenstrualPeriod = Dates.CalculateLastMenstrualByDueDate(childBirthDate)
-
-            // מאפס את כל הודעות השגיאה ומציג דף נטען
-            this.setState({
-                errorEmail: false, errorPass: false, errorDate: false, errorEmailExist: false, isLoading: true,
-            })
-            //  קריאה לפונקציה הרשמה על מנת להעביר את הנתונים מצד לקוח ושמירתם
-            const sqlResult = await SQL.Register(email.toLowerCase(), pass, childBirthDate, lastMenstrualPeriod);
-            console.log('register sqlResult=', sqlResult)
-            // במידה והתוצאה קטנה מ1 המשתמש קיים ומציגים הודעת מתאימה
-            if (sqlResult.ID < 1) {
-                setTimeout(() => {
-                    this.setState({ isLoading: false, errorEmailExist: true })
-                }, 1000)
-                return;
-            }
-            // שמירת משתמש חדש באחסון מקומי על הטלפון כדי לזהות משתמשים מחוברים
-            await AsyncStorage.setItem("user", JSON.stringify({ ID: sqlResult.ID }))
-            // Mobx קריאה לפונקציה ששומרת את נתוני המשתמש החדש בניהול מידע באמצעות  
-            // userStore.getUserAsync(sqlResult.ID)
-            userStore.setId(sqlResult.ID)
-            userStore.setEmail(sqlResult.Email)
-            // מעבר לדף הבית
-            navigation.navigate('AppStack')
-        }
-
-        toggleVisiblePass = () => {
-            this.setState({ isVisiblePass: !isVisiblePass })
-        }
-
-        handleOnPressDatePickerChildBirth = async () => {
-            const date = new Date()
-            let maxDueDateByCurDate = new Date(Dates.CalculateChildBirthByLastMenstrual(date));
-            try {
-                const { action, year, month, day } = await DatePickerAndroid.open({
-                    minDate: date,
-                    maxDate: maxDueDateByCurDate, // 
-                    mode: 'default' // spiner or calender
-                });
-                if (action === DatePickerAndroid.dateSetAction) {
-                    this.setState({
-                        childBirthDate: `${month + 1}/${day}/${year}`,
-                        childBirthToShow: new Date(`${month + 1}/${day}/${year}`).toDateString().split(' ').slice(1).join(' '),
-                    });
-                }
-            } catch ({ code, message }) {
-                console.log('Cannot open date picker', message);
-            }
-        }
-
-        handleOnPressDatePickerLastMenstrual = async () => {
-            const date = new Date()
-            let minLastMenstrual = new Date(Dates.CalculateLastMenstrualByDueDate(date))
-            console.log('minLastMenstrual=', minLastMenstrual)
-            try {
-                const { action, year, month, day } = await DatePickerAndroid.open({
-                    minDate: minLastMenstrual,
-                    maxDate: date,
-                    mode: 'default' // spiner or calender
-                });
-                if (action === DatePickerAndroid.dateSetAction) {
-                    this.setState({
-                        lastMenstrualPeriodToShow: new Date(`${month + 1}/${day}/${year}`).toDateString().split(' ').slice(1).join(' '),
-                        lastMenstrualPeriodDate: `${month + 1}/${day}/${year}`,
-                    });
-                }
-            } catch ({ code, message }) {
-                console.log('Cannot open date picker', message);
-            }
-        }
-
-
-        handleOnPressCalculate = async () => {
-            const { lastMenstrualPeriodDate } = this.state;
-            // console.log('lastMenstrualPeriodDate=', lastMenstrualPeriodDate)
-            const estimateDueDate = Dates.CalculateChildBirthByLastMenstrual(lastMenstrualPeriodDate);
-            //console.log('childBirth=', estimateDueDate);
-            this.setState({
-                childBirthDate: estimateDueDate,
-                childBirthToShow: new Date(estimateDueDate).toDateString().split(' ').slice(1).join(' '),
-            })
-
-            await navigation.setParams({ showCalc: false })
-        }
-
-        handleInputTesting = () => {
-            // email test
-            if (email === '' || !(regexEmail.test(email.toUpperCase()))) {
-                this.setState({
-                    errorEmail: true,
-                    errorPass: false,
-                    errorDate: false,
-                    errorEmailExist: false,
-                })
-                return false;
-            }
-            // pass test
-            if (pass === '' || !(regexPassword.test(pass.toUpperCase()))) {
-                this.setState({
-                    errorEmail: false,
-                    errorPass: true,
-                    errorDate: false,
-                })
-                return false;
-            }
-            // datepicker test
-            if (childBirthDate === '') {
-                this.setState({
-                    errorEmail: false,
-                    errorPass: false,
-                    errorDate: true,
-                })
-                return false;
-            }
-            return true;
-        }
-
-        renderCalcDueDate = async () => {
-            this.setState({
-                lastMenstrualPeriodToShow: 'Select a date',
-                lastMenstrualPeriodDate: '',
-            })
-            await this.props.navigation.setParams({ showCalc: true })
-        }
 
         return (
             navigation.state.params !== undefined && navigation.state.params.showCalc
@@ -262,7 +261,9 @@ export default class Register extends Component {
                 <View style={styles.page}>
                     <View style={styles.body}>
                         {/* header text */}
-                        <Text style={styles.txtHeaderStyle}>What was the first day{`\n`}of your last menstrual{`\n`}period?</Text>
+                        <Text style={styles.txtHeaderStyle}>
+                            What was the first day{`\n`}of your last menstrual{`\n`}period?
+                            </Text>
 
                         {/* flex row style for date picker */}
                         <View style={styles.flexRow}>
@@ -288,7 +289,7 @@ export default class Register extends Component {
                                 }
                                 <TouchableOpacity
                                     style={styles.btnSelectDate}
-                                    onPress={handleOnPressDatePickerLastMenstrual}
+                                    onPress={this.handleOnPressDatePickerLastMenstrual}
                                 >
                                     <Text
                                         style={[
@@ -308,7 +309,7 @@ export default class Register extends Component {
                                 style={[
                                     styles.btnStyle,
                                     { backgroundColor: lastMenstrualPeriodDate === '' ? GREY_COLOR : APP_COLOR }]}
-                                onPress={handleOnPressCalculate}
+                                onPress={this.handleOnPressCalculate}
                             >
                                 <Text style={styles.txtBtnStyle}>Calculate</Text>
                             </TouchableOpacity>
@@ -406,7 +407,7 @@ export default class Register extends Component {
                                         />
                                         <TouchableOpacity
                                             style={{ right: 25, top: 15 }}
-                                            onPress={toggleVisiblePass}
+                                            onPress={this.toggleVisiblePass}
                                         >
                                             <Ionicons
 
@@ -443,7 +444,7 @@ export default class Register extends Component {
                                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
                                         <TouchableOpacity
                                             style={styles.btnDueDateStyle}
-                                            onPress={handleOnPressDatePickerChildBirth}
+                                            onPress={this.handleOnPressDatePickerChildBirth}
                                         >
                                             <Text
                                                 style={[
@@ -468,7 +469,7 @@ export default class Register extends Component {
                                 <View style={styles.dueDateCalcStyle}>
                                     <TouchableOpacity
                                         style={styles.btnDueDateCalcStyle}
-                                        onPress={renderCalcDueDate}
+                                        onPress={this.renderCalcDueDate}
                                     >
                                         <Text style={styles.txtBtnCalcStyle}>Calculate estimated birth date</Text>
                                     </TouchableOpacity>
@@ -478,7 +479,7 @@ export default class Register extends Component {
                                 <View style={styles.marginTopBtn}>
                                     <TouchableOpacity
                                         style={[styles.btnStyle, { backgroundColor: APP_COLOR }]}
-                                        onPress={handleOnPressRegister}
+                                        onPress={this.handleOnPressRegister}
                                     >
                                         <Text style={styles.txtBtnStyle}>Let's get started</Text>
                                     </TouchableOpacity>
