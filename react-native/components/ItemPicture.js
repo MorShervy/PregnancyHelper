@@ -12,7 +12,7 @@ const ItemPicture = ({ item }, props) => {
         let picture;
         let pic
 
-        if (props.album !== undefined && props.album.length > 0) {
+        if (typeof (props.album) === "object") {
             // console.log('props.album.length=', props.album.length)
             picture = props.album.filter(pic => pic.WeekID === item.key);
             pic = picture[0];

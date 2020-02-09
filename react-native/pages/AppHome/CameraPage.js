@@ -66,7 +66,7 @@ export default class CameraPage extends Component {
             ratio: "16:9",
             ratios: [],
             newPhotos: false,
-            permissionsGranted: false,
+
             pictureSize: undefined,
             pictureSizes: [],
             pictureSizeId: 0,
@@ -87,8 +87,9 @@ export default class CameraPage extends Component {
     };
 
     componentDidMount = async () => {
-        const { status } = await Permissions.askAsync(Permissions.CAMERA);
-        this.setState({ permissionsGranted: status === "granted" });
+        // const { status } = await Permissions.askAsync(Permissions.CAMERA);
+        // this.setState({ permissionsGranted: status === "granted" });
+
         console.log(pregnancyStore.id)
 
         // adding the event listener for back button android
@@ -130,8 +131,10 @@ export default class CameraPage extends Component {
         // console.log('picUri', picUri)
 
         // save picture in filesystem on the phone at DCIM
-        // const asset = await MediaLibrary.createAssetAsync(picUri);
-        // console.log("asset=", asset)
+        console.log('permissionsGrantedCameraRoll=', this.state.permissionsGrantedCameraRoll)
+        if (this.state.permissionsGrantedCameraRoll) {
+            const asset = await MediaLibrary.createAssetAsync(picUri);
+        }
 
         this.setState({ isLoading: false, openModalPic: false });
         // this.props.navigation.navigate('BellyBumpScreen');
@@ -145,8 +148,7 @@ export default class CameraPage extends Component {
     takePicture = async () => {
         console.log('take picture async')
         //not here for sure
-        const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-        this.setState({ permissionsGrantedCamerRoll: status === "granted" });
+
 
         if (this.camera) {
             let photo = await this.camera.takePictureAsync({ quality: 1 });
@@ -272,13 +274,6 @@ export default class CameraPage extends Component {
                     imageStyle={{ resizeMode: 'stretch' }}
                 />
                 <View style={styles.darkBackground}></View>
-
-                {/* <BellyBumpHeaderButtons
-                    buttons={buttonData}
-                    style={style}
-                    handleLeftBtn={() => this.setState({ openModalPic: false })}
-                    handleRightBtn={this.handleSavePicture}
-                /> */}
             </Modal>
         );
     }
@@ -393,7 +388,7 @@ export default class CameraPage extends Component {
     );
 
     render() {
-        const cameraScreenContent = this.state.permissionsGranted
+        const cameraScreenContent = this.props.permissionsGrantedCamera
             ? this.renderCamera()
             : this.renderNoPermissions();
         const content = this.state.openModalPic

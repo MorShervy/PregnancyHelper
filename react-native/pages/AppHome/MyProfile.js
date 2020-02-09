@@ -178,11 +178,12 @@ const TXT_GREEN = '#009900';
         return (
             <View style={styles.page}>
                 <CostumAlertComponent
-                    handleGenderClick={(key) => this.handleGenderClick(key)}
+                    handleButtonClick={(key) => this.handleGenderClick(key)}
                     handleCloseAlert={this.handleCloseAlert}
                     displayAlert={displayAlert}
                     header={'Gender'}
-                    buttons={[{ numGender: 0, text: 'Boy' }, { numGender: 1, text: 'Girl' }, { numGender: -1, text: `Don't know` }]}
+                    buttons={[{ key: 0, text: 'Boy' }, { key: 1, text: 'Girl' }, { key: -1, text: `Don't know` }]}
+                    style={'27%'}
                 />
                 <View style={styles.head}>
                     <View style={{ flex: 0.17, padding: 15 }}>

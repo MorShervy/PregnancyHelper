@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, ActivityIndicator, Dimensions, Alert, BackHandler } from 'react-native';
+import { StyleSheet, View, Text, ActivityIndicator, Dimensions, Alert, BackHandler, Platform } from 'react-native';
+import * as Location from 'expo-location';
+import * as Permissions from 'expo-permissions';
+import Constants from 'expo-constants';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
 import MapView from 'react-native-maps';
@@ -20,6 +23,8 @@ export default class Hospital extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      location: null,
+      errorMessage: null,
       counter: 0,
       loading: true,
       scroll: true,
@@ -58,31 +63,48 @@ export default class Hospital extends Component {
     };
   }
 
+  componentWillMount() {
+    if (Platform.OS === 'android' && !Constants.isDevice) {
+      this.setState({
+        errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
+      });
+    } else {
+      this._getLocationAsync();
+    }
+  }
+
+  _getLocationAsync = async () => {
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+    if (status !== 'granted') {
+      this.setState({
+        errorMessage: 'Permission to access location was denied',
+      });
+    }
+    let result = await Location.getCurrentPositionAsync({});
+    console.log('this state location true', JSON.stringify(result))
+    let res = JSON.stringify(result);
+    let location = await JSON.parse(res);
+    console.log('res = ', location.coords.latitude, ' ', location.coords.longitude)
+
+    this.setState({
+      region: {
+        ...this.state.region,
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude
+      },
+      loading: false
+    }, () => this.props.navigation.setParams({ isLoading: false }));
+
+  };
+
   componentDidMount = async () => {
+
     console.log('hospital didMount ')
+
+
     this.props.navigation.setParams({ isLoading: true })
     // adding the event listener for back button android
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
-
-
-    // there is a problet to change state in component did mount
-    navigator.geolocation.getCurrentPosition(
-      position => this.setState({
-        region: {
-          ...this.state.region,
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        },
-        loading: false,
-      },
-        () => this.props.navigation.setParams({ isLoading: false })
-      ),
-      error => alert(JSON.stringify(error)), {
-      enableHighAccuracy: true,
-      timeout: 20000,
-      maximumAge: 1000
-    })
-
   }
 
   componentWillUnmount = () => {
@@ -133,6 +155,8 @@ export default class Hospital extends Component {
 
   render() {
     const { loading } = this.state;
+    const { isLoading } = this.props.navigation.state
+
 
     if (loading) {
       return (
@@ -141,6 +165,8 @@ export default class Hospital extends Component {
         </View>
       )
     }
+
+    // console.log('this.state.region=', this.state.region)
 
     return (
       <View style={{ flex: 1 }}>

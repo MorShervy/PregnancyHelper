@@ -328,7 +328,7 @@ export default class ContractionTimer extends Component {
                     </View>
                 }
 
-                <View style={{ flex: 0.3, paddingTop: '5%' }}>
+                <View style={{ flex: 0.35 }}>
                     <View style={styles.timerContiener}>
                         <Text
                             style={{ fontSize: 40 * fontScale, color: '#FFFFFF', textAlign: 'center' }}
@@ -337,7 +337,7 @@ export default class ContractionTimer extends Component {
                         </Text>
                     </View>
 
-                    <View style={{ flexDirection: 'row', marginTop: '4%', alignSelf: 'center' }}>
+                    <View style={{ flexDirection: 'row', paddingVertical: 5, alignSelf: 'center' }}>
                         <Text style={{ fontSize: 12 * fontScale, color: '#FFF' }}>Time since last contraction :{'\b'}</Text>
                         <Text
                             style={{ fontSize: 12 * fontScale, color: '#FFF', textAlign: 'center' }}
@@ -364,12 +364,12 @@ export default class ContractionTimer extends Component {
                     </View>
                 </View>
 
-                <View style={{ flex: 0.6 }}>
-                    <View style={{ width: width - 40, marginTop: '10%' }}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: '#FFF' }}>
-                            <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 12 * fontScale }}>Length</Text>
-                            <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 12 * fontScale }}>Time apart</Text>
-                            <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 12 * fontScale }}>Start and stop</Text>
+                <View style={{ flex: 0.5 }}>
+                    <View style={{ width }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: '#FFF', paddingHorizontal: 5 }}>
+                            <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 14 * fontScale }}>Length</Text>
+                            <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 14 * fontScale }}>Time apart</Text>
+                            <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 14 * fontScale }}>Start and stop</Text>
                         </View>
                         {
 
@@ -398,9 +398,9 @@ export default class ContractionTimer extends Component {
 
 
                 {contractionList !== null && contractionList.Message === undefined &&
-                    <View style={{ flex: 0.08, width: '100%', borderTopColor: '#FFF', borderTopWidth: 1, padding: '2%' }}>
-                        <Text style={{ color: '#FFF', textAlign: 'center', fontWeight: '700', fontSize: 17 }}>Average in last hour</Text>
-                        <Text style={{ color: '#FFF', textAlign: 'center', marginTop: '2%' }}>
+                    <View style={{ flex: 0.15, width: '100%', borderTopColor: '#FFF', borderTopWidth: 1 }}>
+                        <Text style={{ color: '#FFF', textAlign: 'center', fontWeight: '700', fontSize: 15 * fontScale }}>Average in last hour</Text>
+                        <Text style={{ color: '#FFF', textAlign: 'center', paddingVertical: 5, fontSize: 13 * fontScale }}>
                             Length: {avgLength} | Time apart: {avgTimeApart}
                         </Text>
                     </View>
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
     timerContiener: {
         width: width - 100,
         alignSelf: 'center',
-        marginTop: '2%',
+        paddingVertical: 5,
         borderColor: '#FFF',
         borderRadius: 50,
         borderWidth: 3,
@@ -489,10 +489,12 @@ const styles = StyleSheet.create({
     lapText: {
         color: 'white',
         fontSize: 12 * fontScale,
+        paddingHorizontal: 10
     },
     RoundBtn: {
         alignSelf: 'center',
-        marginTop: '7.5%'
+        paddingVertical: 20
+        // marginTop: '7.5%'
     },
     button: {
         width: width - 50,
@@ -519,5 +521,5 @@ const styles = StyleSheet.create({
         fontSize: 20 * fontScale,
         fontWeight: '200',
     },
-    txtMoreOptToShow: { fontSize: 12 * fontScale, fontWeight: '500', color: APP_COLOR, marginTop: 4, marginLeft: 17, marginBottom: 4 }
+    txtMoreOptToShow: { fontSize: 12 * fontScale, fontWeight: '500', color: APP_COLOR, paddingHorizontal: 10, paddingVertical: 5 }
 });

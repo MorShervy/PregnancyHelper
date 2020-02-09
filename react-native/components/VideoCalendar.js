@@ -124,7 +124,7 @@ export default class VideoCalendar extends React.Component {
         return (
             <View style={styles.container}>
                 <View>
-                    <Text style={{ textAlign: 'center' }}> React Native Video </Text>
+                    {/* <Text style={{ textAlign: 'center' }}> React Native Video </Text> */}
                     <Video
                         ref={this._mountVideo}
                         // source={}

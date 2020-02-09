@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, Alert, Modal, Dimensions, TouchableOpacity, ImageBackground, BackHandler } from 'react-native';
+import * as Permissions from "expo-permissions";
+import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
 import { HeaderBackButton } from 'react-navigation-stack';
 import { Ionicons } from "@expo/vector-icons";
 import ItemPictureList from '../../components/ItemPictureList';
@@ -7,7 +10,7 @@ import BellyBumpHeaderButtons from '../../components/BellyBumpHeaderButtons';
 import { Dates } from '../../handlers/Dates';
 import SQL from '../../handlers/SQL';
 import { NavigationActions } from 'react-navigation';
-
+import CostumAlertComponent from '../../components/CostumAlertComponent';
 
 import { observer } from 'mobx-react'
 import pregnancyStore from '../../mobx/PregnancyStore';
@@ -16,9 +19,17 @@ import userStore from '../../mobx/UserStore';
 import CameraPage from './CameraPage';
 
 
-const { height, width } = Dimensions.get("window");
+const { height, width, fontScale } = Dimensions.get("window");
 const ORANGE_COLOR = '#F4AC32';
 const APP_COLOR = '#304251';
+const DARKBLUE_COLOR = '#1B1B3A';
+const buttonsData = {
+    txtLeft: `BELLY\nPICTURE`,
+    txtRight: `CREATE\nBELLY BUMP`,
+    iconLeft: "md-camera",
+    iconRight: "md-videocam"
+}
+
 
 @observer
 export default class BellyBump extends Component {
@@ -34,6 +45,9 @@ export default class BellyBump extends Component {
             isUpdatedAlbum: false,
             isCameraPage: false,
             visible: false,
+            permissionsGrantedCamera: false,
+            permissionsGrantedCameraRoll: false,
+            displayAlert: false,
         }
         console.log('Belly bump constructor')
     }
@@ -60,12 +74,10 @@ export default class BellyBump extends Component {
     }
 
     componentDidMount = async () => {
-        // console.log('did mounth BellyBump')
-        // console.log('currweek-', pregnancyStore.currWeek)
-        // console.log('userId', userStore.id)
-        // console.log('pregnant id=', pregnancyStore.id)
+        this.getCameraPermissionAsync()
         let album = await SQL.GetPregnancyAlbumByPregnantId(pregnancyStore.id)
-
+        console.log('album================', typeof (album))
+        // console.log('pregn=bellybump=', pregnancyStore.currWeek)
         let newArr = [];
         for (var i = 0; i < pregnancyStore.currWeek; i++) {
             newArr.push({
@@ -77,6 +89,11 @@ export default class BellyBump extends Component {
         BackHandler.addEventListener('hardwareBackPress', this.handleBackButton)
     }
 
+
+    getCameraPermissionAsync = async () => {
+        const { status } = await Permissions.askAsync(Permissions.CAMERA);
+        this.setState({ permissionsGrantedCamera: status === "granted" });
+    }
 
     componentDidUpdate = async () => {
         console.log('did updatre BellyBump', this.props.navigation.state.params)
@@ -101,7 +118,7 @@ export default class BellyBump extends Component {
         const { album } = this.state;
 
         let picture;
-        if (album !== undefined && album.length > 0)
+        if (typeof (album) === "object")
             picture = album.filter(p => p.WeekID === week)[0]
         console.log('picture=', picture)
 
@@ -114,7 +131,7 @@ export default class BellyBump extends Component {
         else {
             albumStore.setWeek(week);
             // await this.props.navigation.navigate('CameraPageScreen')
-            this.setState({ openCamera: true })
+            this.setState({ displayAlert: true })
         }
 
     }
@@ -167,6 +184,58 @@ export default class BellyBump extends Component {
         let album = await SQL.GetPregnancyAlbumByPregnantId(pregnancyStore.id)
         this.setState({ openCamera: false, album })
     }
+
+    handleAddPhoto = async (key) => {
+        // CAMERA key eqaul to 0
+        // GALLERY key equal to 1
+        // console.log('key ley key key=', key)
+        if (key === 0) {
+            let result = await ImagePicker.launchCameraAsync({
+                // mediaTypes: 'Image',
+                // allowsEditing: true,
+                // aspect: [1,1],
+                quality: 1
+            })
+
+            if (!result.cancelled) {
+                this.setState({ picUri: result.uri },
+                    () => this.handleSavePicture()
+                )
+            }
+            this.setState({ displayAlert: false })
+        }
+        else {
+            let result = await ImagePicker.launchImageLibraryAsync({
+                // mediaTypes: 'Images',
+                quality: 1,
+            })
+
+            if (!result.cancelled) {
+                this.setState({ picUri: result.uri },
+                    () => this.handleSavePicture()
+                )
+            }
+            this.setState({ displayAlert: false })
+        }
+
+    }
+
+    handleSavePicture = async () => {
+        const { picUri } = this.state
+        let data = await SQL.InsertPictureToPregnantAlbum(pregnancyStore.id, albumStore.week, picUri)
+        console.log('data2=', data)
+        console.log('permissionsGrantedCameraRoll=', this.state.permissionsGrantedCameraRoll)
+        if (this.state.permissionsGrantedCameraRoll) {
+            const asset = await MediaLibrary.createAssetAsync(picUri);
+        }
+        this.handleBackWithRefresh()
+    }
+
+    handleCloseAlert = () => {
+        this.setState({ displayAlert: false, })
+    }
+
+
     renderPicUri() {
         const { picture } = this.state;
 
@@ -213,35 +282,40 @@ export default class BellyBump extends Component {
 
     render() {
         // console.log('render')
-        const { newArr, album, openCamera, openModalPic } = this.state
+        const { newArr, album, openCamera, openModalPic, permissionsGrantedCamera, displayAlert } = this.state
 
         if (openModalPic)
             return this.renderPicUri();
 
         if (openCamera)
             return <CameraPage
+                permissionsGrantedCamera={permissionsGrantedCamera}
                 handleBack={this.handleBackCamera}
                 handleBackWithRefresh={this.handleBackWithRefresh}
             />
 
-        const buttonsData = {
-            txtLeft: `BELLY\nPICTURE`,
-            txtRight: `CREATE\nBELLY BUMP`,
-            iconLeft: "md-camera",
-            iconRight: "md-videocam"
-        }
+
 
         return (
             <View style={{ flex: 1 }}>
+                <CostumAlertComponent
+                    displayAlert={displayAlert}
+                    header={'Add Photo'}
+                    buttons={[{ key: 0, text: 'From Camera' }, { key: 1, text: 'From Gallery' }]}
+                    handleButtonClick={key => this.handleAddPhoto(key)}
+                    handleCloseAlert={this.handleCloseAlert}
+                    style={'23%'}
+                />
                 {/* header buttons row  */}
-                <BellyBumpHeaderButtons
+                {/* <BellyBumpHeaderButtons
                     buttons={buttonsData}
                     handleLeftBtn={this.handleTakePicture}
                     handleRightBtn={this.handleCreateVideo}
-                />
+                /> */}
 
-                <View style={{ flex: 0.92 }} >
-                    <View style={{ width: width - 3, alignSelf: 'center', marginTop: '3%' }}>
+                <View style={{ flex: 0.9 }} >
+                    <View style={{ width: width - 3, alignSelf: 'center', paddingTop: 5 }}>
+                        <Text style={{ color: ORANGE_COLOR, fontSize: 14 * fontScale, fontWeight: '500', textAlign: 'center', paddingVertical: 5 }}>Take Your Weekly Belly Photo</Text>
                         {/* שימוש בקומפוננטה להצגת כל התמונות ברשימה עם אפשרות לגלילה */}
                         <ItemPictureList
                             handlePress={(week) => this.takePicture(week)}

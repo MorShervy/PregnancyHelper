@@ -400,6 +400,6 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
         elevation: 100,
     },
-    txtMoreOptToShow: { fontSize: 12 * fontScale, fontWeight: '500', color: APP_COLOR, marginTop: 4, marginLeft: 17, marginBottom: 4 }
+    txtMoreOptToShow: { fontSize: 12 * fontScale, fontWeight: '500', color: APP_COLOR, paddingHorizontal: 10, paddingVertical: 5 }
 
 })

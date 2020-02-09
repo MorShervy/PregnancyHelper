@@ -278,7 +278,6 @@ const { height, width, fontScale } = Dimensions.get("window");
                                 <Text style={{ margin: 10, fontSize: 13, fontWeight: '200', color: '#A9A9A9' }}>{weekData.body + '\n'}</Text>
                             </View>
                             <View style={[styles.content, {}]}>
-                                <Text>Video</Text>
                                 <VideoCalendar week={week} />
                             </View>
                         </View>

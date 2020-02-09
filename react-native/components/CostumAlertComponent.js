@@ -15,7 +15,7 @@ export default class CostumAlertComponent extends Component {
                 <TouchableHighlight
                     key={index}
                     style={styles.btnStyle}
-                    onPress={() => props.handleGenderClick(b.numGender)}
+                    onPress={() => props.handleButtonClick(b.key)}
                     underlayColor={GREY_COLOR}
 
                 >
@@ -39,7 +39,7 @@ export default class CostumAlertComponent extends Component {
                 }}
             >
                 <View style={styles.mainOuterContainer}>
-                    <View style={styles.mainContainer}>
+                    <View style={[styles.mainContainer, { height: props.style }]}>
                         <View style={styles.topPart}>
                             <Text style={styles.txtTopPart}>{props.header}</Text>
                         </View>
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     },
     mainContainer: {
         flexDirection: 'column',
-        height: '27%',
+        // height: '27%',
         width: '70%',
         justifyContent: 'center',
         alignItems: 'center',
@@ -96,16 +96,18 @@ const styles = StyleSheet.create({
         color: '#FFF',
         marginVertical: 2,
         flexDirection: 'column',
-        justifyContent: 'flex-start',
+        justifyContent: 'space-evenly',
 
     },
     btnStyle: {
         flex: 0.33,
         // borderWidth: 1,
+        // borderColor: '#FF6600',
         paddingHorizontal: 14,
         paddingVertical: 5,
     },
     txtMiddlePart: {
+
         fontSize: 12 * fontScale,
     }
 })
