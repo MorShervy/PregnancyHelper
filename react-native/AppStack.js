@@ -1,138 +1,20 @@
 import React, { Component } from 'react';
-import { TouchableOpacity, Text, AsyncStorage, View, Dimensions, Image, StatusBar } from 'react-native';
+import { TouchableOpacity, View, Dimensions, Image, StatusBar } from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createMaterialTopTabNavigator } from 'react-navigation-tabs';
 import { createDrawerNavigator } from 'react-navigation-drawer';
 import { Ionicons } from "@expo/vector-icons";
 import Calendar from './pages/AppHome/Calendar';
 import Tools from './pages/AppHome/Tools';
-import Hospital from './pages/AppHome/Hospital';
-import BellyBump from './pages/AppHome/BellyBump';
-import KickTracker from './pages/AppHome/KickTracker';
-import ContractionTimer from './pages/AppHome/ContractionTimer';
 import MyProfile from './pages/AppHome/MyProfile';
 import Settings from './pages/AppHome/Settings';
 import About from './pages/AppHome/About';
 import DrawerNavigation from './DrawerNavigation';
-import CameraPage from './pages/AppHome/CameraPage';
-import DueDate from './pages/AppHome/DueDate';
+
 
 const { height, width } = Dimensions.get("window");
 const APP_COLOR = '#304251';
 
-const BellyBumpScreen = createStackNavigator(
-    {
-        BellyBump: {
-            screen: BellyBump,
-        },
-    },
-    {
-        defaultNavigationOptions: ({ navigation }) => ({
-            headerStyle: {
-                backgroundColor: "#304251",
-            },
-            headerTintColor: '#FFF',
-        }),
-    }
-)
-BellyBumpScreen.navigationOptions = {
-    drawerLabel: () => null
-}
-
-const CameraPageScreen = createStackNavigator(
-    {
-        CameraPage: {
-            screen: CameraPage,
-        },
-    },
-    {
-        defaultNavigationOptions: ({ navigation }) => ({
-            headerStyle: {
-                backgroundColor: "#304251",
-            },
-            headerTintColor: '#FFF',
-        }),
-    }
-)
-CameraPageScreen.navigationOptions = {
-    drawerLabel: () => null
-}
-
-const HospitalScreen = createStackNavigator(
-    {
-        Hospital: {
-            screen: Hospital,
-        },
-    },
-    {
-        defaultNavigationOptions: ({ navigation }) => ({
-            headerStyle: {
-                backgroundColor: "#304251",
-            },
-            headerTintColor: '#FFF',
-        }),
-    }
-)
-HospitalScreen.navigationOptions = {
-    drawerLabel: () => null
-}
-
-const KickTrackerScreen = createStackNavigator(
-    {
-        KickTracker: {
-            screen: KickTracker,
-        },
-    },
-    {
-        defaultNavigationOptions: ({ navigation }) => ({
-            headerStyle: {
-                backgroundColor: "#304251",
-            },
-            headerTintColor: '#FFF',
-        }),
-    }
-)
-KickTrackerScreen.navigationOptions = {
-    drawerLabel: () => null
-}
-
-const ContractionTimerScreen = createStackNavigator(
-    {
-        ContractionTimer: {
-            screen: ContractionTimer,
-        },
-    },
-    {
-        defaultNavigationOptions: ({ navigation }) => ({
-            headerStyle: {
-                backgroundColor: "#304251",
-            },
-            headerTintColor: '#FFF',
-        }),
-    }
-)
-ContractionTimerScreen.navigationOptions = {
-    drawerLabel: () => null
-}
-
-const DueDateScreen = createStackNavigator(
-    {
-        DueDate: {
-            screen: DueDate,
-        },
-    },
-    {
-        defaultNavigationOptions: ({ navigation }) => ({
-            headerStyle: {
-                backgroundColor: "#304251",
-            },
-            headerTintColor: '#FFF',
-        }),
-    }
-)
-DueDateScreen.navigationOptions = {
-    drawerLabel: () => null
-}
 
 const MyProfileStack = createStackNavigator(
     {
@@ -182,42 +64,7 @@ const AboutStack = createStackNavigator(
     }
 )
 
-const ToolsStack = createStackNavigator(
-    {
-        BellyBump: {
-            screen: BellyBump
-        },
-        CameraPage: {
-            screen: CameraPage
-        },
-        Hospital: {
-            screen: Hospital
-        },
-        KickTracker: {
-            screen: KickTracker
-        },
-        ContractionTimer: {
-            screen: ContractionTimer
-        },
-        DueDate: {
-            screen: DueDate
-        }
-    },
-    {
-        defaultNavigationOptions: ({ navigation }) => ({
 
-            headerStyle: {
-                backgroundColor: "#304251",
-            },
-            headerTintColor: '#FFF',
-
-        }),
-    }
-)
-
-ToolsStack.navigationOptions = {
-    drawerLabel: () => null
-}
 
 const TabNavigation = createMaterialTopTabNavigator(
     {
@@ -283,24 +130,6 @@ const DrawerStack = createDrawerNavigator(
         Home: {
             name: TabNavigationStack,
             screen: TabNavigationStack,
-        },
-        BellyBumpScreen: {
-            screen: BellyBumpScreen
-        },
-        CameraPageScreen: {
-            screen: CameraPageScreen
-        },
-        HospitalScreen: {
-            screen: HospitalScreen
-        },
-        KickTrackerScreen: {
-            screen: KickTrackerScreen
-        },
-        ContractionTimerScreen: {
-            screen: ContractionTimerScreen
-        },
-        DueDateScreen: {
-            screen: DueDateScreen
         },
         MyProfileStack: {
             name: MyProfileStack,

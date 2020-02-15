@@ -9,11 +9,12 @@ const BG_CONTRACTION = '#2F4F4F';
 const BG_DUEDATE = '#e0ebeb';
 const BG_HOSPITAL = '#F05555';
 const APP_COLOR = '#304251';
+const LIGHTGREY_COLOR = '#d3d3d3'
 
 const ItemTool = ({ item }, props) => (
     <TouchableHighlight
         style={styles.item}
-        underlayColor={APP_COLOR}
+        underlayColor={LIGHTGREY_COLOR}
         activeOpacity={1}
         onPress={() => props.handlePrees(item)}
     >

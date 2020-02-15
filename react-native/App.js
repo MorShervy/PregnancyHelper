@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, I18nManager, AsyncStorage } from 'react-native';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
+import * as Permissions from 'expo-permissions';
 import { Asset } from 'expo-asset';
 import { AppLoading } from 'expo';
 import { activateKeepAwake } from 'expo-keep-awake';
@@ -9,6 +10,7 @@ import AppStack from './AppStack'
 import SQL from './handlers/SQL';
 import { observer } from 'mobx-react'
 import userStore from './mobx/UserStore';
+import permissionStore from './mobx/PermissionStore';
 
 
 I18nManager.forceRTL(false);
@@ -24,7 +26,34 @@ export default class App extends Component {
       userId: 0
     };
 
+
+    this.GetPermissionLocationAsync()
+    this.GetPermissionCameraAsync()
+    this.GetPermissionCameraRollAsync()
+  }
+
+  componentDidMount = async () => {
     activateKeepAwake()
+  }
+
+
+  GetPermissionLocationAsync = async () => {
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+    console.log('status=', status)
+    permissionStore.setLocation(status === 'granted')
+
+  }
+
+  GetPermissionCameraAsync = async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    console.log('status=', status)
+    permissionStore.setCamera(status === 'granted')
+  }
+
+  GetPermissionCameraRollAsync = async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    console.log('status=', status)
+    permissionStore.setCameraRoll(status === 'granted')
   }
 
   async _cacheResourcesAsync() {

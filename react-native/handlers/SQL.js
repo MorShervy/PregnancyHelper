@@ -321,7 +321,7 @@ export default class SQL {
         console.log("endTime", endTime)
         console.log("length", length)
         console.log("timeApart", timeApart)
-        console.log("timeApart", dateTime)
+        console.log("dateTime", typeof (dateTime))
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -465,7 +465,9 @@ export default class SQL {
     }
 
     static UploadPicture(picUri, picName) {
-
+        console.log('UploadPicture')
+        console.log('picUri=', picUri)
+        console.log('picName=', picName)
         let dataI = new FormData();
         dataI.append('picture', {
             uri: picUri,
@@ -479,11 +481,11 @@ export default class SQL {
         }
 
         fetch(`${URL}/PregnancyAlbum/UploadPicture/`, config)
-            .then((responseData) => {
+            .then(async (responseData) => {
                 // Log the response form the server
                 let res = responseData._bodyText
-                debugger;
-                console.log("res=", res)
+                // let result = await res.json();
+                console.log("res=", responseData._bodyText)
                 if (responseData.status == 201) {
 
                     alert(`uploaded successfully!`);

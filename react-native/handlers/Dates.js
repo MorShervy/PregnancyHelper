@@ -9,7 +9,8 @@
 //Next, count back 3 calendar months from that date.
 
 //Lastly, add 1 year and 7 days to that date.
-
+const HOUR_IN_SEC = 3600
+const MIN_IN_SEC = 60
 
 export class Dates {
 
@@ -141,7 +142,80 @@ export class Dates {
         return `${difference_in_hour}:${difference_in_min}:${difference_in_sec}`;
     }
 
+    static AverageInLastHour(arrList) {
+        var toDate = new Date()
+
+        var filteredCon = arrList.filter(con =>
+            new Date(con.DateTime).getFullYear() === toDate.getFullYear() &&
+            new Date(con.DateTime).getMonth() === toDate.getMonth() &&
+            new Date(con.DateTime).getDate() === toDate.getDate()
+        )
+        // console.log('filteredCon=', filteredCon)
+        var ONE_HOUR = 60 * 60 * 1000; /* ms */
+        var filteredConInLastHour = filteredCon.filter(con => ((new Date) - new Date(con.DateTime)) < ONE_HOUR)
+        var length = this.getAvgLength(filteredConInLastHour)
+        // console.log('avgLength=', avgLength)
+        var diff = this.getAvgTimeApart(filteredConInLastHour)
+        // console.log('avgTimeApart=', avgTimeApart);
+
+        return { length, diff }
+    }
+
+    static getAvgLength = arr => {
+        console.log('getAvgLength arr=', arr)
+        let sec = 0;
+        let min = 0;
+        let hour = 0;
+        arr.forEach(con => {
+            sec += parseInt(con.Length.split(':')[2])
+            min += parseInt(con.Length.split(':')[1])
+            hour += parseInt(con.Length.split(':')[0])
+        });
+        let sumInSec = (hour * 60 * 60) + (min * 60) + sec;
+        let avgInSec = sumInSec / arr.length
+        // console.log('h=', hour, 'm=', min, 's=', sec)
+        // console.log('avgInSec=', avgInSec)
+        if (avgInSec >= HOUR_IN_SEC) {
+
+        }
+        else if (avgInSec >= MIN_IN_SEC) {
+            return `${(avgInSec / MIN_IN_SEC) | 0}m ${parseInt(((avgInSec / MIN_IN_SEC) - ((avgInSec / MIN_IN_SEC) | 0)) * 60) + 1}s`
+        }
+        else {
+            return `${avgInSec | 0}s`
+        }
+    }
+
+    static getAvgTimeApart = arr => {
+        console.log('getAvgTimeApart arr=', arr)
+        let sec = 0;
+        let min = 0;
+        let hour = 0;
+        arr.forEach((con, index) => {
+            if (index !== 0) {
+                sec += parseInt(con.TimeApart.split(':')[2])
+                min += parseInt(con.TimeApart.split(':')[1])
+                hour += parseInt(con.TimeApart.split(':')[0])
+            }
+        });
+        let sumInSec = (hour * 60 * 60) + (min * 60) + sec;
+        let avgInSec = sumInSec / (arr.length - 1)
+        // console.log('h=', hour, 'm=', min, 's=', sec)
+        // console.log('avgInSec=', (arr.length - 1))
+        if (avgInSec >= HOUR_IN_SEC) {
+
+        }
+        else if (avgInSec >= MIN_IN_SEC) {
+            return `${(avgInSec / MIN_IN_SEC) | 0}m ${parseInt(((avgInSec / MIN_IN_SEC) - ((avgInSec / MIN_IN_SEC) | 0)) * 60)}s`
+        }
+        else {
+            return `${avgInSec | 0}s`
+        }
+    }
+
+
     static pad(val) {
+
         let valStr = val + "";
         if (valStr.length < 2) {
             valStr = "0" + valStr

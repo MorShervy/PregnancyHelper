@@ -62,7 +62,7 @@ export default class Login extends Component {
     }
 
     toggleVisiblePass = () => {
-        this.setState({ isVisiblePass: !isVisiblePass })
+        this.setState({ isVisiblePass: !this.state.isVisiblePass })
     }
 
     handleOnPressLogin = async () => {
@@ -74,22 +74,23 @@ export default class Login extends Component {
 
         this.setState({ errorEmail: false, errorPass: false, errorEmailExist: false, isLoading: true })
         const sqlResult = await SQL.Login(email.toLowerCase(), pass);
-        // console.log('res=', sqlResult)
+        console.log('res=', sqlResult)
 
         if (sqlResult.ID < 1) {
             setTimeout(() => {
                 this.setState({ isLoading: false, errorEmailExist: true })
-            }, 1000)
+            }, 1500)
             return;
         }
+        userStore.setId(sqlResult.ID);
+        userStore.setEmail(sqlResult.Email)
         await AsyncStorage.setItem(
             "user",
             JSON.stringify({
                 ID: sqlResult.ID
             })
         )
-        userStore.setId(sqlResult.ID);
-        userStore.setEmail(sqlResult.Email)
+
         navigation.navigate('AppStack')
     }
 
@@ -119,7 +120,7 @@ export default class Login extends Component {
         const { errorEmail, errorPass, errorEmailExist } = this.state;
         const { isFocusedEmail, isFocusedPass, isVisiblePass, isLoading } = this.state;
         const { navigation } = this.props;
-
+        console.log('isVisiblePass=', isVisiblePass)
         return (
             <View style={styles.page}>
                 <LinearGradient

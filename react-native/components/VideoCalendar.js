@@ -74,7 +74,7 @@ export default class VideoCalendar extends React.Component {
     }
 
     _mountVideo = async (component) => {
-        // console.log('mount video')
+        console.log('mount video')
         this._video = component;
 
 

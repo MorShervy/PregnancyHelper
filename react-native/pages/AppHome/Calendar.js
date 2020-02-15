@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, ProgressBarAndroid, Dimensions, TouchableOpacity, ScrollView, ActivityIndicator, ImageBackground } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
+import { activateKeepAwake } from 'expo-keep-awake';
 import { withNavigation } from 'react-navigation';
 import { WeeksData } from '../../data/WeeksData';
 import { NameOfDay } from '../../data/NameOfDay';
@@ -41,7 +42,8 @@ const { height, width, fontScale } = Dimensions.get("window");
     }
 
     componentDidMount = async () => {
-        console.log('calendar didmount')
+        activateKeepAwake();
+        console.log('calendar didmount----------------------------------------------')
         const { week } = this.state;
         let pregnant = await SQL.GetPregnancyByUserId(userStore.id)
         console.log('pregnantn=', pregnant)
